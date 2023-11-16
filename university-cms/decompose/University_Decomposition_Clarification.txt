@@ -1,0 +1,21 @@
+# University-cms
+
+## UML Class Diagram
+
+This project aims to create a University application focusing on class timetables for students and teachers.
+
+## User
+
+### Teacher can view own schedule flow:
+
+**Given the user is logged on as a Teacher**
+
+- Users can see and navigate to their own menu
+- The user should see their own Teacher schedule according to the selected operation
+
+### Student can view own schedule flow:
+
+**Given the user is logged on as a Student**
+
+- Users can access their own menu
+- The user should see their own Student schedule according to the selected operation
