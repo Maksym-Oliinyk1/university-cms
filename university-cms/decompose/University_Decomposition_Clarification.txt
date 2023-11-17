@@ -30,6 +30,7 @@ This project aims to create a University application focusing on class timetable
 
 - The user can view all existing faculties.
 - The user can create new faculties/courses/lectures/groups.
+- The user can add new teachers and students.
 - The user can delete faculties/courses/lectures/groups.
 - The user can change information about faculties/courses/lectures/groups.
 - The user can see all courses of a chosen faculty.
@@ -38,7 +39,7 @@ This project aims to create a University application focusing on class timetable
 - The user can see all teachers in a chosen course.
 - The user can see all students in the university.
 - The user can see all students in a chosen group.
-- The user can see all students on a chosen course.
+- The user can see all students in a chosen course.
 - The user can see all groups in the university.
 - The user can see all groups in a chosen course.
 - The user can assign a chosen teacher to a chosen lecture.
