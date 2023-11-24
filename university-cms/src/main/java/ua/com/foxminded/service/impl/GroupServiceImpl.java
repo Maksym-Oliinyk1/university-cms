@@ -9,22 +9,25 @@ import org.springframework.stereotype.Service;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
+import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 import ua.com.foxminded.service.GroupService;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+
+import static ua.com.foxminded.utill.NameValidator.isValidNameForGroup;
 
 @Service
 public class GroupServiceImpl implements GroupService {
-    private static final String FILTER_ON_ACCEPTABLE_NAME_FORM = "^[A-Z]{2}-\\d{2}$";
-
     private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
 
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
+
+    private static final Long INVALID_NUMBER_OF_LECTURES = 0L;
 
     @Autowired
     public GroupServiceImpl(GroupRepository groupRepository, StudentRepository studentRepository) {
@@ -34,22 +37,20 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void create(Group group) {
-        if (isValidName(group.getName())) {
+        if (isValidNameForGroup(group.getName())) {
             groupRepository.save(group);
             logger.info("Created group {}", group.getName());
         } else {
-            logger.error("Invalid name for group {}", group.getName());
             throw new RuntimeException("Invalid name for group");
         }
     }
 
     @Override
     public void update(Group group) {
-        if (isValidName(group.getName())) {
+        if (isValidNameForGroup(group.getName())) {
             groupRepository.save(group);
             logger.info("Updated group {}", group.getName());
         } else {
-            logger.error("Invalid name for group {}", group.getName());
             throw new RuntimeException("Invalid name for group");
         }
     }
@@ -60,7 +61,6 @@ public class GroupServiceImpl implements GroupService {
             groupRepository.deleteById(id);
             logger.info("The group was deleted by id {}", id);
         } else {
-            logger.error("The group was not found by id {}", id);
             throw new RuntimeException("There is no such group");
         }
     }
@@ -71,7 +71,6 @@ public class GroupServiceImpl implements GroupService {
             logger.info("The group was found by id {}", id);
             return groupRepository.findById(id).get();
         } else {
-            logger.info("The group was not found by id {}", id);
             throw new RuntimeException("There is no such group");
         }
     }
@@ -118,17 +117,13 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Lecture> showLecturesPerWeek(Long groupId) {
         if (groupRepository.existsById(groupId)) {
-            Group group = groupRepository.findById(groupId).get();
-            if (group.getLectures().isEmpty()) {
-                logger.info("There is no any lecture for this group");
+            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
                 throw new RuntimeException("There is no any lecture");
             } else {
-                List<Lecture> lectures = group.getLectures();
                 LocalDateTime localDateTimeNextWeek = LocalDateTime.now().plusWeeks(1);
-                return filterLecturesForGivenTime(lectures, localDateTimeNextWeek);
+                return groupRepository.findLecturesByDateBetween(groupId, LocalDateTime.now(), localDateTimeNextWeek);
             }
         } else {
-            logger.error("The group was not found by id: {}", groupId);
             throw new RuntimeException("The group was not found");
         }
     }
@@ -136,33 +131,27 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Lecture> showLecturesPerMonth(Long groupId) {
         if (groupRepository.existsById(groupId)) {
-            Group group = groupRepository.findById(groupId).get();
-            if (group.getLectures().isEmpty()) {
-                logger.info("There is no any lecture for this group");
+            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
                 throw new RuntimeException("There is no any lecture");
             } else {
-                List<Lecture> lectures = group.getLectures();
-                LocalDateTime localDateTimeNextWeek = LocalDateTime.now().plusMonths(1);
-                return filterLecturesForGivenTime(lectures, localDateTimeNextWeek);
+                LocalDateTime localDateTimeNextMonth = LocalDateTime.now().plusMonths(1);
+                return groupRepository.findLecturesByDateBetween(groupId, LocalDateTime.now(), localDateTimeNextMonth);
             }
         } else {
-            logger.error("The group was not found by id: {}", groupId);
             throw new RuntimeException("The group was not found");
         }
     }
 
-    private List<Lecture> filterLecturesForGivenTime(List<Lecture> lectures, LocalDateTime givenLocalDateTime) {
-        return lectures.stream()
-                .filter(lecture ->
-                        lecture.getDate()
-                                .isAfter(LocalDateTime.now()) &&
-                                lecture.getDate()
-                                        .isBefore(givenLocalDateTime))
-                .sorted(Comparator.comparing(Lecture::getDate))
-                .toList();
-    }
-
-    private boolean isValidName(String name) {
-        return name.matches(FILTER_ON_ACCEPTABLE_NAME_FORM);
+    @Override
+    public List<Lecture> showLecturesBetweenDates(Long groupId, LocalDateTime firstDate, LocalDateTime secondDate) {
+        if (groupRepository.existsById(groupId)) {
+            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
+                throw new RuntimeException("There is no any lecture");
+            } else {
+                return groupRepository.findLecturesByDateBetween(groupId, firstDate, secondDate);
+            }
+        } else {
+            throw new RuntimeException("The group was not found");
+        }
     }
 }

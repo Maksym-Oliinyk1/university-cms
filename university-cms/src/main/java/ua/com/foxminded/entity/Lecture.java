@@ -1,8 +1,6 @@
 package ua.com.foxminded.entity;
 
-
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -10,6 +8,15 @@ import java.util.Objects;
 @Entity
 @Table(name = "lectures")
 public class Lecture {
+    public Lecture(Course course, Teacher teacher, String name, String description, LocalDateTime date) {
+        this.course = course;
+        this.teacher = teacher;
+        this.name = name;
+        this.description = description;
+        this.date = date;
+    }
+
+    public Lecture() {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

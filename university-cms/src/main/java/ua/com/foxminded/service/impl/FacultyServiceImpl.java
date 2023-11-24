@@ -15,9 +15,10 @@ import ua.com.foxminded.service.FacultyService;
 import java.util.List;
 import java.util.Optional;
 
+import static ua.com.foxminded.utill.NameValidator.isValidName;
+
 @Service
 public class FacultyServiceImpl implements FacultyService {
-    private static final String FILTER_ON_THE_MINIMUM_NUMBER_OF_LETTERS = ".*[a-zA-Z].*[a-zA-Z].*[a-zA-Z].*";
     private static final Logger logger = LoggerFactory.getLogger(FacultyServiceImpl.class);
     private final FacultyRepository facultyRepository;
     private final CourseRepository courseRepository;
@@ -34,7 +35,6 @@ public class FacultyServiceImpl implements FacultyService {
             facultyRepository.save(faculty);
             logger.info("Created faculty {}", faculty.getName());
         } else {
-            logger.error("Invalid name for faculty {}", faculty.getName());
             throw new RuntimeException("Invalid name for faculty");
         }
     }
@@ -45,7 +45,6 @@ public class FacultyServiceImpl implements FacultyService {
             facultyRepository.save(faculty);
             logger.info("Updated faculty {}", faculty.getName());
         } else {
-            logger.error("Invalid name for faculty {}", faculty.getName());
             throw new RuntimeException("Invalid name for faculty");
         }
     }
@@ -56,7 +55,6 @@ public class FacultyServiceImpl implements FacultyService {
             facultyRepository.deleteById(id);
             logger.info("The faculty was deleted by id {}", id);
         } else {
-            logger.error("The faculty was not found by id {}", id);
             throw new RuntimeException("There is no such faculty");
         }
     }
@@ -68,7 +66,6 @@ public class FacultyServiceImpl implements FacultyService {
             logger.info("The faculty was fount by id {}", id);
             return optionalFaculty.get();
         } else {
-            logger.error("The faculty was not found by id {}", id);
             throw new RuntimeException("The is no such faculty");
         }
     }
@@ -110,9 +107,5 @@ public class FacultyServiceImpl implements FacultyService {
         courseRepository.save(course);
         facultyRepository.save(faculty);
         logger.info("Course {} was removed from the faculty {}", course.getName(), faculty.getName());
-    }
-
-    private boolean isValidName(String name) {
-        return name.matches(FILTER_ON_THE_MINIMUM_NUMBER_OF_LETTERS);
     }
 }

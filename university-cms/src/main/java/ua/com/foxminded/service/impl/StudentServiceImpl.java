@@ -11,6 +11,8 @@ import ua.com.foxminded.service.StudentService;
 import java.util.List;
 import java.util.Optional;
 
+import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
+
 @Service
 public class StudentServiceImpl implements StudentService {
     private static final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
@@ -24,21 +26,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void create(Student student) {
-        if (isValidName(student.getFirstName()) && isValidName(student.getLastName())) {
+        if (isValidNameForUser(student.getFirstName()) && isValidNameForUser(student.getLastName())) {
             studentRepository.save(student);
             logger.info("Created student: {} {}", student.getFirstName(), student.getLastName());
         } else {
-            logger.error("Invalid name for student: {} {}", student.getFirstName(), student.getLastName());
+            throw new RuntimeException("Invalid name for student");
         }
     }
 
     @Override
     public void update(Student student) {
-        if (isValidName(student.getFirstName()) && isValidName(student.getLastName())) {
+        if (isValidNameForUser(student.getFirstName()) && isValidNameForUser(student.getLastName())) {
             studentRepository.save(student);
             logger.info("Updated student: {} {}", student.getFirstName(), student.getLastName());
         } else {
-            logger.error("Invalid name for student: {} {}", student.getFirstName(), student.getLastName());
+            throw new RuntimeException("Invalid name for student");
         }
     }
 
@@ -48,7 +50,6 @@ public class StudentServiceImpl implements StudentService {
             studentRepository.deleteById(id);
             logger.info("Student was deleted by id: {}", id);
         } else {
-            logger.error("Student was not found by id: {}", id);
             throw new RuntimeException("There is no such student");
         }
     }
@@ -60,7 +61,6 @@ public class StudentServiceImpl implements StudentService {
             logger.info("Student was found by id: {}", id);
             return optionalStudent.get();
         } else {
-            logger.error("Student was not found by id: {}", id);
             throw new RuntimeException("There is no such student");
         }
     }
@@ -68,9 +68,5 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findAll() {
         return (List<Student>) studentRepository.findAll();
-    }
-
-    private boolean isValidName(String name) {
-        return !name.isEmpty() && name.matches("[a-zA-Z]+");
     }
 }

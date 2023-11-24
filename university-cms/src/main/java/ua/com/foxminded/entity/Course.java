@@ -8,6 +8,12 @@ import java.util.Objects;
 @Entity
 @Table(name = "courses")
 public class Course {
+    public Course(String name, Faculty faculty) {
+        this.name = name;
+        this.faculty = faculty;
+    }
+
+    public Course() {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

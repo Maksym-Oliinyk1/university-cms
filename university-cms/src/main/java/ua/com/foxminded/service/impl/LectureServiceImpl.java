@@ -15,12 +15,11 @@ import ua.com.foxminded.service.LectureService;
 import java.util.List;
 import java.util.Optional;
 
+import static ua.com.foxminded.utill.NameValidator.isValidDescriptionForLecture;
+import static ua.com.foxminded.utill.NameValidator.isValidName;
+
 @Service
 public class LectureServiceImpl implements LectureService {
-
-    private static final String FILTER_ON_ACCEPTABLE_NAME_FORM = "^[A-Z]{2}-\\d{2}$";
-
-    private static final String FILTER_ON_ACCEPTABLE_AMOUNT_OF_DESCRIPTION_SYMBOLS = ".{100,}";
 
     private static final Logger logger = LoggerFactory.getLogger(LectureServiceImpl.class);
 
@@ -37,7 +36,7 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public void create(Lecture lecture) {
         if (isValidName(lecture.getName())) {
-            if (isValidDescription(lecture.getDescription())) {
+            if (isValidDescriptionForLecture(lecture.getDescription())) {
                 lectureRepository.save(lecture);
                 logger.info("Created lecture: {}", lecture.getName());
             } else {
@@ -45,7 +44,6 @@ public class LectureServiceImpl implements LectureService {
                 throw new RuntimeException("Invalid description for lecture");
             }
         } else {
-            logger.error("Invalid name for lecture: {}", lecture.getName());
             throw new RuntimeException("Invalid name for lecture");
         }
     }
@@ -53,14 +51,12 @@ public class LectureServiceImpl implements LectureService {
     @Override
     public void update(Lecture lecture) {
         if (isValidName(lecture.getName())) {
-            if (isValidDescription(lecture.getDescription())) {
+            if (isValidDescriptionForLecture(lecture.getDescription())) {
                 lectureRepository.save(lecture);
             } else {
-                logger.error("Invalid description for lecture: {}", lecture.getDescription());
                 throw new RuntimeException("Invalid description for lecture");
             }
         } else {
-            logger.error("Invalid name for lecture: {}", lecture.getName());
             throw new RuntimeException("Invalid name for lecture");
         }
     }
@@ -71,7 +67,6 @@ public class LectureServiceImpl implements LectureService {
             lectureRepository.deleteById(id);
             logger.info("The lecture was deleted by id {}", id);
         } else {
-            logger.error("The lecture was not found by id {}", id);
             throw new RuntimeException("There is no such lecture");
         }
     }
@@ -83,7 +78,6 @@ public class LectureServiceImpl implements LectureService {
             logger.info("The lecture was found by id {}", id);
             return optionalLecture.get();
         } else {
-            logger.error("The lecture was not found by id {}", id);
             throw new RuntimeException("There is no such lecture");
         }
     }
@@ -125,13 +119,5 @@ public class LectureServiceImpl implements LectureService {
         lectureRepository.save(lecture);
         groupRepository.save(group);
         logger.info("Group removed from the lecture");
-    }
-
-    private boolean isValidName(String name) {
-        return name.matches(FILTER_ON_ACCEPTABLE_NAME_FORM);
-    }
-
-    private boolean isValidDescription(String description) {
-        return description.matches(FILTER_ON_ACCEPTABLE_AMOUNT_OF_DESCRIPTION_SYMBOLS);
     }
 }
