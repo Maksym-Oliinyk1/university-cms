@@ -9,14 +9,12 @@ import org.springframework.stereotype.Service;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
-import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 import ua.com.foxminded.service.GroupService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import static ua.com.foxminded.utill.NameValidator.isValidNameForGroup;
 
@@ -77,6 +75,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public List<Group> findAll() {
+        logger.info("Find all groups");
         return (List<Group>) groupRepository.findAll();
     }
 

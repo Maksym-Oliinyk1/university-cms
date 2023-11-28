@@ -8,7 +8,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "courses")
 public class Course {
-    public Course(String name, Faculty faculty) {
+    public Course(Long id, String name, Faculty faculty) {
+        this.id = id;
         this.name = name;
         this.faculty = faculty;
     }

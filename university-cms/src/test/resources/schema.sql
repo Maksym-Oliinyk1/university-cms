@@ -7,10 +7,10 @@ CREATE TABLE administrators
 
 CREATE TABLE teachers
 (
-    teacher_id              BIGSERIAL PRIMARY KEY,
-    first_name              VARCHAR(255),
-    last_name               VARCHAR(255),
-    teacher_academic_degree VARCHAR(255)
+    teacher_id      BIGSERIAL PRIMARY KEY,
+    first_name      VARCHAR(255),
+    last_name       VARCHAR(255),
+    academic_degree VARCHAR(255)
 );
 
 CREATE TABLE faculties
@@ -25,7 +25,6 @@ CREATE TABLE courses
     faculty_id  BIGSERIAL,
     course_name VARCHAR(255),
     FOREIGN KEY (faculty_id) REFERENCES faculties (faculty_id)
-
 );
 
 CREATE TABLE groups

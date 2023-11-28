@@ -2,18 +2,21 @@ package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "lectures")
 public class Lecture {
-    public Lecture(Course course, Teacher teacher, String name, String description, LocalDateTime date) {
+    public Lecture(Long id, Course course, Teacher teacher, String name, String description, LocalDateTime date) {
+        this.id = id;
         this.course = course;
         this.teacher = teacher;
         this.name = name;
         this.description = description;
         this.date = date;
+        this.groups = new ArrayList<>();
     }
 
     public Lecture() {}
@@ -40,7 +43,7 @@ public class Lecture {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "lectures_date")
+    @Column(name = "lecture_date")
     private LocalDateTime date;
 
     public Long getId() {
@@ -104,12 +107,12 @@ public class Lecture {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Lecture lecture = (Lecture) o;
-        return id.equals(lecture.id) && name.equals(lecture.name) && description.equals(lecture.description) && date.equals(lecture.date);
+        return id.equals(lecture.id) && name.equals(lecture.name) && description.equals(lecture.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, date);
+        return Objects.hash(id, name, description);
     }
 
 

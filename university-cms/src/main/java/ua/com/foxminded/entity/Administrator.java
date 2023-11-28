@@ -8,8 +8,19 @@ import java.util.Objects;
 @Table(name = "administrators")
 public class Administrator extends User{
 
+    public Administrator(Long id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Administrator() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "administrator_id")
     private Long id;
 
     public Long getId() {
@@ -20,10 +31,10 @@ public class Administrator extends User{
         this.id = id;
     }
 
+
     public String getFirstName() {
         return firstName;
     }
-
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }

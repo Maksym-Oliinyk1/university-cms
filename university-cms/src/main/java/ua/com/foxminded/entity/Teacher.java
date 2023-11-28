@@ -2,6 +2,7 @@ package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,8 +10,21 @@ import java.util.Objects;
 @Table(name = "teachers")
 public class Teacher extends User{
 
+    public Teacher(Long id, String firstName, String lastName, String academicDegree) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.academicDegree = academicDegree;
+        this.lectures = new ArrayList<>();
+    }
+
+    public Teacher() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "teacher_id")
     protected Long id;
 
     @Column(name = "academic_degree")

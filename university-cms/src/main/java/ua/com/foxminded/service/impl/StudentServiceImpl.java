@@ -67,6 +67,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findAll() {
+        logger.info("Find all students");
         return (List<Student>) studentRepository.findAll();
     }
 }

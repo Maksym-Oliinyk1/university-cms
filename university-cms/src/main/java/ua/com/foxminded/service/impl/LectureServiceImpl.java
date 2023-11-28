@@ -84,6 +84,7 @@ public class LectureServiceImpl implements LectureService {
 
     @Override
     public List<Lecture> findAll() {
+        logger.info("Find all lectures");
         return (List<Lecture>) lectureRepository.findAll();
     }
 

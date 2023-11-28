@@ -10,7 +10,8 @@ import java.util.Objects;
 @Table(name = "students")
 public class Student extends User {
 
-    public Student(String firstName, String lastName) {
+    public Student(Long id, String firstName, String lastName) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
     }
@@ -19,6 +20,7 @@ public class Student extends User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id")
     private Long id;
 
     @ManyToOne
