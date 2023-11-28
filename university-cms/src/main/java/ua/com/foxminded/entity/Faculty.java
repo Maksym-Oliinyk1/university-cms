@@ -2,12 +2,20 @@ package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "faculties")
 public class Faculty {
+    public Faculty(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.courses = new ArrayList<>();
+    }
+
+    public Faculty() {}
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

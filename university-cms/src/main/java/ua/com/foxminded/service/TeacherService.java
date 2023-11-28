@@ -1,7 +1,5 @@
 package ua.com.foxminded.service;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 

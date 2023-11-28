@@ -65,6 +65,7 @@ public class AdministratorServiceImpl implements AdministratorService {
 
     @Override
     public List<Administrator> findAll() {
+        logger.info("Find all administrators");
         return (List<Administrator>) administratorRepository.findAll();
     }
 }

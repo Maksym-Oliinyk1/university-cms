@@ -2,6 +2,7 @@ package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -9,12 +10,21 @@ import java.util.Objects;
 @Table(name = "groups")
 public class Group {
 
+    public Group(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.students = new ArrayList<>();
+        this.lectures = new ArrayList<>();
+    }
+
+    public Group() {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_id")
     private Long id;
 
-    @Column(name = "course_name")
+    @Column(name = "group_name")
     private String name;
 
     @OneToMany(mappedBy = "group")
@@ -22,7 +32,7 @@ public class Group {
 
     @ManyToMany
     @JoinTable (
-            name = "group-lecture",
+            name = "group_lecture",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "lecture_id")
     )

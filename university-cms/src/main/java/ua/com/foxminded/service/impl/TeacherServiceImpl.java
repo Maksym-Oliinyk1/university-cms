@@ -13,9 +13,10 @@ import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.TeacherService;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -36,7 +37,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public void create(Teacher teacher) {
-        if (isValidName(teacher.getFirstName()) && isValidName(teacher.getLastName())) {
+        if (isValidNameForUser(teacher.getFirstName()) && isValidNameForUser(teacher.getLastName())) {
             teacherRepository.save(teacher);
             logger.info("Created teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
         } else {
@@ -46,7 +47,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public void update(Teacher teacher) {
-        if (isValidName(teacher.getFirstName()) && isValidName(teacher.getLastName())) {
+        if (isValidNameForUser(teacher.getFirstName()) && isValidNameForUser(teacher.getLastName())) {
             teacherRepository.save(teacher);
             logger.info("Updated teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
         } else {
@@ -77,6 +78,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Teacher> findAll() {
+        logger.info("Find all teachers");
         return (List<Teacher>) teacherRepository.findAll();
     }
 
@@ -156,9 +158,4 @@ public class TeacherServiceImpl implements TeacherService {
             throw new RuntimeException("The teacher was not found");
         }
     }
-
-    private boolean isValidName(String name) {
-        return !name.isEmpty() && name.matches("[a-zA-Z]+");
-    }
-
 }

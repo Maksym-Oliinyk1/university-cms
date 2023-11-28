@@ -18,12 +18,10 @@ import static ua.com.foxminded.utill.NameValidator.isValidName;
 public class CourseServiceImpl implements CourseService {
     private static final Logger logger = LoggerFactory.getLogger(CourseServiceImpl.class);
     private final CourseRepository courseRepository;
-    private final LectureRepository lectureRepository;
 
     @Autowired
-    public CourseServiceImpl(CourseRepository courseRepository, LectureRepository lectureRepository) {
+    public CourseServiceImpl(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
-        this.lectureRepository = lectureRepository;
     }
 
     @Override
