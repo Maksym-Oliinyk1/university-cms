@@ -11,10 +11,6 @@ public interface GroupService extends BaseService<Group> {
 
     void detachStudentFromGroup(Long studentId, Long groupId);
 
-    List<Lecture> showLecturesPerWeek(Long groupId);
-
-    List<Lecture> showLecturesPerMonth(Long groupId);
-
     List<Lecture> showLecturesBetweenDates(Long groupId, LocalDateTime firstDate, LocalDateTime secondDate);
 
 }

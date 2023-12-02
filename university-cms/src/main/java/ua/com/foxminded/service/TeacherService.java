@@ -10,10 +10,5 @@ public interface TeacherService extends BaseService<Teacher> {
     void attachLectureToTeacher(Long lectureId, Long teacherId);
 
     void detachLectureFromTeacher(Long lectureId, Long teacherId);
-
-    List<Lecture> showLecturesPerWeek(Long teacherId);
-
-    List<Lecture> showLecturesPerMonth(Long teacherId);
-
     List<Lecture> showLecturesBetweenDates(Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
 }

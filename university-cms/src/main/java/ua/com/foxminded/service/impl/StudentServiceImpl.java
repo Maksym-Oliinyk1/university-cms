@@ -25,20 +25,10 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void create(Student student) {
+    public void save(Student student) {
         if (isValidNameForUser(student.getFirstName()) && isValidNameForUser(student.getLastName())) {
             studentRepository.save(student);
-            logger.info("Created student: {} {}", student.getFirstName(), student.getLastName());
-        } else {
-            throw new RuntimeException("Invalid name for student");
-        }
-    }
-
-    @Override
-    public void update(Student student) {
-        if (isValidNameForUser(student.getFirstName()) && isValidNameForUser(student.getLastName())) {
-            studentRepository.save(student);
-            logger.info("Updated student: {} {}", student.getFirstName(), student.getLastName());
+            logger.info("Saved student: {} {}", student.getFirstName(), student.getLastName());
         } else {
             throw new RuntimeException("Invalid name for student");
         }

@@ -26,9 +26,6 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final LectureRepository lectureRepository;
 
-    private static final Long INVALID_NUMBER_OF_LECTURES = 0L;
-
-
     @Autowired
     public TeacherServiceImpl(TeacherRepository teacherRepository, LectureRepository lectureRepository) {
         this.teacherRepository = teacherRepository;
@@ -36,20 +33,10 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void create(Teacher teacher) {
+    public void save(Teacher teacher) {
         if (isValidNameForUser(teacher.getFirstName()) && isValidNameForUser(teacher.getLastName())) {
             teacherRepository.save(teacher);
-            logger.info("Created teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
-        } else {
-            throw new RuntimeException("Invalid name for teacher");
-        }
-    }
-
-    @Override
-    public void update(Teacher teacher) {
-        if (isValidNameForUser(teacher.getFirstName()) && isValidNameForUser(teacher.getLastName())) {
-            teacherRepository.save(teacher);
-            logger.info("Updated teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
+            logger.info("Saved teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
         } else {
             throw new RuntimeException("Invalid name for teacher");
         }
@@ -116,46 +103,12 @@ public class TeacherServiceImpl implements TeacherService {
         logger.info("The lecture was removed from the teacher");
     }
 
-    @Override
-    public List<Lecture> showLecturesPerWeek(Long teacherId) {
-        if (teacherRepository.existsById(teacherId)) {
-            if (teacherRepository.countLecturesByTeacher(teacherId).equals(INVALID_NUMBER_OF_LECTURES)) {
-                throw new RuntimeException("There is no any lecture");
-            } else {
-                LocalDateTime localDateTimeNextWeek = LocalDateTime.now().plusWeeks(1);
-                return teacherRepository.findLecturesByDateBetween(teacherId, LocalDateTime.now(), localDateTimeNextWeek);
-            }
-        } else {
-            throw new RuntimeException("The teacher was not found");
-        }
-    }
-
-    @Override
-    public List<Lecture> showLecturesPerMonth(Long teacherId) {
-        {
-            if (teacherRepository.existsById(teacherId)) {
-                if (teacherRepository.countLecturesByTeacher(teacherId).equals(INVALID_NUMBER_OF_LECTURES)) {
-                    throw new RuntimeException("There is no any lecture");
-                } else {
-                    LocalDateTime localDateTimeNextWeek = LocalDateTime.now().plusMonths(1);
-                    return teacherRepository.findLecturesByDateBetween(teacherId, LocalDateTime.now(), localDateTimeNextWeek);
-                }
-            } else {
-                throw new RuntimeException("The teacher was not found");
-            }
-        }
-    }
 
     @Override
     public List<Lecture> showLecturesBetweenDates(Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate) {
-        if (teacherRepository.existsById(teacherId)) {
-            if (teacherRepository.countLecturesByTeacher(teacherId).equals(INVALID_NUMBER_OF_LECTURES)) {
-                throw new RuntimeException("There is no any lecture");
-            } else {
-                return teacherRepository.findLecturesByDateBetween(teacherId, firstDate, secondDate);
-            }
-        } else {
+        if (!teacherRepository.existsById(teacherId)) {
             throw new RuntimeException("The teacher was not found");
         }
+        return teacherRepository.findLecturesByDateBetween(teacherId, firstDate, secondDate);
     }
 }

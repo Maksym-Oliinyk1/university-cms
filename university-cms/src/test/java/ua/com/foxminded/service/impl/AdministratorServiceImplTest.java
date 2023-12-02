@@ -31,37 +31,19 @@ class AdministratorServiceImplTest {
     }
 
     @Test
-    void createAdministrator_ValidName_Success() {
+    void saveAdministrator_ValidName_Success() {
         Administrator administrator = new Administrator(1L, "John", "Doe");
         when(administratorRepository.save(any(Administrator.class))).thenReturn(administrator);
 
-        administratorService.create(administrator);
+        administratorService.save(administrator);
 
         verify(administratorRepository, times(1)).save(administrator);
     }
 
     @Test
-    void createAdministrator_InvalidName_ThrowsException() {
+    void saveAdministrator_InvalidName_ThrowsException() {
         Administrator administrator = new Administrator(1L, "John1", "Doe");
-        assertThrows(RuntimeException.class, () -> administratorService.create(administrator));
-
-        verify(administratorRepository, never()).save(administrator);
-    }
-
-    @Test
-    void updateAdministrator_ValidName_Success() {
-        Administrator administrator = new Administrator(1L, "John", "Doe");
-        when(administratorRepository.save(any(Administrator.class))).thenReturn(administrator);
-
-        administratorService.update(administrator);
-
-        verify(administratorRepository, times(1)).save(administrator);
-    }
-
-    @Test
-    void updateAdministrator_InvalidName_ThrowsException() {
-        Administrator administrator = new Administrator(1L, "John1", "Doe");
-        assertThrows(RuntimeException.class, () -> administratorService.update(administrator));
+        assertThrows(RuntimeException.class, () -> administratorService.save(administrator));
 
         verify(administratorRepository, never()).save(administrator);
     }

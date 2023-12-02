@@ -36,31 +36,21 @@ class FacultyServiceImplTest {
     }
 
     @Test
-    void createFaculty_ValidName_Success() {
-        Faculty faculty = new Faculty(0L, "Engineering");
+    void saveFaculty_ValidName_Success() {
+        Faculty faculty = new Faculty(1L, "Engineering");
         when(facultyRepository.save(any(Faculty.class))).thenReturn(faculty);
 
-        facultyService.create(faculty);
+        facultyService.save(faculty);
 
         verify(facultyRepository, times(1)).save(faculty);
     }
 
     @Test
-    void createFaculty_InvalidName_ThrowsException() {
-        Faculty faculty = new Faculty(0L, "I2");
-        assertThrows(RuntimeException.class, () -> facultyService.create(faculty));
+    void saveFaculty_InvalidName_ThrowsException() {
+        Faculty faculty = new Faculty(1L, "I2");
+        assertThrows(RuntimeException.class, () -> facultyService.save(faculty));
 
         verify(facultyRepository, never()).save(faculty);
-    }
-
-    @Test
-    void updateFaculty_ValidName_Success() {
-        Faculty faculty = new Faculty(0L, "Engineering");
-        when(facultyRepository.save(any(Faculty.class))).thenReturn(faculty);
-
-        facultyService.update(faculty);
-
-        verify(facultyRepository, times(1)).save(faculty);
     }
 
     @Test

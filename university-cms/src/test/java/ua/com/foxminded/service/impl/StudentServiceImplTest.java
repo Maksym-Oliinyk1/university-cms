@@ -31,37 +31,19 @@ class StudentServiceImplTest {
     }
 
     @Test
-    void createStudent_ValidName_Success() {
+    void saveStudent_ValidName_Success() {
         Student student = new Student(1L, "John", "Doe");
         when(studentRepository.save(any(Student.class))).thenReturn(student);
 
-        studentService.create(student);
+        studentService.save(student);
 
         verify(studentRepository, times(1)).save(student);
     }
 
     @Test
-    void createStudent_InvalidName_ThrowsException() {
+    void saveStudent_InvalidName_ThrowsException() {
         Student student = new Student(1L, "John1", "Doe");
-        assertThrows(RuntimeException.class, () -> studentService.create(student));
-
-        verify(studentRepository, never()).save(student);
-    }
-
-    @Test
-    void updateStudent_ValidName_Success() {
-        Student student = new Student(1L, "John", "Doe");
-        when(studentRepository.save(any(Student.class))).thenReturn(student);
-
-        studentService.update(student);
-
-        verify(studentRepository, times(1)).save(student);
-    }
-
-    @Test
-    void updateStudent_InvalidName_ThrowsException() {
-        Student student = new Student(1L, "John1", "Doe");
-        assertThrows(RuntimeException.class, () -> studentService.update(student));
+        assertThrows(RuntimeException.class, () -> studentService.save(student));
 
         verify(studentRepository, never()).save(student);
     }

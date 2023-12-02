@@ -38,37 +38,19 @@ class TeacherServiceImplTest {
     }
 
     @Test
-    void createTeacher_ValidName_Success() {
-        Teacher teacher = new Teacher(1L, "John", "Doe", "Ph.D.");
+    void saveTeacher_ValidName_Success() {
+        Teacher teacher = new Teacher(1L, "John", "Doe", "PhD");
         when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
-        teacherService.create(teacher);
+        teacherService.save(teacher);
 
         verify(teacherRepository, times(1)).save(teacher);
     }
 
     @Test
-    void createTeacher_InvalidName_ThrowsException() {
-        Teacher teacher = new Teacher(1L, "John1", "Doe", "Ph.D.");
-        assertThrows(RuntimeException.class, () -> teacherService.create(teacher));
-
-        verify(teacherRepository, never()).save(teacher);
-    }
-
-    @Test
-    void updateTeacher_ValidName_Success() {
-        Teacher teacher = new Teacher(1L, "John", "Doe", "Ph.D.");
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
-
-        teacherService.update(teacher);
-
-        verify(teacherRepository, times(1)).save(teacher);
-    }
-
-    @Test
-    void updateTeacher_InvalidName_ThrowsException() {
-        Teacher teacher = new Teacher(1L, "John1", "Doe", "Ph.D.");
-        assertThrows(RuntimeException.class, () -> teacherService.update(teacher));
+    void saveTeacher_InvalidName_ThrowsException() {
+        Teacher teacher = new Teacher(1L, "John1", "Doe", "PhD");
+        assertThrows(RuntimeException.class, () -> teacherService.save(teacher));
 
         verify(teacherRepository, never()).save(teacher);
     }
@@ -160,67 +142,12 @@ class TeacherServiceImplTest {
     }
 
     @Test
-    void showLecturesPerWeek_ValidTeacherId_Success() {
-        Long teacherId = 1L;
-
-        when(teacherRepository.existsById(teacherId)).thenReturn(true);
-        when(teacherRepository.countLecturesByTeacher(teacherId)).thenReturn(5L);
-        when(teacherRepository.findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<Lecture> result = teacherService.showLecturesPerWeek(teacherId);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void showLecturesPerWeek_InvalidTeacherId_ThrowsException() {
-        Long teacherId = 1L;
-
-        when(teacherRepository.existsById(teacherId)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> teacherService.showLecturesPerWeek(teacherId));
-
-        verify(teacherRepository, never()).countLecturesByTeacher(teacherId);
-        verify(teacherRepository, never()).findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
-
-    @Test
-    void showLecturesPerMonth_ValidTeacherId_Success() {
-        Long teacherId = 1L;
-
-        when(teacherRepository.existsById(teacherId)).thenReturn(true);
-        when(teacherRepository.countLecturesByTeacher(teacherId)).thenReturn(5L);
-        when(teacherRepository.findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<Lecture> result = teacherService.showLecturesPerMonth(teacherId);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void showLecturesPerMonth_InvalidTeacherId_ThrowsException() {
-        Long teacherId = 1L;
-
-        when(teacherRepository.existsById(teacherId)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> teacherService.showLecturesPerMonth(teacherId));
-
-        verify(teacherRepository, never()).countLecturesByTeacher(teacherId);
-        verify(teacherRepository, never()).findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
-
-    @Test
     void showLecturesBetweenDates_ValidTeacherIdAndDates_Success() {
         Long teacherId = 1L;
         LocalDateTime firstDate = LocalDateTime.now();
         LocalDateTime secondDate = firstDate.plusDays(5);
 
         when(teacherRepository.existsById(teacherId)).thenReturn(true);
-        when(teacherRepository.countLecturesByTeacher(teacherId)).thenReturn(5L);
         when(teacherRepository.findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
 
@@ -237,20 +164,6 @@ class TeacherServiceImplTest {
         LocalDateTime secondDate = firstDate.plusDays(5);
 
         when(teacherRepository.existsById(teacherId)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
-
-        verify(teacherRepository, never()).countLecturesByTeacher(teacherId);
-        verify(teacherRepository, never()).findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
-
-    @Test
-    void showLecturesBetweenDates_InvalidDateRange_ThrowsException() {
-        Long teacherId = 1L;
-        LocalDateTime firstDate = LocalDateTime.now();
-        LocalDateTime secondDate = firstDate.minusDays(5);
-
-        when(teacherRepository.existsById(teacherId)).thenReturn(true);
 
         assertThrows(RuntimeException.class, () -> teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
 

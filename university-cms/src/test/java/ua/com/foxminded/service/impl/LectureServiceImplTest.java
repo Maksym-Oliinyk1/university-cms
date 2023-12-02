@@ -6,8 +6,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
+import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.LectureRepository;
 
@@ -37,57 +39,36 @@ class LectureServiceImplTest {
     }
 
     @Test
-    void createLecture_ValidNameAndDescription_Success() {
-        Lecture lecture = new Lecture(1L, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
+    void saveLecture_ValidNameAndDescription_Success() {
+        Course testCourse = new Course();
+        Teacher testTeacher = new Teacher();
+        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "Math101",
+                "Mathematics is the universal language of patterns.", LocalDateTime.now());
         when(lectureRepository.save(any(Lecture.class))).thenReturn(lecture);
 
-        lectureService.create(lecture);
+        lectureService.save(lecture);
 
         verify(lectureRepository, times(1)).save(lecture);
     }
 
     @Test
-    void createLecture_InvalidName_ThrowsException() {
-        Lecture lecture = new Lecture(1L, null, null, "", "This is a valid description about Java course for beginners", LocalDateTime.now());
-
-        assertThrows(RuntimeException.class, () -> lectureService.create(lecture));
-
-        verify(lectureRepository, never()).save(lecture);
-    }
-
-    @Test
-    void createLecture_InvalidDescription_ThrowsException() {
-        Lecture lecture = new Lecture(1L, null, null, "Introduction to Java", "This description is too short.", LocalDateTime.now());
-
-        assertThrows(RuntimeException.class, () -> lectureService.create(lecture));
+    void saveLecture_InvalidName_ThrowsException() {
+        Course testCourse = new Course();
+        Teacher testTeacher = new Teacher();
+        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "I2",
+                "Mathematics is the universal language of patterns.", LocalDateTime.now());
+        assertThrows(RuntimeException.class, () -> lectureService.save(lecture));
 
         verify(lectureRepository, never()).save(lecture);
     }
 
     @Test
-    void updateLecture_ValidNameAndDescription_Success() {
-        Lecture lecture = new Lecture(1L, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
-        when(lectureRepository.save(any(Lecture.class))).thenReturn(lecture);
-
-        lectureService.update(lecture);
-
-        verify(lectureRepository, times(1)).save(lecture);
-    }
-
-    @Test
-    void updateLecture_InvalidName_ThrowsException() {
-        Lecture lecture = new Lecture(1L, null, null, "", "This is a valid description about Java course for beginners", LocalDateTime.now());
-
-        assertThrows(RuntimeException.class, () -> lectureService.update(lecture));
-
-        verify(lectureRepository, never()).save(lecture);
-    }
-
-    @Test
-    void updateLecture_InvalidDescription_ThrowsException() {
-        Lecture lecture = new Lecture(1L, null, null, "Introduction to Java", "This description is too short.", LocalDateTime.now());
-
-        assertThrows(RuntimeException.class, () -> lectureService.update(lecture));
+    void saveLecture_InvalidDescription_ThrowsException() {
+        Course testCourse = new Course();
+        Teacher testTeacher = new Teacher();
+        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "Math101",
+                "InvalidDescription123", LocalDateTime.now());
+        assertThrows(RuntimeException.class, () -> lectureService.save(lecture));
 
         verify(lectureRepository, never()).save(lecture);
     }

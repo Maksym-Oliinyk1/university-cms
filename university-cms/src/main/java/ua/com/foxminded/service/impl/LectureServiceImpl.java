@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static ua.com.foxminded.utill.NameValidator.isValidDescriptionForLecture;
-import static ua.com.foxminded.utill.NameValidator.isValidName;
+import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
 
 @Service
 public class LectureServiceImpl implements LectureService {
@@ -34,31 +34,15 @@ public class LectureServiceImpl implements LectureService {
 
 
     @Override
-    public void create(Lecture lecture) {
-        if (isValidName(lecture.getName())) {
-            if (isValidDescriptionForLecture(lecture.getDescription())) {
-                lectureRepository.save(lecture);
-                logger.info("Created lecture: {}", lecture.getName());
-            } else {
-                logger.error("Invalid description for lecture: {}", lecture.getDescription());
-                throw new RuntimeException("Invalid description for lecture");
-            }
-        } else {
+    public void save(Lecture lecture) {
+        if (!isValidNameForUniversityEntity(lecture.getName())) {
             throw new RuntimeException("Invalid name for lecture");
         }
-    }
-
-    @Override
-    public void update(Lecture lecture) {
-        if (isValidName(lecture.getName())) {
-            if (isValidDescriptionForLecture(lecture.getDescription())) {
-                lectureRepository.save(lecture);
-            } else {
-                throw new RuntimeException("Invalid description for lecture");
-            }
-        } else {
-            throw new RuntimeException("Invalid name for lecture");
+        if (!isValidDescriptionForLecture(lecture.getDescription())) {
+            throw new RuntimeException("Invalid description for lecture");
         }
+        lectureRepository.save(lecture);
+        logger.info("Saved lecture: {}", lecture.getName());
     }
 
     @Override
