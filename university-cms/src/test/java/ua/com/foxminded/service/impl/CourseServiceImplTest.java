@@ -36,42 +36,21 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void createCourse_ValidName_Success() {
+    void saveCourse_ValidName_Success() {
         Faculty faculty = new Faculty();
-        Course course = new Course(0L ,"Math", faculty);
+        Course course = new Course(1L, "Mathematics", faculty);
         when(courseRepository.save(any(Course.class))).thenReturn(course);
 
-        courseService.create(course);
+        courseService.save(course);
 
         verify(courseRepository, times(1)).save(course);
     }
 
     @Test
-    void createCourse_InvalidName_ThrowsException() {
+    void saveCourse_InvalidName_ThrowsException() {
         Faculty faculty = new Faculty();
-        Course course = new Course(0L, "I2", faculty);
-        assertThrows(RuntimeException.class, () -> courseService.create(course));
-
-        verify(courseRepository, never()).save(course);
-    }
-
-    @Test
-    void updateCourse_ValidName_Success() {
-        Faculty faculty = new Faculty();
-        Course course = new Course(0L,"Math", faculty);
-        when(courseRepository.save(any(Course.class))).thenReturn(course);
-
-        courseService.update(course);
-
-        verify(courseRepository, times(1)).save(course);
-    }
-
-    @Test
-    void updateCourse_InvalidName_NoException() {
-        Faculty faculty = new Faculty();
-        Course course = new Course(0L, "43", faculty);
-
-        courseService.update(course);
+        Course course = new Course(1L, "I1", faculty);
+        assertThrows(RuntimeException.class, () -> courseService.save(course));
 
         verify(courseRepository, never()).save(course);
     }

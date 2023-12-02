@@ -39,31 +39,21 @@ class GroupServiceImplTest {
     }
 
     @Test
-    void createGroup_ValidName_Success() {
-        Group group = new Group(0L, "AB-12");
+    void saveGroup_ValidName_Success() {
+        Group group = new Group(1L, "AB-12");
         when(groupRepository.save(any(Group.class))).thenReturn(group);
 
-        groupService.create(group);
+        groupService.save(group);
 
         verify(groupRepository, times(1)).save(group);
     }
 
     @Test
-    void createGroup_InvalidName_ThrowsException() {
-        Group group = new Group(0L, "Invalid123");
-        assertThrows(RuntimeException.class, () -> groupService.create(group));
+    void saveGroup_InvalidName_ThrowsException() {
+        Group group = new Group(1L, "Invalid123");
+        assertThrows(RuntimeException.class, () -> groupService.save(group));
 
         verify(groupRepository, never()).save(group);
-    }
-
-    @Test
-    void updateGroup_ValidName_Success() {
-        Group group = new Group(0L, "AB-12");
-        when(groupRepository.save(any(Group.class))).thenReturn(group);
-
-        groupService.update(group);
-
-        verify(groupRepository, times(1)).save(group);
     }
 
 
@@ -154,59 +144,7 @@ class GroupServiceImplTest {
         verify(studentRepository, times(1)).save(student);
     }
 
-    @Test
-    void showLecturesPerWeek_ValidGroupId_Success() {
-        Long groupId = 1L;
 
-        when(groupRepository.existsById(groupId)).thenReturn(true);
-        when(groupRepository.countLecturesByGroup(groupId)).thenReturn(5L);
-        when(groupRepository.findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<Lecture> result = groupService.showLecturesPerWeek(groupId);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void showLecturesPerWeek_InvalidGroupId_ThrowsException() {
-        Long groupId = 1L;
-
-        when(groupRepository.existsById(groupId)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> groupService.showLecturesPerWeek(groupId));
-
-        verify(groupRepository, never()).countLecturesByGroup(groupId);
-        verify(groupRepository, never()).findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
-
-    @Test
-    void showLecturesPerMonth_ValidGroupId_Success() {
-        Long groupId = 1L;
-
-        when(groupRepository.existsById(groupId)).thenReturn(true);
-        when(groupRepository.countLecturesByGroup(groupId)).thenReturn(5L);
-        when(groupRepository.findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<Lecture> result = groupService.showLecturesPerMonth(groupId);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void showLecturesPerMonth_InvalidGroupId_ThrowsException() {
-        Long groupId = 1L;
-
-        when(groupRepository.existsById(groupId)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> groupService.showLecturesPerMonth(groupId));
-
-        verify(groupRepository, never()).countLecturesByGroup(groupId);
-        verify(groupRepository, never()).findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
 
     @Test
     void showLecturesBetweenDates_ValidGroupIdAndDates_Success() {
@@ -236,19 +174,6 @@ class GroupServiceImplTest {
         assertThrows(RuntimeException.class, () -> groupService.showLecturesBetweenDates(groupId, firstDate, secondDate));
 
         verify(groupRepository, never()).countLecturesByGroup(groupId);
-        verify(groupRepository, never()).findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
-    }
-
-    @Test
-    void showLecturesBetweenDates_InvalidDateRange_ThrowsException() {
-        Long groupId = 1L;
-        LocalDateTime firstDate = LocalDateTime.now();
-        LocalDateTime secondDate = firstDate.minusDays(5);
-
-        when(groupRepository.existsById(groupId)).thenReturn(true);
-
-        assertThrows(RuntimeException.class, () -> groupService.showLecturesBetweenDates(groupId, firstDate, secondDate));
-
         verify(groupRepository, never()).findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
     }
 }

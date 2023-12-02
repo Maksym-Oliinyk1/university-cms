@@ -4,9 +4,7 @@ package ua.com.foxminded.service;
 import java.util.List;
 
 public interface BaseService<E> {
-    void create(E e);
-
-    void update(E e);
+    void save(E e);
 
     void delete(Long id);
 

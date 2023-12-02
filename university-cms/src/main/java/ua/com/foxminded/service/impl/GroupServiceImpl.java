@@ -34,20 +34,10 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void create(Group group) {
+    public void save(Group group) {
         if (isValidNameForGroup(group.getName())) {
             groupRepository.save(group);
-            logger.info("Created group {}", group.getName());
-        } else {
-            throw new RuntimeException("Invalid name for group");
-        }
-    }
-
-    @Override
-    public void update(Group group) {
-        if (isValidNameForGroup(group.getName())) {
-            groupRepository.save(group);
-            logger.info("Updated group {}", group.getName());
+            logger.info("Saved group {}", group.getName());
         } else {
             throw new RuntimeException("Invalid name for group");
         }
@@ -114,43 +104,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Lecture> showLecturesPerWeek(Long groupId) {
-        if (groupRepository.existsById(groupId)) {
-            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
-                throw new RuntimeException("There is no any lecture");
-            } else {
-                LocalDateTime localDateTimeNextWeek = LocalDateTime.now().plusWeeks(1);
-                return groupRepository.findLecturesByDateBetween(groupId, LocalDateTime.now(), localDateTimeNextWeek);
-            }
-        } else {
-            throw new RuntimeException("The group was not found");
-        }
-    }
-
-    @Override
-    public List<Lecture> showLecturesPerMonth(Long groupId) {
-        if (groupRepository.existsById(groupId)) {
-            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
-                throw new RuntimeException("There is no any lecture");
-            } else {
-                LocalDateTime localDateTimeNextMonth = LocalDateTime.now().plusMonths(1);
-                return groupRepository.findLecturesByDateBetween(groupId, LocalDateTime.now(), localDateTimeNextMonth);
-            }
-        } else {
-            throw new RuntimeException("The group was not found");
-        }
-    }
-
-    @Override
     public List<Lecture> showLecturesBetweenDates(Long groupId, LocalDateTime firstDate, LocalDateTime secondDate) {
-        if (groupRepository.existsById(groupId)) {
-            if ((groupRepository.countLecturesByGroup(groupId).equals(INVALID_NUMBER_OF_LECTURES))) {
-                throw new RuntimeException("There is no any lecture");
-            } else {
-                return groupRepository.findLecturesByDateBetween(groupId, firstDate, secondDate);
-            }
-        } else {
+        if (!groupRepository.existsById(groupId)) {
             throw new RuntimeException("The group was not found");
         }
+        return groupRepository.findLecturesByDateBetween(groupId, firstDate, secondDate);
     }
 }
+

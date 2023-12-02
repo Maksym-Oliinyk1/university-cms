@@ -6,13 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.repository.CourseRepository;
-import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.service.CourseService;
 
 import java.util.List;
 import java.util.Optional;
 
-import static ua.com.foxminded.utill.NameValidator.isValidName;
+import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -25,20 +24,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void create(Course course) {
-        if (isValidName(course.getName())) {
+    public void save(Course course) {
+        if (isValidNameForUniversityEntity(course.getName())) {
             courseRepository.save(course);
-            logger.info("Created course: {}", course.getName());
+            logger.info("Saved course: {}", course.getName());
         } else {
             throw new RuntimeException("Invalid name for course");
-        }
-    }
-
-    @Override
-    public void update(Course course) {
-        if (isValidName(course.getName())) {
-            courseRepository.save(course);
-            logger.info("Updated course: {}", course.getName());
         }
     }
 

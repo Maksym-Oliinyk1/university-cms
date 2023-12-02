@@ -23,20 +23,10 @@ public class AdministratorServiceImpl implements AdministratorService {
     }
 
     @Override
-    public void create(Administrator administrator) {
+    public void save(Administrator administrator) {
         if (isValidNameForUser(administrator.getFirstName()) && isValidNameForUser(administrator.getLastName())) {
             administratorRepository.save(administrator);
-            logger.info("Created administrator: {} {}", administrator.getFirstName(), administrator.getLastName());
-        } else {
-            throw new RuntimeException("Invalid name for administrator");
-        }
-    }
-
-    @Override
-    public void update(Administrator administrator) {
-        if (isValidNameForUser(administrator.getFirstName()) && isValidNameForUser(administrator.getLastName())) {
-            administratorRepository.save(administrator);
-            logger.info("Updated administrator: {} {}", administrator.getFirstName(), administrator.getLastName());
+            logger.info("Saved administrator: {} {}", administrator.getFirstName(), administrator.getLastName());
         } else {
             throw new RuntimeException("Invalid name for administrator");
         }
