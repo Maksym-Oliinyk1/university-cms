@@ -8,8 +8,9 @@ import java.util.Objects;
 @Table(name = "students")
 public class Student extends User {
 
-    public Student(Long id, String firstName, String lastName) {
+    public Student(Long id, String firstName, String lastName, Group group) {
         super(firstName, lastName);
+        this.group = group;
         this.id = id;
     }
 

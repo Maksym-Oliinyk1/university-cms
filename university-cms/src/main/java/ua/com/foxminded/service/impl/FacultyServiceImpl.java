@@ -5,7 +5,10 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.repository.CourseRepository;
@@ -64,6 +67,16 @@ public class FacultyServiceImpl implements FacultyService {
     public List<Faculty> findAll() {
         logger.info("Find all faculties");
         return (List<Faculty>) facultyRepository.findAll();
+    }
+
+    @Override
+    public Page<Faculty> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find faculties from {} to {}", from, to);
+        return facultyRepository.findAll(pageable);
     }
 
     @Override

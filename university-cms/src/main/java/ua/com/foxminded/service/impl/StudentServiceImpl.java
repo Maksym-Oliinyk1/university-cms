@@ -3,7 +3,10 @@ package ua.com.foxminded.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.repository.StudentRepository;
 import ua.com.foxminded.service.StudentService;
@@ -59,5 +62,15 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> findAll() {
         logger.info("Find all students");
         return (List<Student>) studentRepository.findAll();
+    }
+
+    @Override
+    public Page<Student> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find students from {} to {}", from, to);
+        return studentRepository.findAll(pageable);
     }
 }

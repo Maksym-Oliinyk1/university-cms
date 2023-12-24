@@ -6,9 +6,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.repository.AdministratorRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -100,5 +105,17 @@ class AdministratorServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(administrator1));
         assertTrue(result.contains(administrator2));
+    }
+
+    @Test
+    void findAllAdministratorsToPage_Success() {
+        List<Administrator> administrators = new ArrayList<>();
+        administrators.add((new Administrator(1L, "John", "Doe")));
+        administrators.add(new Administrator(2L, "Jane", "Doe"));
+
+        when(administratorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(administrators));
+        Pageable pageable = PageRequest.of(0, 10);
+        administratorService.findAll(pageable);
+        verify(administratorRepository, times(1)).findAll(eq(pageable));
     }
 }

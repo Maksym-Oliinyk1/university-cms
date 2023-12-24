@@ -3,11 +3,18 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/university-cms
     username: postgres
-    password: Password
+    password: 987654321Lord
   flyway:
     url: jdbc:postgresql://localhost:5432/university-cms
     user: postgres
-    password: Password
+    password: 987654321Lord
     locations: db/migration
   jpa:
     show-sql: true
+  thymeleaf:
+    cache: false
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+server:
+  port: 8081

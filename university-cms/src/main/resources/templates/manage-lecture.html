@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture manage</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <div style="text-align: right; padding-right: 5%;">
+        <a class="btn btn-success" th:href="@{/}">Go to Home</a>
+    </div>
+</head>
+<body>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Lecture Manage Page</h2>
+        </div>
+<div class="container mt-4 border p-4">
+
+    <h2>Create Lecture</h2>
+    <form style="margin: 25px 0" th:action="@{/admin/manage-lecture/addLecture}" th:object="${lecture}" method="post">
+        <div class="mb-3">
+            <label for="name" class="form-label">Lecture Name</label>
+            <input type="text" class="form-control" id="name" th:field="*{name}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" th:field="*{description}" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="date" class="form-label">Date and Time</label>
+            <input type="datetime-local" class="form-control" id="date" th:field="*{date}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="course">Select Course:</label>
+            <select id="course" name="course.id" th:field="*{course.id}" class="form-control" required>
+                <option th:each="course : ${courses}" th:value="${course.id}" th:text="${course.name}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="teacher" class="form-label">Choose Teacher</label>
+            <select th:field="*{teacher.id}" class="form-control" id="teacher" name="teacher.id" required>
+                <option th:field="*{teacher.id}" th:each="teacher : ${teachers}" th:value="${teacher.id}" th:text="${teacher.firstName + ' ' + teacher.lastName}"></option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+
+<div class="container mt-4 border p-4">
+            <h2>Lectures</h2>
+            <a th:style="'margin: 25px 0'" class="btn btn-success" th:href="@{/admin/manage-lecture/listLecture}">List All Lectures</a>
+</div>
+    </div>
+</div>
+    <div class="container-lg mt-4 border p-4">
+        <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Teacher</th>
+                    <th>Course</th>
+                    <th>Date and Time</th>
+                    <th>Groups</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lecture : ${lectures}">
+                    <td th:text="${lecture.id}"></td>
+                    <td>
+                        <a th:href="@{admin/manage-lecture/{id}(id=${lecture.id})}" th:text="${lecture.name}"></a>
+                    </td>
+                    <td style="width: 200px" th:text="${lecture.description}"></td>
+                    <td th:text="${lecture.teacher.firstName} + ' ' + ${lecture.teacher.lastName}"></td>
+                    <td th:text="${lecture.course.name}"></td>
+                    <td th:text="${#temporals.format(lecture.date, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td style="width: 120px">
+                        <ul th:if="${lecture.groups != null}" th:each="group : ${lecture.groups}">
+                            <li th:text="${group.name}"></li>
+                        </ul>
+                        <div th:if="${#lists.size(lecture.groups) == 0}">No groups available</div>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/manage-lecture/deleteLecture/{id}(id=${lecture.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete?')">
+                            <input type="hidden" name="_method" value="delete" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:style="'margin: 5px 10px'" th:action="@{/admin/manage-lecture/attachLectureToTeacher}" method="post">
+                            <input type="hidden" name="lectureId" th:value="${lecture.id}" />
+                            <select name="teacherId" class="form-control">
+                                <option
+                                        th:each="teacher : ${teachers}"
+                                        th:value="${teacher.id}"
+                                        th:text="${teacher.firstName + ' ' + teacher.lastName}"
+                                        th:unless="${lecture.teacher.id == teacher.id}"></option>
+                            </select>
+                            <button style="margin: 10px 0" type="submit" class="btn btn-success">Attach teacher</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:style="'margin: 5px 10px'" th:action="@{/admin/manage-lecture/attachGroupToLecture}" method="post">
+                            <input type="hidden" name="lectureId" th:value="${lecture.id}" />
+                            <select name="groupId" class="form-control">
+                                <option th:each="group : ${groups}"
+                                        th:value="${group.id}"
+                                        th:text="${group.name}"
+                                        th:unless="${lecture.groups.contains(group)}"></option>
+                            </select>
+                            <button style="margin: 10px 0" type="submit" class="btn btn-success">Attach group</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form th:style="'margin: 5px 10px'" th:action="@{/admin/manage-lecture/detachGroupFromLecture}" method="post">
+                            <input type="hidden" name="lectureId" th:value="${lecture.id}" />
+                            <select name="groupId" class="form-control">
+                                <option th:each="group : ${lecture.groups}" th:value="${group.id}" th:text="${group.name}"></option>
+                            </select>
+                            <button style="margin: 10px 0" type="submit" class="btn btn-warning">Detach group</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        <div class="container mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+
+                    <li th:if="${page != null and page.number > 0}" class="page-item">
+                        <a th:href="@{/admin/manage-lecture/listLecture(page=0)}" class="page-link">First</a>
+                    </li>
+
+                    <li th:if="${page != null and page.number > 0}" class="page-item">
+                        <a th:href="@{/admin/manage-lecture/listLecture(page=${page.number - 1})}" class="page-link">Previous</a>
+                    </li>
+
+                    <li th:each="i : ${#numbers.sequence(0, page != null ? page.totalPages - 1 : 0)}"
+                        th:class="${page != null and i == page.number} ? 'page-item active' : 'page-item'">
+                        <a th:href="@{/admin/manage-lecture/listLecture(page=${i})}" class="page-link" th:text="${i + 1}"></a>
+                    </li>
+
+                    <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+                        <a th:href="@{/admin/manage-lecture/listLecture(page=${page.number + 1})}" class="page-link">Next</a>
+                    </li>
+
+                    <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+                        <a th:href="@{/admin/manage-lecture/listLecture(page=${page.totalPages - 1})}" class="page-link">Last</a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEX/4Jz2Cpahr+nTn9eEv0f25HAku1xL12/JM"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy4S5lO8Eoc3HAHRgM6Qq1OY72FPS3PFF"
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

@@ -3,6 +3,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/university-cms-test
     username: postgres
-    password: Password
+    password: 987654321Lord
   jpa:
    show-sql: true

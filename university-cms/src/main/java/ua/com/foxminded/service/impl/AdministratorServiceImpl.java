@@ -2,6 +2,10 @@ package ua.com.foxminded.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.repository.AdministratorRepository;
@@ -46,7 +50,7 @@ public class AdministratorServiceImpl implements AdministratorService {
     public Administrator findById(Long id) {
         Optional<Administrator> optionalAdministrator = administratorRepository.findById(id);
         if (optionalAdministrator.isPresent()) {
-            logger.info("The administrator was found by id: id");
+            logger.info("The administrator was found by id: {}", id);
             return optionalAdministrator.get();
         } else {
             throw new RuntimeException("There is no such administrator");
@@ -58,4 +62,15 @@ public class AdministratorServiceImpl implements AdministratorService {
         logger.info("Find all administrators");
         return (List<Administrator>) administratorRepository.findAll();
     }
+
+    @Override
+    public Page<Administrator> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find administrators from {} to {}", from, to);
+        return administratorRepository.findAll(pageable);
+    }
+
 }

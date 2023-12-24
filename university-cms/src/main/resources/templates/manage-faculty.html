@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty manage</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <div style="text-align: right; padding-right: 5%;">
+        <a class="btn btn-success" th:href="@{/}">Go to Home</a>
+    </div>
+</head>
+<body>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Faculty Manage Page</h2>
+        </div>
+<div class="container mt-4 border p-4">
+    <h2>Create Faculty</h2>
+    <form style="margin: 25px 0" th:action="@{/admin/manage-faculty/addFaculty}" th:object="${faculty}" method="post">
+        <div class="mb-3">
+            <label for="facultyName" class="form-label">Faculty Name</label>
+            <input type="text" class="form-control" id="facultyName" th:field="*{name}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+
+    <h2>Faculties</h2>
+    <a th:style="'margin: 25px 0'" class="btn btn-success" th:href="@{/admin/manage-faculty/listFaculty}">List All Faculties</a>
+    <table class="table table-striped">
+        <tbody>
+        <tr th:each="faculty : ${faculties}">
+            <td th:text="${faculty.id}"></td>
+            <td>
+                <a th:href="@{/admin/manage-faculty/showFaculty/{id}(id=${faculty.id})}" th:text="${faculty.name}"></a>
+            </td>
+            <td>
+                <div th:style="'margin: 5px 10px'" class="btn-group" role="group">
+                    <form th:style="'margin: 25px'" th:action="@{/admin/manage-faculty/deleteFaculty/{id}(id=${faculty.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete?')">
+                        <input type="hidden" name="_method" value="delete" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    <form th:style="'margin: 5px 10px'" th:action="@{/admin/manage-faculty/attachCourseToFaculty}" method="post">
+                        <input type="hidden" name="facultyId" th:value="${faculty.id}" />
+                        <select name="courseId" class="form-control">
+                            <option
+                                    th:each="course : ${courses}"
+                                    th:value="${course.id}"
+                                    th:text="${course.name}"
+                                    th:unless="${faculty.courses.contains(course)}"></option>
+                        </select>
+                        <button style="margin: 10px 0" type="submit" class="btn btn-success">Attach Course</button>
+                    </form>
+                </div>
+            </td>
+            <td>
+                <ul th:if="${faculty.courses != null}" th:each="course : ${faculty.courses}">
+                    <li th:text="${course.name}"></li>
+                </ul>
+                <div th:if="${#lists.size(faculty.courses) == 0}">No courses available</div>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+    <div class="container mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+
+                <li th:if="${page != null and page.number > 0}" class="page-item">
+                    <a th:href="@{/admin/manage-faculty/listFaculty(page=0)}" class="page-link">First</a>
+                </li>
+
+                <li th:if="${page != null and page.number > 0}" class="page-item">
+                    <a th:href="@{/admin/manage-faculty/listFaculty(page=${page.number - 1})}" class="page-link">Previous</a>
+                </li>
+
+                <li th:each="i : ${#numbers.sequence(0, page != null ? page.totalPages - 1 : 0)}"
+                    th:class="${page != null and i == page.number} ? 'page-item active' : 'page-item'">
+                    <a th:href="@{/admin/manage-faculty/listFaculty(page=${i})}" class="page-link" th:text="${i + 1}"></a>
+                </li>
+
+                <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+                    <a th:href="@{/admin/manage-faculty/listFaculty(page=${page.number + 1})}" class="page-link">Next</a>
+                </li>
+
+                <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+                    <a th:href="@{/admin/manage-faculty/listFaculty(page=${page.totalPages - 1})}" class="page-link">Last</a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+</div>
+    </div>
+</div>
+
+<script src="../static/js/admin.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEX/4Jz2Cpahr+nTn9eEv0f25HAku1xL12/JM"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy4S5lO8Eoc3HAHRgM6Qq1OY72FPS3PFF"
+        crossorigin="anonymous"></script>
+</body>
+</html>
