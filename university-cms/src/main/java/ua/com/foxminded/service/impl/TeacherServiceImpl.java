@@ -5,7 +5,10 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.LectureRepository;
@@ -67,6 +70,16 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Teacher> findAll() {
         logger.info("Find all teachers");
         return (List<Teacher>) teacherRepository.findAll();
+    }
+
+    @Override
+    public Page<Teacher> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find teachers from {} to {}", from, to);
+        return teacherRepository.findAll(pageable);
     }
 
     @Override

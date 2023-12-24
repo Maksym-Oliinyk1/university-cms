@@ -6,11 +6,16 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.repository.LectureRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -109,6 +114,21 @@ class CourseServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(course1));
         assertTrue(result.contains(course2));
+    }
+
+    @Test
+    void findAllCoursesToPage_Success() {
+        Faculty faculty = new Faculty();
+        List<Course> courses = new ArrayList<>();
+        courses.add(new Course(1L, "Math", faculty));
+        courses.add(new Course(2L, "Physics", faculty));
+
+        when(courseRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(courses));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        courseService.findAll(pageable);
+
+        verify(courseRepository, times(1)).findAll(eq(pageable));
     }
 }
 

@@ -5,7 +5,10 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.repository.GroupRepository;
@@ -70,6 +73,16 @@ public class LectureServiceImpl implements LectureService {
     public List<Lecture> findAll() {
         logger.info("Find all lectures");
         return (List<Lecture>) lectureRepository.findAll();
+    }
+
+    @Override
+    public Page<Lecture> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find lectures from {} to {}", from, to);
+        return lectureRepository.findAll(pageable);
     }
 
     @Override

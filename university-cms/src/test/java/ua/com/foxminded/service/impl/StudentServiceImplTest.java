@@ -6,9 +6,16 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import ua.com.foxminded.entity.Group;
+import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.repository.StudentRepository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +39,8 @@ class StudentServiceImplTest {
 
     @Test
     void saveStudent_ValidName_Success() {
-        Student student = new Student(1L, "John", "Doe");
+        Group group = new Group();
+        Student student = new Student(1L, "John", "Doe", group);
         when(studentRepository.save(any(Student.class))).thenReturn(student);
 
         studentService.save(student);
@@ -42,7 +50,8 @@ class StudentServiceImplTest {
 
     @Test
     void saveStudent_InvalidName_ThrowsException() {
-        Student student = new Student(1L, "John1", "Doe");
+        Group group = new Group();
+        Student student = new Student(1L, "John1", "Doe", group);
         assertThrows(RuntimeException.class, () -> studentService.save(student));
 
         verify(studentRepository, never()).save(student);
@@ -70,8 +79,9 @@ class StudentServiceImplTest {
 
     @Test
     void findByIdStudent_Exists_Success() {
+        Group group = new Group();
         Long id = 1L;
-        Student student = new Student(id, "John", "Doe");
+        Student student = new Student(id, "John", "Doe", group);
         when(studentRepository.findById(id)).thenReturn(Optional.of(student));
 
         Student result = studentService.findById(id);
@@ -90,8 +100,9 @@ class StudentServiceImplTest {
 
     @Test
     void findAllStudents_Success() {
-        Student student1 = new Student(1L, "John", "Doe");
-        Student student2 = new Student(2L, "Jane", "Doe");
+        Group group = new Group();
+        Student student1 = new Student(1L, "John", "Doe", group);
+        Student student2 = new Student(2L, "Jane", "Doe", group);
         when(studentRepository.findAll()).thenReturn(Arrays.asList(student1, student2));
 
         List<Student> result = studentService.findAll();
@@ -100,5 +111,19 @@ class StudentServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(student1));
         assertTrue(result.contains(student2));
+    }
+
+    @Test
+    void findAllStudentsToPage_Success() {
+        Group group = new Group();
+        List<Student> students = new ArrayList<>();
+        students.add(new Student(1L, "John", "Doe", group));
+        students.add(new Student(2L, "Jane", "Doe", group));
+        when(studentRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(students));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        studentService.findAll(pageable);
+
+        verify(studentRepository, times(1)).findAll(eq(pageable));
     }
 }

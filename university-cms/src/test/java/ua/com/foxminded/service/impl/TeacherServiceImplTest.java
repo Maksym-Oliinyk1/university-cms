@@ -6,16 +6,17 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ua.com.foxminded.entity.Lecture;
+import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.repository.TeacherRepository;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -107,6 +108,19 @@ class TeacherServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(teacher1));
         assertTrue(result.contains(teacher2));
+    }
+
+    @Test
+    void findAllTeachersToPage_Success() {
+        List<Teacher> teachers = new ArrayList<>();
+        teachers.add(new Teacher(1L, "John", "Doe", "Ph.D."));
+        teachers.add(new Teacher(2L, "Jane", "Doe", "M.Sc."));
+        when(teacherRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(teachers));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        teacherService.findAll(pageable);
+
+        verify(teacherRepository, times(1)).findAll(eq(pageable));
     }
 
     @Test

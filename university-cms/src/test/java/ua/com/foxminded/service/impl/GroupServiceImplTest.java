@@ -6,6 +6,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
@@ -13,10 +17,7 @@ import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -113,11 +114,25 @@ class GroupServiceImplTest {
     }
 
     @Test
+    void findAllGroupsToPage_Success() {
+        List<Group> groups = new ArrayList<>();
+        groups.add(new Group(1L, "AB-12"));
+        groups.add(new Group(2L, "CD-32"));
+
+        when(groupRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(groups));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        groupService.findAll(pageable);
+
+        verify(groupRepository, times(1)).findAll(eq(pageable));
+    }
+
+    @Test
     void attachStudentToGroup_Success() {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe");
+        Student student = new Student(0L, "John", "Doe", group);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -133,7 +148,7 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe");
+        Student student = new Student(0L, "John", "Doe", group);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));

@@ -11,3 +11,10 @@ spring:
     locations: db/migration
   jpa:
     show-sql: true
+  thymeleaf:
+    cache: false
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+server:
+  port: 8081

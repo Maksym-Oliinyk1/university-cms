@@ -6,11 +6,15 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.repository.FacultyRepository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -137,5 +141,19 @@ class FacultyServiceImplTest {
 
         verify(courseRepository, times(1)).save(course);
         verify(facultyRepository, times(1)).save(faculty);
+    }
+
+    @Test
+    void findAllFacultiesToPage_Success() {
+        List<Faculty> faculties = new ArrayList<>();
+        faculties.add(new Faculty(1L, "Engineering"));
+        faculties.add(new Faculty(2L, "Math"));
+
+        when(facultyRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(faculties));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        facultyService.findAll(pageable);
+
+        verify(courseRepository, times(1)).findAll(eq(pageable));
     }
 }

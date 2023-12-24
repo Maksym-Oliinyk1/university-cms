@@ -6,6 +6,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
@@ -14,6 +17,7 @@ import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.LectureRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -125,6 +129,19 @@ class LectureServiceImplTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(lecture1));
         assertTrue(result.contains(lecture2));
+    }
+
+    @Test
+    void findAllLecturesToPage_Success() {
+        List<Lecture> lectures = new ArrayList<>();
+        lectures.add(new Lecture(1L, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now()));
+        lectures.add(new Lecture(2L, null, null, "Advanced Java Concepts", "This is a valid description about Java course for beginners", LocalDateTime.now()));
+        when(lectureRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(lectures));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        lectureService.findAll(pageable);
+
+        verify(lectureRepository, times(1)).findAll(eq(pageable));
     }
 
     @Test

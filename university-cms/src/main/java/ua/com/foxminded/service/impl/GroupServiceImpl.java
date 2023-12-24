@@ -5,7 +5,10 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
@@ -67,6 +70,16 @@ public class GroupServiceImpl implements GroupService {
     public List<Group> findAll() {
         logger.info("Find all groups");
         return (List<Group>) groupRepository.findAll();
+    }
+
+    @Override
+    public Page<Group> findAll(Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find groups from {} to {}", from, to);
+        return groupRepository.findAll(pageable);
     }
 
     @Override

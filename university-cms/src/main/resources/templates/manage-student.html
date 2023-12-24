@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student manage</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <div style="text-align: right; padding-right: 5%;">
+    <a class="btn btn-success" th:href="@{/}">Go to Home</a>
+  </div>
+</head>
+<body>
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Student Mange Page</h2>
+    </div>
+<div class="container mt-4 border p-4">
+  <h2>Create Student</h2>
+  <form style="margin-bottom: 15px" th:action="@{/admin/manage-student/addStudent}" th:object="${student}" method="post">
+    <div class="mb-3">
+      <label for="firstName" class="form-label">First Name</label>
+      <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="lastName" class="form-label">Last Name</label>
+      <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="group" class="form-label">Group</label>
+      <select id="group" name="group.id" th:field="*{group.id}" class="form-control" required>
+        <option th:each="groupItem : ${groups}" th:value="${groupItem.id}" th:text="${groupItem.name}"></option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+  </form>
+
+  <h2>Students</h2>
+  <a th:style="'margin: 20px 0'" class="btn btn-success" th:href="@{/admin/manage-student/listStudent}">List All Students</a>
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Group</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="student : ${students}">
+      <td th:text="${student.id}"></td>
+      <td>
+        <a th:href="@{admin/manage-student/{id}(id=${student.id})}" th:text="${student.firstName + ' ' + student.lastName}"></a>
+      </td>
+      <td th:text="${student.group.name}"></td>
+      <td>
+        <form th:action="@{/admin/manage-student/attachStudentToGroup}" method="post" class="d-inline">
+          <input type="hidden" name="studentId" th:value="${student.id}" />
+          <select name="groupId" class="form-control d-inline">
+            <option
+                    th:each="group : ${groups}"
+                    th:value="${group.id}"
+                    th:text="${group.name}"
+                    th:unless="${student.group.id == group.id}"></option>
+          </select>
+          <button style="margin: 20px 0" type="submit" class="btn btn-success">Attach to Group</button>
+        </form>
+      </td>
+      <td>
+        <form th:action="@{/admin/manage-student/deleteStudent/{id}(id=${student.id})}" method="post" onsubmit="return confirm('Are you sure you want to delete?')">
+          <input type="hidden" name="_method" value="delete" />
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="container mt-3">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+
+        <li th:if="${page != null and page.number > 0}" class="page-item">
+          <a th:href="@{/admin/manage-student/listStudent(page=0)}" class="page-link">First</a>
+        </li>
+
+        <li th:if="${page != null and page.number > 0}" class="page-item">
+          <a th:href="@{/admin/manage-student/listStudent(page=${page.number - 1})}" class="page-link">Previous</a>
+        </li>
+
+        <li th:each="i : ${#numbers.sequence(0, page != null ? page.totalPages - 1 : 0)}"
+            th:class="${page != null and i == page.number} ? 'page-item active' : 'page-item'">
+          <a th:href="@{/admin/manage-student/listStudent(page=${i})}" class="page-link" th:text="${i + 1}"></a>
+        </li>
+
+        <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+          <a th:href="@{/admin/manage-student/listStudent(page=${page.number + 1})}" class="page-link">Next</a>
+        </li>
+
+        <li th:if="${page != null and page.number < page.totalPages - 1}" class="page-item">
+          <a th:href="@{/admin/manage-student/listStudent(page=${page.totalPages - 1})}" class="page-link">Last</a>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+</div>
+  </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEX/4Jz2Cpahr+nTn9eEv0f25HAku1xL12/JM"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+Wy4S5lO8Eoc3HAHRgM6Qq1OY72FPS3PFF"
+        crossorigin="anonymous"></script>
+</body>
+</html>
