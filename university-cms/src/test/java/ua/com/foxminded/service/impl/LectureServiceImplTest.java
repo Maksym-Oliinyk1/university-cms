@@ -18,7 +18,6 @@ import ua.com.foxminded.repository.LectureRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +77,43 @@ class LectureServiceImplTest {
     }
 
     @Test
+    void updateLecture_ValidIdAndData_Success() {
+        Long id = 1L;
+        Teacher teacher = new Teacher();
+        Course course = new Course();
+        LocalDateTime specificDate = LocalDateTime.of(2023, 1, 1, 12, 0);
+
+        Lecture existingLecture = new Lecture(id, course, teacher, "Lecture A", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do", specificDate);
+        Lecture updatedLecture = new Lecture(null, null, null, "Lecture B", "Ut enim ad minim veniam, quis nostrud exercitation ullamco", specificDate);
+
+        when(lectureRepository.findById(id)).thenReturn(Optional.of(existingLecture));
+
+        lectureService.update(id, updatedLecture);
+
+        verify(lectureRepository, times(1)).save(existingLecture);
+        assertEquals("Lecture B", existingLecture.getName());
+        assertEquals("Ut enim ad minim veniam, quis nostrud exercitation ullamco", existingLecture.getDescription());
+    }
+
+    @Test
+    void updateLecture_NullId_ThrowsException() {
+        Lecture updatedLecture = new Lecture(null, null, null, "Lecture B", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do", LocalDateTime.now());
+
+        assertThrows(RuntimeException.class, () -> lectureService.update(null, updatedLecture));
+
+        verify(lectureRepository, never()).save(any());
+    }
+
+    @Test
+    void updateLecture_NullData_ThrowsException() {
+        Long id = 1L;
+
+        assertThrows(RuntimeException.class, () -> lectureService.update(id, null));
+
+        verify(lectureRepository, never()).save(any());
+    }
+
+    @Test
     void deleteLecture_Exists_Success() {
         Long id = 1L;
         when(lectureRepository.existsById(id)).thenReturn(true);
@@ -115,20 +151,6 @@ class LectureServiceImplTest {
         when(lectureRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lectureService.findById(id));
-    }
-
-    @Test
-    void findAllLectures_Success() {
-        Lecture lecture1 = new Lecture(1L, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
-        Lecture lecture2 = new Lecture(2L, null, null, "Advanced Java Concepts", "This is a valid description about Java course for beginners", LocalDateTime.now());
-        when(lectureRepository.findAll()).thenReturn(Arrays.asList(lecture1, lecture2));
-
-        List<Lecture> result = lectureService.findAll();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(lecture1));
-        assertTrue(result.contains(lecture2));
     }
 
     @Test

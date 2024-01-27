@@ -6,7 +6,7 @@ import ua.com.foxminded.entity.Lecture;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface GroupService extends BaseService<Group> {
+public interface GroupService extends EntityService<Group> {
     void attachStudentToGroup(Long studentId, Long groupId);
 
     void detachStudentFromGroup(Long studentId, Long groupId);

@@ -6,7 +6,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +15,6 @@ import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.repository.LectureRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,6 +59,30 @@ class CourseServiceImplTest {
     }
 
     @Test
+    void updateCourse_ValidIdAndData_Success() {
+        Long id = 1L;
+        Course existingCourse = new Course(id, "Mathematics", new Faculty(1L, "Engineering"));
+        Course updatedCourse = new Course(null, "Physics", new Faculty(2L, "Science"));
+
+        when(courseRepository.findById(id)).thenReturn(Optional.of(existingCourse));
+
+        courseService.update(id, updatedCourse);
+
+        verify(courseRepository, times(1)).save(existingCourse);
+        assertEquals("Physics", existingCourse.getName());
+        assertEquals(new Faculty(2L, "Science"), existingCourse.getFaculty());
+    }
+
+    @Test
+    void updateCourse_NullData_ThrowsException() {
+        Long id = 1L;
+
+        assertThrows(RuntimeException.class, () -> courseService.update(id, null));
+
+        verify(courseRepository, never()).save(any());
+    }
+
+    @Test
     void deleteCourse_Exists_Success() {
         Long id = 1L;
         when(courseRepository.existsById(id)).thenReturn(true);
@@ -99,21 +121,6 @@ class CourseServiceImplTest {
         when(courseRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> courseService.findById(id));
-    }
-
-    @Test
-    void findAllCourses_Success() {
-        Faculty faculty = new Faculty();
-        Course course1 = new Course(0L, "Math", faculty);
-        Course course2 = new Course(0L, "Physics", faculty);
-        when(courseRepository.findAll()).thenReturn(Arrays.asList(course1, course2));
-
-        List<Course> result = courseService.findAll();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(course1));
-        assertTrue(result.contains(course2));
     }
 
     @Test

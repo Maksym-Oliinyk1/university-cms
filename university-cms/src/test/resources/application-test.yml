@@ -5,4 +5,4 @@ spring:
     username: postgres
     password: Password
   jpa:
-   show-sql: true
+    show-sql: true

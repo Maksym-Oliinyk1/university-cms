@@ -16,5 +16,13 @@ spring:
     enabled: true
     prefix: classpath:/templates/
     suffix: .html
+  web:
+    resources:
+      static-locations: classpath:/static/, classpath:/public/, classpath:/images/
 server:
   port: 8081
+app:
+  image:
+    storage:
+      userProfileDirectory: ./user-profile-images/
+      applicationImagesDirectory: ./application-images/

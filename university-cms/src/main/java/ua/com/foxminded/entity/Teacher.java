@@ -1,6 +1,7 @@
 package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
+import ua.com.foxminded.enums.Gender;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,10 +9,19 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "teachers")
-public class Teacher extends User{
+public class Teacher extends User {
 
-    public Teacher(Long id, String firstName, String lastName, String academicDegree) {
-        super(firstName, lastName);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "teacher_id")
+    protected Long id;
+    @Column(name = "academic_degree")
+    private String academicDegree;
+    @OneToMany(mappedBy = "teacher")
+    private List<Lecture> lectures;
+
+    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, int age, String email, String imageName) {
+        super(firstName, lastName, gender, age, email, imageName);
         this.id = id;
         this.academicDegree = academicDegree;
         this.lectures = new ArrayList<>();
@@ -20,17 +30,6 @@ public class Teacher extends User{
     public Teacher() {
 
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_id")
-    protected Long id;
-
-    @Column(name = "academic_degree")
-    private String academicDegree;
-
-    @OneToMany(mappedBy = "teacher")
-    private List<Lecture> lectures;
 
     public Long getId() {
         return id;

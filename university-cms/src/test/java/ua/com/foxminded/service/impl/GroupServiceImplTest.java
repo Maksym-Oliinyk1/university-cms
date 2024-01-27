@@ -9,15 +9,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
+import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -55,6 +58,38 @@ class GroupServiceImplTest {
         assertThrows(RuntimeException.class, () -> groupService.save(group));
 
         verify(groupRepository, never()).save(group);
+    }
+
+    @Test
+    void updateGroup_ValidIdAndData_Success() {
+        Long id = 1L;
+        Group existingGroup = new Group(id, "AB-12");
+        Group updatedGroup = new Group(null, "CD-23");
+
+        when(groupRepository.findById(id)).thenReturn(Optional.of(existingGroup));
+
+        groupService.update(id, updatedGroup);
+
+        verify(groupRepository, times(1)).save(existingGroup);
+        assertEquals("CD-23", existingGroup.getName());
+    }
+
+    @Test
+    void updateGroup_NullId_ThrowsException() {
+        Group updatedGroup = new Group(null, "AB-12");
+
+        assertThrows(RuntimeException.class, () -> groupService.update(null, updatedGroup));
+
+        verify(groupRepository, never()).save(any());
+    }
+
+    @Test
+    void updateGroup_NullData_ThrowsException() {
+        Long id = 1L;
+
+        assertThrows(RuntimeException.class, () -> groupService.update(id, null));
+
+        verify(groupRepository, never()).save(any());
     }
 
 
@@ -100,20 +135,6 @@ class GroupServiceImplTest {
     }
 
     @Test
-    void findAllGroups_Success() {
-        Group group1 = new Group(0L, "AB-12");
-        Group group2 = new Group(0L, "CD-34");
-        when(groupRepository.findAll()).thenReturn(Arrays.asList(group1, group2));
-
-        List<Group> result = groupService.findAll();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(group1));
-        assertTrue(result.contains(group2));
-    }
-
-    @Test
     void findAllGroupsToPage_Success() {
         List<Group> groups = new ArrayList<>();
         groups.add(new Group(1L, "AB-12"));
@@ -132,7 +153,7 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", group);
+        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, 20, "astro@gmail.com", null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -148,7 +169,7 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", group);
+        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, 20, "astro@gmail.com", null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -158,7 +179,6 @@ class GroupServiceImplTest {
         verify(groupRepository, times(1)).save(group);
         verify(studentRepository, times(1)).save(student);
     }
-
 
 
     @Test

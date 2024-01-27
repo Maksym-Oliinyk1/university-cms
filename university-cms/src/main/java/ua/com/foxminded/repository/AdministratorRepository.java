@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 import ua.com.foxminded.entity.Administrator;
 
 @Repository
-public interface AdministratorRepository extends PagingAndSortingRepository<Administrator, Long>, CrudRepository<Administrator, Long> { }
+public interface AdministratorRepository extends PagingAndSortingRepository<Administrator, Long>, CrudRepository<Administrator, Long> {
+}

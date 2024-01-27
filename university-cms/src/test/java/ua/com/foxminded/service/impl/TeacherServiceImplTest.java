@@ -1,26 +1,34 @@
 package ua.com.foxminded.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.Lecture;
-import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.entity.Teacher;
+import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.repository.TeacherRepository;
+import ua.com.foxminded.service.ImageService;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {TeacherServiceImpl.class})
 class TeacherServiceImplTest {
 
@@ -30,66 +38,150 @@ class TeacherServiceImplTest {
     @MockBean
     private LectureRepository lectureRepository;
 
+    @MockBean
+    private ImageService imageService;
+
     @Autowired
     private TeacherServiceImpl teacherService;
 
     @BeforeEach
     void setUp() {
-        Mockito.reset(teacherRepository, lectureRepository);
+        Mockito.reset(teacherRepository, lectureRepository, imageService);
     }
 
     @Test
-    void saveTeacher_ValidName_Success() {
-        Teacher teacher = new Teacher(1L, "John", "Doe", "PhD");
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
+    void save_ValidDataWithImage_SaveSuccessful() {
+        Teacher teacher = createTeacher();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(anyLong(), any(MultipartFile.class))).thenReturn("32.png");
 
-        teacherService.save(teacher);
+        teacherService.save(teacher, imageFile);
 
         verify(teacherRepository, times(1)).save(teacher);
+        verify(imageService, times(1)).saveUserImage(eq(teacher.getId()), eq(imageFile));
+        assertEquals("32.png", teacher.getImageName());
     }
 
     @Test
-    void saveTeacher_InvalidName_ThrowsException() {
-        Teacher teacher = new Teacher(1L, "John1", "Doe", "PhD");
-        assertThrows(RuntimeException.class, () -> teacherService.save(teacher));
+    void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Teacher teacher = createTeacher();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
 
-        verify(teacherRepository, never()).save(teacher);
+        teacherService.save(teacher, emptyFile);
+
+        verify(teacherRepository, times(1)).save(teacher);
+        verify(imageService, times(1)).setDefaultImageForUser(teacher);
     }
 
     @Test
-    void deleteTeacher_Exists_Success() {
+    void save_ValidDataWithoutImage_SaveSuccessful() {
+        Teacher teacher = createTeacher();
+
+        teacherService.save(teacher, null);
+
+        verify(teacherRepository, times(1)).save(teacher);
+        verify(imageService, times(1)).setDefaultImageForUser(teacher);
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void save_InvalidData_ThrowException() {
+        Teacher teacher = createTeacher();
+        teacher.setEmail("invalidemail");
+
+        assertThrows(RuntimeException.class, () -> teacherService.save(teacher, null));
+
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Teacher.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void update_ExistingTeacherWithValidDataAndImage_UpdateSuccessful() {
         Long id = 1L;
-        when(teacherRepository.existsById(id)).thenReturn(true);
+        Teacher existingTeacher = createTeacher();
+        Teacher updatedTeacher = createTeacher();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(eq(id), any(MultipartFile.class))).thenReturn("32.png");
+
+        teacherService.update(id, updatedTeacher, imageFile);
+
+        verify(teacherRepository, times(1)).save(existingTeacher);
+        verify(imageService, times(1)).saveUserImage(eq(id), eq(imageFile));
+        assertEquals("32.png", existingTeacher.getImageName());
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsNull() {
+        Long id = 1L;
+        Teacher existingTeacher = createTeacher();
+        Teacher updatedTeacher = createTeacher();
+        updatedTeacher.setImageName(null);
+        when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
+
+        teacherService.update(id, updatedTeacher, null);
+
+        verify(teacherRepository, times(1)).save(existingTeacher);
+        verify(imageService, times(1)).setDefaultImageForUser(existingTeacher);
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Long id = 1L;
+        Teacher existingTeacher = createTeacher();
+        Teacher updatedTeacher = createTeacher();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
+        when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
+
+        teacherService.update(id, updatedTeacher, emptyFile);
+
+        verify(teacherRepository, times(1)).save(existingTeacher);
+        verify(imageService, times(1)).setDefaultImageForUser(existingTeacher);
+    }
+
+    @Test
+    void update_NonExistingTeacher_ThrowException() {
+        Long id = 1L;
+        Teacher updatedTeacher = createTeacher();
+        when(teacherRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> teacherService.update(id, updatedTeacher, null));
+
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Teacher.class));
+    }
+
+    @Test
+    void delete_ExistingTeacher_DeleteSuccessful() {
+        Long id = 1L;
+        Teacher teacher = createTeacher();
+        when(teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
 
         teacherService.delete(id);
 
         verify(teacherRepository, times(1)).deleteById(id);
+        verify(imageService, times(1)).deleteUserImage(id);
     }
 
     @Test
-    void deleteTeacher_NotExists_ThrowsException() {
+    void findById_ExistingTeacher_ReturnTeacher() {
         Long id = 1L;
-        when(teacherRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> teacherService.delete(id));
-
-        verify(teacherRepository, never()).deleteById(id);
-    }
-
-    @Test
-    void findByIdTeacher_Exists_Success() {
-        Long id = 1L;
-        Teacher teacher = new Teacher(id, "John", "Doe", "Ph.D.");
+        Teacher teacher = createTeacher();
         when(teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
 
         Teacher result = teacherService.findById(id);
 
-        assertNotNull(result);
         assertEquals(teacher, result);
     }
 
     @Test
-    void findByIdTeacher_NotExists_ThrowsException() {
+    void findById_NonExistingTeacher_ThrowException() {
         Long id = 1L;
         when(teacherRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -97,90 +189,155 @@ class TeacherServiceImplTest {
     }
 
     @Test
-    void findAllTeachers_Success() {
-        Teacher teacher1 = new Teacher(1L, "John", "Doe", "Ph.D.");
-        Teacher teacher2 = new Teacher(2L, "Jane", "Doe", "M.Sc.");
-        when(teacherRepository.findAll()).thenReturn(Arrays.asList(teacher1, teacher2));
+    void findAll_ReturnPageOfTeachers() {
+        Pageable pageable = mock(Pageable.class);
+        Page page = mock(Page.class);
 
-        List<Teacher> result = teacherService.findAll();
+        when(teacherRepository.findAll(pageable)).thenReturn(page);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(teacher1));
-        assertTrue(result.contains(teacher2));
+        Page<Teacher> result = teacherService.findAll(pageable);
+
+        assertEquals(page, result);
     }
 
     @Test
-    void findAllTeachersToPage_Success() {
-        List<Teacher> teachers = new ArrayList<>();
-        teachers.add(new Teacher(1L, "John", "Doe", "Ph.D."));
-        teachers.add(new Teacher(2L, "Jane", "Doe", "M.Sc."));
-        when(teacherRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(teachers));
-
-        Pageable pageable = PageRequest.of(0, 10);
-        teacherService.findAll(pageable);
-
-        verify(teacherRepository, times(1)).findAll(eq(pageable));
-    }
-
-    @Test
-    void attachLectureToTeacher_Success() {
+    void attachLectureToTeacher_ValidIds_AttachSuccessful() {
         Long lectureId = 1L;
-        Long teacherId = 2L;
-        Lecture lecture = new Lecture(lectureId, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
-        Teacher teacher = new Teacher(teacherId, "John", "Doe", "Ph.D.");
-
+        Long teacherId = 1L;
+        Lecture lecture = createLecture();
+        Teacher teacher = createTeacher();
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
         teacherService.attachLectureToTeacher(lectureId, teacherId);
 
+        assertTrue(teacher.getLectures().contains(lecture));
+        assertEquals(teacher, lecture.getTeacher());
         verify(teacherRepository, times(1)).save(teacher);
         verify(lectureRepository, times(1)).save(lecture);
     }
 
     @Test
-    void detachLectureFromTeacher_Success() {
+    void attachLectureToTeacher_NonExistingTeacher_ThrowException() {
         Long lectureId = 1L;
-        Long teacherId = 2L;
-        Lecture lecture = new Lecture(lectureId, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
-        Teacher teacher = new Teacher(teacherId, "John", "Doe", "Ph.D.");
+        Long teacherId = 1L;
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
+        Lecture lecture = createLecture();
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
+        assertThrows(EntityNotFoundException.class, () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
+
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(lectureRepository, never()).save(any(Lecture.class));
+    }
+
+    @Test
+    void attachLectureToTeacher_NonExistingLecture_ThrowException() {
+        Long lectureId = 1L;
+        Long teacherId = 1L;
+        Teacher teacher = createTeacher();
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
+
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(lectureRepository, never()).save(any(Lecture.class));
+    }
+
+    @Test
+    void detachLectureFromTeacher_ValidIds_DetachSuccessful() {
+        Long lectureId = 1L;
+        Long teacherId = 1L;
+        Lecture lecture = createLecture();
+        Teacher teacher = createTeacher();
+        teacher.getLectures().add(lecture);
+        lecture.setTeacher(teacher);
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
         teacherService.detachLectureFromTeacher(lectureId, teacherId);
 
+        assertFalse(teacher.getLectures().contains(lecture));
+        assertNull(lecture.getTeacher());
         verify(teacherRepository, times(1)).save(teacher);
         verify(lectureRepository, times(1)).save(lecture);
     }
 
     @Test
-    void showLecturesBetweenDates_ValidTeacherIdAndDates_Success() {
+    void detachLectureFromTeacher_NonExistingTeacher_ThrowException() {
+        Long lectureId = 1L;
         Long teacherId = 1L;
-        LocalDateTime firstDate = LocalDateTime.now();
-        LocalDateTime secondDate = firstDate.plusDays(5);
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
+        Lecture lecture = createLecture();
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
-        when(teacherRepository.existsById(teacherId)).thenReturn(true);
-        when(teacherRepository.findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(Collections.emptyList());
+        assertThrows(EntityNotFoundException.class, () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
 
-        List<Lecture> result = teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate);
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(lectureRepository, never()).save(any(Lecture.class));
     }
 
     @Test
-    void showLecturesBetweenDates_InvalidTeacherId_ThrowsException() {
+    void detachLectureFromTeacher_NonExistingLecture_ThrowException() {
+        Long lectureId = 1L;
+        Long teacherId = 1L;
+        Teacher teacher = createTeacher();
+        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+        when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
+
+        verify(teacherRepository, never()).save(any(Teacher.class));
+        verify(lectureRepository, never()).save(any(Lecture.class));
+    }
+
+    @Test
+    void showLecturesBetweenDates_ValidIds_ReturnLectures() {
+        Long teacherId = 1L;
+        LocalDateTime firstDate = LocalDateTime.now().minusDays(1);
+        LocalDateTime secondDate = LocalDateTime.now();
+        Lecture lecture = createLecture();
+        when(teacherRepository.existsById(teacherId)).thenReturn(true);
+        when(teacherRepository.findLecturesByDateBetween(teacherId, firstDate, secondDate))
+                .thenReturn(Collections.singletonList(lecture));
+
+        List<Lecture> result = teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate);
+
+        assertEquals(Collections.singletonList(lecture), result);
+    }
+
+    @Test
+    void showLecturesBetweenDates_TeacherNotFound_ThrowException() {
         Long teacherId = 1L;
         LocalDateTime firstDate = LocalDateTime.now();
-        LocalDateTime secondDate = firstDate.plusDays(5);
-
+        LocalDateTime secondDate = firstDate.plusDays(7);
         when(teacherRepository.existsById(teacherId)).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
+        assertThrows(RuntimeException.class, () ->
+                teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
+        verify(teacherRepository, times(1)).existsById(teacherId);
+        verify(teacherRepository, never()).findLecturesByDateBetween(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class));
+    }
 
-        verify(teacherRepository, never()).findLecturesByDateBetween(eq(teacherId), any(LocalDateTime.class), any(LocalDateTime.class));
+    private Teacher createTeacher() {
+        Teacher teacher = new Teacher();
+        teacher.setId(1L);
+        teacher.setFirstName("John");
+        teacher.setLastName("Doe");
+        teacher.setEmail("john.doe@example.com");
+        teacher.setGender(Gender.MALE);
+        teacher.setAcademicDegree("Ph.D.");
+        teacher.setLectures(new ArrayList<>());
+        return teacher;
+    }
+
+    private Lecture createLecture() {
+        Lecture lecture = new Lecture();
+        lecture.setId(1L);
+        lecture.setDate(LocalDateTime.now());
+        return lecture;
     }
 }
+
+

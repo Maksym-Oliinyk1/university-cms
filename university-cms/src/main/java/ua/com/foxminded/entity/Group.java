@@ -10,6 +10,22 @@ import java.util.Objects;
 @Table(name = "groups")
 public class Group {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
+    private Long id;
+    @Column(name = "group_name")
+    private String name;
+    @OneToMany(mappedBy = "group")
+    private List<Student> students;
+    @ManyToMany
+    @JoinTable(
+            name = "group_lecture",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "lecture_id")
+    )
+    private List<Lecture> lectures;
+
     public Group(Long id, String name) {
         this.id = id;
         this.name = name;
@@ -17,26 +33,8 @@ public class Group {
         this.lectures = new ArrayList<>();
     }
 
-    public Group() {}
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id")
-    private Long id;
-
-    @Column(name = "group_name")
-    private String name;
-
-    @OneToMany(mappedBy = "group")
-    private List<Student> students;
-
-    @ManyToMany
-    @JoinTable (
-            name = "group_lecture",
-            joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "lecture_id")
-    )
-    private List<Lecture> lectures;
+    public Group() {
+    }
 
     public Long getId() {
         return id;

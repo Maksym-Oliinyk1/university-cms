@@ -1,6 +1,7 @@
 package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,25 @@ import java.util.Objects;
 @Entity
 @Table(name = "lectures")
 public class Lecture {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "lecture_id")
+    private Long id;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private Teacher teacher;
+    @ManyToMany(mappedBy = "lectures")
+    private List<Group> groups;
+    @Column(name = "lecture_name")
+    private String name;
+    @Column(name = "description")
+    private String description;
+    @Column(name = "lecture_date")
+    private LocalDateTime date;
+
     public Lecture(Long id, Course course, Teacher teacher, String name, String description, LocalDateTime date) {
         this.id = id;
         this.course = course;
@@ -19,32 +39,8 @@ public class Lecture {
         this.groups = new ArrayList<>();
     }
 
-    public Lecture() {}
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lecture_id")
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
-
-    @ManyToOne
-    @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
-
-    @ManyToMany(mappedBy = "lectures")
-    private List<Group> groups;
-
-    @Column(name = "lecture_name")
-    private String name;
-
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "lecture_date")
-    private LocalDateTime date;
+    public Lecture() {
+    }
 
     public Long getId() {
         return id;

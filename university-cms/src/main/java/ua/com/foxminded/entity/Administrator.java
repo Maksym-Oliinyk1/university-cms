@@ -1,26 +1,27 @@
 package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
+import ua.com.foxminded.enums.Gender;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "administrators")
-public class Administrator extends User{
+public class Administrator extends User {
 
-    public Administrator(Long id, String firstName, String lastName) {
-        super(firstName, lastName);
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "administrator_id")
+    private Long id;
+
+    public Administrator(Long id, String firstName, String lastName, Gender gender, int age, String email, String imageName) {
+        super(firstName, lastName, gender, age, email, imageName);
         this.id = id;
     }
 
     public Administrator() {
 
     }
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "administrator_id")
-    private Long id;
 
     public Long getId() {
         return id;

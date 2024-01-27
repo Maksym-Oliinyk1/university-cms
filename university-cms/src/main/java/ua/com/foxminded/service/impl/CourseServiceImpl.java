@@ -6,12 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.service.CourseService;
 
-import java.util.List;
 import java.util.Optional;
 
 import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
@@ -37,6 +35,21 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public void update(Long id, Course updatedCourse) {
+        Optional<Course> optionalCourse = courseRepository.findById(id);
+        if (optionalCourse.isPresent()) {
+            Course existingCourse = optionalCourse.get();
+            existingCourse.setName(updatedCourse.getName());
+            existingCourse.setLectures(updatedCourse.getLectures());
+            existingCourse.setFaculty(updatedCourse.getFaculty());
+            courseRepository.save(existingCourse);
+            logger.info("Course updated by id: {}", id);
+        } else {
+            throw new RuntimeException("There is no such course");
+        }
+    }
+
+    @Override
     public void delete(Long id) {
         if (courseRepository.existsById(id)) {
             courseRepository.deleteById(id);
@@ -57,11 +70,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-    @Override
-    public List<Course> findAll() {
-        logger.info("Find all courses");
-        return (List<Course>) courseRepository.findAll();
-    }
 
     @Override
     public Page<Course> findAll(Pageable pageable) {

@@ -18,6 +18,7 @@ public interface TeacherRepository extends PagingAndSortingRepository<Teacher, L
     List<Lecture> findLecturesByDateBetween(@Param("teacherId") Long teacherId,
                                             @Param("startDateTime") LocalDateTime startDateTime,
                                             @Param("endDateTime") LocalDateTime endDateTime);
+
     @Query("SELECT COUNT(l) FROM Lecture l JOIN l.teacher t WHERE t.id = :teacherId")
     Long countLecturesByTeacher(@Param("teacherId") Long teacherId);
 }

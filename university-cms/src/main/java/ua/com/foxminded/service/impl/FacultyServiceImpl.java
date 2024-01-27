@@ -8,14 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.repository.FacultyRepository;
 import ua.com.foxminded.service.FacultyService;
 
-import java.util.List;
 import java.util.Optional;
 
 import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
@@ -43,6 +41,21 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public void update(Long id, Faculty updatedFaculty) {
+        Optional<Faculty> optionalFaculty = facultyRepository.findById(id);
+        if (optionalFaculty.isPresent()) {
+            Faculty existingFaculty = optionalFaculty.get();
+            existingFaculty.setName(updatedFaculty.getName());
+            existingFaculty.setCourses(updatedFaculty.getCourses());
+            facultyRepository.save(existingFaculty);
+            logger.info("Faculty updated by id: {}", id);
+        } else {
+            throw new RuntimeException("There is no such faculty");
+        }
+    }
+
+
+    @Override
     public void delete(Long id) {
         if (facultyRepository.existsById(id)) {
             facultyRepository.deleteById(id);
@@ -61,12 +74,6 @@ public class FacultyServiceImpl implements FacultyService {
         } else {
             throw new RuntimeException("The is no such faculty");
         }
-    }
-
-    @Override
-    public List<Faculty> findAll() {
-        logger.info("Find all faculties");
-        return (List<Faculty>) facultyRepository.findAll();
     }
 
     @Override

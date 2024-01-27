@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
@@ -18,17 +17,16 @@ import ua.com.foxminded.service.GroupService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static ua.com.foxminded.utill.NameValidator.isValidNameForGroup;
 
 @Service
 public class GroupServiceImpl implements GroupService {
     private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
-
+    private static final Long INVALID_NUMBER_OF_LECTURES = 0L;
     private final GroupRepository groupRepository;
     private final StudentRepository studentRepository;
-
-    private static final Long INVALID_NUMBER_OF_LECTURES = 0L;
 
     @Autowired
     public GroupServiceImpl(GroupRepository groupRepository, StudentRepository studentRepository) {
@@ -45,6 +43,22 @@ public class GroupServiceImpl implements GroupService {
             throw new RuntimeException("Invalid name for group");
         }
     }
+
+    @Override
+    public void update(Long id, Group updatedGroup) {
+        Optional<Group> optionalGroup = groupRepository.findById(id);
+        if (optionalGroup.isPresent()) {
+            Group existingGroup = optionalGroup.get();
+            existingGroup.setName(updatedGroup.getName());
+            existingGroup.setStudents(updatedGroup.getStudents());
+            existingGroup.setLectures(updatedGroup.getLectures());
+            groupRepository.save(existingGroup);
+            logger.info("Group updated by id: {}", id);
+        } else {
+            throw new RuntimeException("There is no such group");
+        }
+    }
+
 
     @Override
     public void delete(Long id) {
@@ -64,12 +78,6 @@ public class GroupServiceImpl implements GroupService {
         } else {
             throw new RuntimeException("There is no such group");
         }
-    }
-
-    @Override
-    public List<Group> findAll() {
-        logger.info("Find all groups");
-        return (List<Group>) groupRepository.findAll();
     }
 
     @Override

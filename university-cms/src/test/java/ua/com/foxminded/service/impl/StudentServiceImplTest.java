@@ -2,32 +2,36 @@ package ua.com.foxminded.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.Group;
-import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Student;
+import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.StudentRepository;
+import ua.com.foxminded.service.ImageService;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {StudentServiceImpl.class})
 class StudentServiceImplTest {
 
     @MockBean
     private StudentRepository studentRepository;
+
+    @MockBean
+    private ImageService imageService;
 
     @Autowired
     private StudentServiceImpl studentService;
@@ -38,60 +42,138 @@ class StudentServiceImplTest {
     }
 
     @Test
-    void saveStudent_ValidName_Success() {
-        Group group = new Group();
-        Student student = new Student(1L, "John", "Doe", group);
-        when(studentRepository.save(any(Student.class))).thenReturn(student);
+    void save_ValidDataWithImage_SaveSuccessful() {
+        Student student = createStudent();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(anyLong(), any(MultipartFile.class))).thenReturn("32.png");
 
-        studentService.save(student);
+        studentService.save(student, imageFile);
 
         verify(studentRepository, times(1)).save(student);
+        verify(imageService, times(1)).saveUserImage(eq(student.getId()), eq(imageFile));
+        assertEquals("32.png", student.getImageName());
     }
 
     @Test
-    void saveStudent_InvalidName_ThrowsException() {
-        Group group = new Group();
-        Student student = new Student(1L, "John1", "Doe", group);
-        assertThrows(RuntimeException.class, () -> studentService.save(student));
+    void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Student student = createStudent();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
 
-        verify(studentRepository, never()).save(student);
+        studentService.save(student, emptyFile);
+
+        verify(studentRepository, times(1)).save(student);
+        verify(imageService, times(1)).setDefaultImageForUser(student);
     }
 
     @Test
-    void deleteStudent_Exists_Success() {
+    void save_ValidDataWithoutImage_SaveSuccessful() {
+        Student student = createStudent();
+
+        studentService.save(student, null);
+
+        verify(studentRepository, times(1)).save(student);
+        verify(imageService, times(1)).setDefaultImageForUser(student);
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void save_InvalidData_ThrowException() {
+        Student student = createStudent();
+        student.setEmail("invalidemail");
+
+        assertThrows(RuntimeException.class, () -> studentService.save(student, null));
+
+        verify(studentRepository, never()).save(any(Student.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Student.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void update_ExistingStudentWithValidDataAndImage_UpdateSuccessful() {
         Long id = 1L;
-        when(studentRepository.existsById(id)).thenReturn(true);
+        Student existingStudent = createStudent();
+        Student updatedStudent = createStudent();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(studentRepository.findById(id)).thenReturn(Optional.of(existingStudent));
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(eq(id), any(MultipartFile.class))).thenReturn("32.png");
+
+        studentService.update(id, updatedStudent, imageFile);
+
+        verify(studentRepository, times(1)).save(existingStudent);
+        verify(imageService, times(1)).saveUserImage(eq(id), eq(imageFile));
+        assertEquals("32.png", existingStudent.getImageName());
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsNull() {
+        Long id = 1L;
+        Student existingStudent = createStudent();
+        Student updatedStudent = createStudent();
+        updatedStudent.setImageName(null);
+        when(studentRepository.findById(id)).thenReturn(Optional.of(existingStudent));
+
+        studentService.update(id, updatedStudent, null);
+
+        verify(studentRepository, times(1)).save(existingStudent);
+        verify(imageService, times(1)).setDefaultImageForUser(existingStudent);
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Long id = 1L;
+        Student existingStudent = createStudent();
+        Student updatedStudent = createStudent();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
+        when(studentRepository.findById(id)).thenReturn(Optional.of(existingStudent));
+
+        studentService.update(id, updatedStudent, emptyFile);
+
+        verify(studentRepository, times(1)).save(existingStudent);
+        verify(imageService, times(1)).setDefaultImageForUser(existingStudent);
+    }
+
+    @Test
+    void update_NonExistingStudent_ThrowException() {
+        Long id = 1L;
+        Student updatedStudent = createStudent();
+        when(studentRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> studentService.update(id, updatedStudent, null));
+
+        verify(studentRepository, never()).save(any(Student.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Student.class));
+    }
+
+    @Test
+    void delete_ExistingStudent_DeleteSuccessful() {
+        Long id = 1L;
+        Student student = createStudent();
+        when(studentRepository.findById(id)).thenReturn(Optional.of(student));
 
         studentService.delete(id);
 
         verify(studentRepository, times(1)).deleteById(id);
+        verify(imageService, times(1)).deleteUserImage(id);
     }
 
     @Test
-    void deleteStudent_NotExists_ThrowsException() {
+    void findById_ExistingStudent_ReturnStudent() {
         Long id = 1L;
-        when(studentRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> studentService.delete(id));
-
-        verify(studentRepository, never()).deleteById(id);
-    }
-
-    @Test
-    void findByIdStudent_Exists_Success() {
-        Group group = new Group();
-        Long id = 1L;
-        Student student = new Student(id, "John", "Doe", group);
+        Student student = createStudent();
         when(studentRepository.findById(id)).thenReturn(Optional.of(student));
 
         Student result = studentService.findById(id);
 
-        assertNotNull(result);
         assertEquals(student, result);
     }
 
     @Test
-    void findByIdStudent_NotExists_ThrowsException() {
+    void findById_NonExistingStudent_ThrowException() {
         Long id = 1L;
         when(studentRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -99,31 +181,26 @@ class StudentServiceImplTest {
     }
 
     @Test
-    void findAllStudents_Success() {
-        Group group = new Group();
-        Student student1 = new Student(1L, "John", "Doe", group);
-        Student student2 = new Student(2L, "Jane", "Doe", group);
-        when(studentRepository.findAll()).thenReturn(Arrays.asList(student1, student2));
+    void findAll_ReturnPageOfStudents() {
+        Pageable pageable = mock(Pageable.class);
+        Page page = mock(Page.class);
 
-        List<Student> result = studentService.findAll();
+        when(studentRepository.findAll(pageable)).thenReturn(page);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(student1));
-        assertTrue(result.contains(student2));
+        Page<Student> result = studentService.findAll(pageable);
+
+        assertEquals(page, result);
     }
 
-    @Test
-    void findAllStudentsToPage_Success() {
-        Group group = new Group();
-        List<Student> students = new ArrayList<>();
-        students.add(new Student(1L, "John", "Doe", group));
-        students.add(new Student(2L, "Jane", "Doe", group));
-        when(studentRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(students));
-
-        Pageable pageable = PageRequest.of(0, 10);
-        studentService.findAll(pageable);
-
-        verify(studentRepository, times(1)).findAll(eq(pageable));
+    private Student createStudent() {
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("John");
+        student.setLastName("Doe");
+        student.setEmail("john.doe@example.com");
+        student.setGender(Gender.MALE);
+        student.setGroup(new Group());
+        return student;
     }
 }
+

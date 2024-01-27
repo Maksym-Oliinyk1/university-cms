@@ -8,14 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.service.LectureService;
 
-import java.util.List;
 import java.util.Optional;
 
 import static ua.com.foxminded.utill.NameValidator.isValidDescriptionForLecture;
@@ -49,6 +47,24 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
+    @Transactional
+    public void update(Long id, Lecture updatedLecture) {
+        Optional<Lecture> optionalLecture = lectureRepository.findById(id);
+        if (optionalLecture.isPresent()) {
+            Lecture existingLecture = optionalLecture.get();
+            existingLecture.setName(updatedLecture.getName());
+            existingLecture.setDescription(updatedLecture.getDescription());
+            existingLecture.setTeacher(updatedLecture.getTeacher());
+            existingLecture.setCourse(updatedLecture.getCourse());
+            existingLecture.setGroups(updatedLecture.getGroups());
+            lectureRepository.save(existingLecture);
+            logger.info("Lecture updated by id: {}", id);
+        } else {
+            throw new RuntimeException("There is no such lecture");
+        }
+    }
+
+    @Override
     public void delete(Long id) {
         if (lectureRepository.existsById(id)) {
             lectureRepository.deleteById(id);
@@ -67,12 +83,6 @@ public class LectureServiceImpl implements LectureService {
         } else {
             throw new RuntimeException("There is no such lecture");
         }
-    }
-
-    @Override
-    public List<Lecture> findAll() {
-        logger.info("Find all lectures");
-        return (List<Lecture>) lectureRepository.findAll();
     }
 
     @Override
