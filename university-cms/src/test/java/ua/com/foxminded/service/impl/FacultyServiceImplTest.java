@@ -15,7 +15,6 @@ import ua.com.foxminded.repository.CourseRepository;
 import ua.com.foxminded.repository.FacultyRepository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +57,41 @@ class FacultyServiceImplTest {
     }
 
     @Test
+    void updateFaculty_ValidIdAndData_Success() {
+        Long id = 1L;
+        Faculty existingFaculty = new Faculty(id, "Engineering");
+        Faculty updatedFaculty = new Faculty(null, "Science");
+
+        when(facultyRepository.findById(id)).thenReturn(Optional.of(existingFaculty));
+
+        facultyService.update(id, updatedFaculty);
+
+        verify(facultyRepository, times(1)).save(existingFaculty);
+        assertEquals("Science", existingFaculty.getName());
+    }
+
+    @Test
+    void updateFaculty_InvalidId_ThrowsException() {
+        Long id = 1L;
+        Faculty updatedFaculty = new Faculty(null, "Science");
+
+        when(facultyRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> facultyService.update(id, updatedFaculty));
+
+        verify(facultyRepository, never()).save(any());
+    }
+
+    @Test
+    void updateFaculty_NullData_ThrowsException() {
+        Long id = 1L;
+
+        assertThrows(RuntimeException.class, () -> facultyService.update(id, null));
+
+        verify(facultyRepository, never()).save(any());
+    }
+
+    @Test
     void deleteFaculty_Exists_Success() {
         Long id = 1L;
         when(facultyRepository.existsById(id)).thenReturn(true);
@@ -95,20 +129,6 @@ class FacultyServiceImplTest {
         when(facultyRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> facultyService.findById(id));
-    }
-
-    @Test
-    void findAllFaculties_Success() {
-        Faculty faculty1 = new Faculty(0L, "Engineering");
-        Faculty faculty2 = new Faculty(0L, "Science");
-        when(facultyRepository.findAll()).thenReturn(Arrays.asList(faculty1, faculty2));
-
-        List<Faculty> result = facultyService.findAll();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(faculty1));
-        assertTrue(result.contains(faculty2));
     }
 
     @Test
@@ -154,6 +174,6 @@ class FacultyServiceImplTest {
         Pageable pageable = PageRequest.of(0, 10);
         facultyService.findAll(pageable);
 
-        verify(courseRepository, times(1)).findAll(eq(pageable));
+        verify(facultyRepository, times(1)).findAll(eq(pageable));
     }
 }

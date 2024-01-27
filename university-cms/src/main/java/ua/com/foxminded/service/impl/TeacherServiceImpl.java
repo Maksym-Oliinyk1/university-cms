@@ -8,17 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.Administrator;
+import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.repository.TeacherRepository;
+import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.TeacherService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static ua.com.foxminded.utill.NameValidator.isValidEmail;
 import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
@@ -28,16 +30,26 @@ public class TeacherServiceImpl implements TeacherService {
 
     private final TeacherRepository teacherRepository;
     private final LectureRepository lectureRepository;
+    private final ImageService imageService;
 
     @Autowired
-    public TeacherServiceImpl(TeacherRepository teacherRepository, LectureRepository lectureRepository) {
+    public TeacherServiceImpl(TeacherRepository teacherRepository, LectureRepository lectureRepository, ImageService imageService) {
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
+        this.imageService = imageService;
     }
 
     @Override
-    public void save(Teacher teacher) {
-        if (isValidNameForUser(teacher.getFirstName()) && isValidNameForUser(teacher.getLastName())) {
+    public void save(Teacher teacher, MultipartFile imageFile) {
+        if (isValidNameForUser(teacher.getFirstName())
+                && isValidNameForUser(teacher.getLastName())
+                && isValidEmail(teacher.getEmail())) {
+            if (imageFile == null || imageFile.isEmpty()) {
+                imageService.setDefaultImageForUser(teacher);
+            } else {
+                String imageName = imageService.saveUserImage(teacher.getId(), imageFile);
+                teacher.setImageName(imageName);
+            }
             teacherRepository.save(teacher);
             logger.info("Saved teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
         } else {
@@ -46,13 +58,34 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void delete(Long id) {
-        if (teacherRepository.existsById(id)) {
-            teacherRepository.deleteById(id);
-            logger.info("Teacher deleted by id: {}", id);
+    @Transactional
+    public void update(Long id, Teacher updatedTeacher, MultipartFile imageFile) {
+        Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
+        if (optionalTeacher.isPresent()) {
+            Teacher existingTeacher = optionalTeacher.get();
+            existingTeacher.setFirstName(updatedTeacher.getFirstName());
+            existingTeacher.setLastName(updatedTeacher.getLastName());
+            existingTeacher.setAcademicDegree(updatedTeacher.getAcademicDegree());
+            existingTeacher.setAge(updatedTeacher.getAge());
+            existingTeacher.setEmail(updatedTeacher.getEmail());
+            if (imageFile == null || imageFile.isEmpty()) {
+                imageService.setDefaultImageForUser(existingTeacher);
+            } else {
+                String imageName = imageService.saveUserImage(id, imageFile);
+                existingTeacher.setImageName(imageName);
+            }
+            teacherRepository.save(existingTeacher);
+            logger.info("Teacher updated by id: {}", id);
         } else {
-            throw new RuntimeException("Teacher was not found by id");
+            throw new RuntimeException("There is no such teacher");
         }
+    }
+
+    @Override
+    public void delete(Long id) {
+        imageService.deleteUserImage(id);
+        teacherRepository.deleteById(id);
+        logger.info("Teacher was deleted by id: {}", id);
     }
 
     @Override
@@ -64,12 +97,6 @@ public class TeacherServiceImpl implements TeacherService {
         } else {
             throw new RuntimeException("There is no such teacher");
         }
-    }
-
-    @Override
-    public List<Teacher> findAll() {
-        logger.info("Find all teachers");
-        return (List<Teacher>) teacherRepository.findAll();
     }
 
     @Override

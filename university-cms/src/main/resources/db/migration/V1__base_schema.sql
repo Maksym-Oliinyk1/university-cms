@@ -2,14 +2,33 @@ CREATE TABLE administrators
 (
     administrator_id BIGSERIAL PRIMARY KEY,
     first_name       VARCHAR(255),
-    last_name        VARCHAR(255)
+    last_name        VARCHAR(255),
+    gender           VARCHAR(10),
+    age              VARCHAR(5),
+    email            VARCHAR(255),
+    image_name       VARCHAR(255)
+);
+
+CREATE TABLE maintainers
+(
+    maintainer_id BIGSERIAL PRIMARY KEY,
+    first_name    VARCHAR(255),
+    last_name     VARCHAR(255),
+    gender        VARCHAR(10),
+    age           VARCHAR(5),
+    email         VARCHAR(255),
+    image_name    VARCHAR(255)
 );
 
 CREATE TABLE teachers
 (
-    teacher_id              BIGSERIAL PRIMARY KEY,
-    first_name              VARCHAR(255),
-    last_name               VARCHAR(255),
+    teacher_id      BIGSERIAL PRIMARY KEY,
+    first_name      VARCHAR(255),
+    last_name       VARCHAR(255),
+    gender          VARCHAR(10),
+    age             VARCHAR(5),
+    email           VARCHAR(255),
+    image_name      VARCHAR(255),
     academic_degree VARCHAR(255)
 );
 
@@ -40,7 +59,12 @@ CREATE TABLE students
     group_id   BIGSERIAL,
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
-    FOREIGN KEY (group_id) REFERENCES groups (group_id)
+    gender     VARCHAR(10),
+
+    FOREIGN KEY (group_id) REFERENCES groups (group_id),
+    age        VARCHAR(5),
+    email      VARCHAR(255),
+    image_name VARCHAR(255)
 );
 
 CREATE TABLE lectures

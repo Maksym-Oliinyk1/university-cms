@@ -1,6 +1,7 @@
 package ua.com.foxminded.entity;
 
 import jakarta.persistence.*;
+import ua.com.foxminded.enums.Gender;
 
 import java.util.Objects;
 
@@ -8,22 +9,22 @@ import java.util.Objects;
 @Table(name = "students")
 public class Student extends User {
 
-    public Student(Long id, String firstName, String lastName, Group group) {
-        super(firstName, lastName);
-        this.group = group;
-        this.id = id;
-    }
-
-    public Student() {}
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "student_id")
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
+
+    public Student(Long id, String firstName, String lastName, Gender gender, Group group, int age, String email, String imageName) {
+        super(firstName, lastName, gender, age, email, imageName);
+        this.group = group;
+        this.id = id;
+    }
+
+    public Student() {
+    }
 
     public Long getId() {
         return id;

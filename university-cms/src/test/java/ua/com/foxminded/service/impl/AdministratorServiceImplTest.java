@@ -2,30 +2,35 @@ package ua.com.foxminded.service.impl;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.Administrator;
+import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.AdministratorRepository;
+import ua.com.foxminded.service.ImageService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {AdministratorServiceImpl.class})
 class AdministratorServiceImplTest {
 
     @MockBean
     private AdministratorRepository administratorRepository;
+
+    @MockBean
+    private ImageService imageService;
 
     @Autowired
     private AdministratorServiceImpl administratorService;
@@ -36,57 +41,138 @@ class AdministratorServiceImplTest {
     }
 
     @Test
-    void saveAdministrator_ValidName_Success() {
-        Administrator administrator = new Administrator(1L, "John", "Doe");
-        when(administratorRepository.save(any(Administrator.class))).thenReturn(administrator);
+    void save_ValidDataWithImage_SaveSuccessful() {
+        Administrator admin = createAdministrator();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(anyLong(), any(MultipartFile.class))).thenReturn("32.png");
 
-        administratorService.save(administrator);
+        administratorService.save(admin, imageFile);
 
-        verify(administratorRepository, times(1)).save(administrator);
+        verify(administratorRepository, times(1)).save(admin);
+        verify(imageService, times(1)).saveUserImage(eq(admin.getId()), eq(imageFile));
+        assertEquals("32.png", admin.getImageName());
     }
 
     @Test
-    void saveAdministrator_InvalidName_ThrowsException() {
-        Administrator administrator = new Administrator(1L, "John1", "Doe");
-        assertThrows(RuntimeException.class, () -> administratorService.save(administrator));
+    void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Administrator admin = createAdministrator();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
 
-        verify(administratorRepository, never()).save(administrator);
+        administratorService.save(admin, emptyFile);
+
+        verify(administratorRepository, times(1)).save(admin);
+        verify(imageService, times(1)).setDefaultImageForUser(admin);
     }
 
     @Test
-    void deleteAdministrator_Exists_Success() {
+    void save_ValidDataWithoutImage_SaveSuccessful() {
+        Administrator admin = createAdministrator();
+
+        administratorService.save(admin, null);
+
+        verify(administratorRepository, times(1)).save(admin);
+        verify(imageService, times(1)).setDefaultImageForUser(admin);
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void save_InvalidData_ThrowException() {
+        Administrator admin = createAdministrator();
+        admin.setEmail("invalidemail");
+
+        assertThrows(RuntimeException.class, () -> administratorService.save(admin, null));
+
+        verify(administratorRepository, never()).save(any(Administrator.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+    }
+
+    @Test
+    void update_ExistingAdministratorWithValidDataAndImage_UpdateSuccessful() {
         Long id = 1L;
-        when(administratorRepository.existsById(id)).thenReturn(true);
+        Administrator existingAdministrator = createAdministrator();
+        Administrator updatedAdministrator = createAdministrator();
+        MultipartFile imageFile = mock(MultipartFile.class);
+        when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
+        when(imageFile.isEmpty()).thenReturn(false);
+        when(imageService.saveUserImage(eq(id), any(MultipartFile.class))).thenReturn("32.png");
+
+        administratorService.update(id, updatedAdministrator, imageFile);
+
+        verify(administratorRepository, times(1)).save(existingAdministrator);
+        verify(imageService, times(1)).saveUserImage(eq(id), eq(imageFile));
+        assertEquals("32.png", existingAdministrator.getImageName());
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsNull() {
+        Long id = 1L;
+        Administrator existingAdministrator = createAdministrator();
+        Administrator updatedAdministrator = createAdministrator();
+        updatedAdministrator.setImageName(null);
+        when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
+
+        administratorService.update(id, updatedAdministrator, null);
+
+        verify(administratorRepository, times(1)).save(existingAdministrator);
+        verify(imageService, times(1)).setDefaultImageForUser(existingAdministrator);
+    }
+
+    @Test
+    void update_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Long id = 1L;
+        Administrator existingAdministrator = createAdministrator();
+        Administrator updatedAdministrator = createAdministrator();
+        MultipartFile emptyFile = mock(MultipartFile.class);
+        when(emptyFile.isEmpty()).thenReturn(true);
+        when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
+
+        administratorService.update(id, updatedAdministrator, emptyFile);
+
+        verify(administratorRepository, times(1)).save(existingAdministrator);
+        verify(imageService, times(1)).setDefaultImageForUser(existingAdministrator);
+    }
+
+    @Test
+    void update_NonExistingAdministrator_ThrowException() {
+        Long id = 1L;
+        Administrator updatedAdministrator = createAdministrator();
+        when(administratorRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> administratorService.update(id, updatedAdministrator, null));
+
+        verify(administratorRepository, never()).save(any(Administrator.class));
+        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
+    }
+
+    @Test
+    void delete_ExistingAdministrator_DeleteSuccessful() {
+        Long id = 1L;
+        Administrator administrator = createAdministrator();
+        when(administratorRepository.findById(id)).thenReturn(Optional.of(administrator));
 
         administratorService.delete(id);
 
         verify(administratorRepository, times(1)).deleteById(id);
+        verify(imageService, times(1)).deleteUserImage(id);
     }
 
     @Test
-    void deleteAdministrator_NotExists_ThrowsException() {
+    void findById_ExistingAdministrator_ReturnAdministrator() {
         Long id = 1L;
-        when(administratorRepository.existsById(id)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> administratorService.delete(id));
-
-        verify(administratorRepository, never()).deleteById(id);
-    }
-
-    @Test
-    void findByIdAdministrator_Exists_Success() {
-        Long id = 1L;
-        Administrator administrator = new Administrator(id, "John", "Doe");
+        Administrator administrator = createAdministrator();
         when(administratorRepository.findById(id)).thenReturn(Optional.of(administrator));
 
         Administrator result = administratorService.findById(id);
 
-        assertNotNull(result);
         assertEquals(administrator, result);
     }
 
     @Test
-    void findByIdAdministrator_NotExists_ThrowsException() {
+    void findById_NonExistingAdministrator_ThrowException() {
         Long id = 1L;
         when(administratorRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -94,28 +180,25 @@ class AdministratorServiceImplTest {
     }
 
     @Test
-    void findAllAdministrators_Success() {
-        Administrator administrator1 = new Administrator(1L, "John", "Doe");
-        Administrator administrator2 = new Administrator(2L, "Jane", "Doe");
-        when(administratorRepository.findAll()).thenReturn(Arrays.asList(administrator1, administrator2));
+    void findAll_ReturnPageOfAdministrators() {
+        Pageable pageable = mock(Pageable.class);
+        Page page = mock(Page.class);
 
-        List<Administrator> result = administratorService.findAll();
+        when(administratorRepository.findAll(pageable)).thenReturn(page);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.contains(administrator1));
-        assertTrue(result.contains(administrator2));
+        Page<Administrator> result = administratorService.findAll(pageable);
+
+        assertEquals(page, result);
     }
 
-    @Test
-    void findAllAdministratorsToPage_Success() {
-        List<Administrator> administrators = new ArrayList<>();
-        administrators.add((new Administrator(1L, "John", "Doe")));
-        administrators.add(new Administrator(2L, "Jane", "Doe"));
-
-        when(administratorRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(administrators));
-        Pageable pageable = PageRequest.of(0, 10);
-        administratorService.findAll(pageable);
-        verify(administratorRepository, times(1)).findAll(eq(pageable));
+    private Administrator createAdministrator() {
+        Administrator administrator = new Administrator();
+        administrator.setId(1L);
+        administrator.setFirstName("John");
+        administrator.setLastName("Doe");
+        administrator.setEmail("john.doe@example.com");
+        administrator.setGender(Gender.MALE);
+        return administrator;
     }
 }
+

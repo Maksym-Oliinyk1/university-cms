@@ -23,7 +23,7 @@ VALUES (2, 3, 'Student2', 'LastName2'),
        (3, 3, 'Student3', 'LastName3');
 
 INSERT INTO lectures (lecture_id, course_id, teacher_id, lecture_name, description, lecture_date)
-VALUES (2, 2, 3 , 'Lecture2', 'Description2', '2023-12-01 12:00:00'),
+VALUES (2, 2, 3, 'Lecture2', 'Description2', '2023-12-01 12:00:00'),
        (3, 2, 3, 'Lecture3', 'Description3', '2023-12-04 15:00:00');
 
 INSERT INTO group_lecture (group_id, lecture_id)

@@ -9,24 +9,23 @@ import java.util.Objects;
 @Entity
 @Table(name = "faculties")
 public class Faculty {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "faculty_id")
+    private Long id;
+    @Column(name = "faculty_name")
+    private String name;
+    @OneToMany(mappedBy = "faculty")
+    private List<Course> courses;
+
     public Faculty(Long id, String name) {
         this.id = id;
         this.name = name;
         this.courses = new ArrayList<>();
     }
 
-    public Faculty() {}
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "faculty_id")
-    private Long id;
-
-    @Column(name = "faculty_name")
-    private String name;
-
-    @OneToMany(mappedBy = "faculty")
-    private List<Course> courses;
+    public Faculty() {
+    }
 
     public Long getId() {
         return id;

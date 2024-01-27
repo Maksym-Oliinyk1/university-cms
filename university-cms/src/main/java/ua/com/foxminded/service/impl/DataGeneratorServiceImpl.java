@@ -1,32 +1,14 @@
 package ua.com.foxminded.service.impl;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.transaction.Transactional;
-import org.hibernate.engine.jdbc.ReaderInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.*;
-import ua.com.foxminded.repository.*;
-import ua.com.foxminded.service.DataGeneratorService;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
+/*
 @Service
+TODO Outdated. Must be updated after writing all templates.
 public class DataGeneratorServiceImpl implements DataGeneratorService {
 
     private static final Logger logger = LoggerFactory.getLogger(DataGeneratorServiceImpl.class);
-
+    private static final int AMOUNT_OF_ADMINISTRATORS = 21;
+    private static final int AMOUNT_OF_TEACHERS = 30;
+    private static final int AMOUNT_OF_STUDENTS = 200;
     private final AdministratorRepository administratorRepository;
     private final CourseRepository courseRepository;
     private final FacultyRepository facultyRepository;
@@ -34,9 +16,9 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
     private final LectureRepository lectureRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
-
     private final Random random = new Random();
-
+    private final List<String> firstNames = readFilePerOneLine("/populate/first_names");
+    private final List<String> lastNames = readFilePerOneLine("/populate/last_names");
     @Autowired
     public DataGeneratorServiceImpl(AdministratorRepository administratorRepository, CourseRepository courseRepository, FacultyRepository facultyRepository, GroupRepository groupRepository, LectureRepository lectureRepository, StudentRepository studentRepository, TeacherRepository teacherRepository) {
         this.administratorRepository = administratorRepository;
@@ -47,14 +29,6 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
     }
-
-    private final List<String> firstNames = readFilePerOneLine("/populate/first_names");
-    private final List<String> lastNames = readFilePerOneLine("/populate/last_names");
-
-    private static final int AMOUNT_OF_ADMINISTRATORS = 21;
-    private static final int AMOUNT_OF_TEACHERS = 30;
-    private static final int AMOUNT_OF_STUDENTS = 200;
-
 
     @Override
     @PostConstruct
@@ -101,7 +75,7 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
             int randomLastNameIndex = random.nextInt(lastNames.size());
             String randomFirstName = firstNames.get(randomFirstNameIndex);
             String randomLastName = lastNames.get(randomLastNameIndex);
-            administratorRepository.save(new Administrator(0L, randomFirstName, randomLastName));
+            administratorRepository.save(new Administrator(0L, randomFirstName, randomLastName, 32, "john.dao@gmail.com", "static/images/avatar.png"));
             logger.info("Created administrator: {} {}.", randomFirstName, randomLastName);
         }
     }
@@ -115,7 +89,7 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
             String randomFirstName = firstNames.get(randomFirstNameIndex);
             String randomLastName = lastNames.get(randomLastNameIndex);
             String randomDegree = degrees.get(randomDegreeIndex);
-            teacherRepository.save(new Teacher(0L, randomFirstName, randomLastName, randomDegree));
+            teacherRepository.save(new Teacher(0L, randomFirstName, randomLastName, randomDegree, 32, "john.dao@gmail.com", "static/images/avatar.png"));
             logger.info("Created teacher: {} {}.", randomFirstName, randomLastName);
         }
     }
@@ -139,27 +113,28 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
     private void generateCourses() {
         List<String> courseNames = readFilePerOneLine("/populate/course_names");
         List<Faculty> faculties = (List<Faculty>) facultyRepository.findAll();
-            for (String courseName : courseNames) {
-                Faculty randomFaculty = faculties.get(random.nextInt(faculties.size()));
-                courseRepository.save(new Course(0L, courseName, randomFaculty));
-                logger.info("Created course: {}.", courseName);
-            }
+        for (String courseName : courseNames) {
+            Faculty randomFaculty = faculties.get(random.nextInt(faculties.size()));
+            courseRepository.save(new Course(0L, courseName, randomFaculty));
+            logger.info("Created course: {}.", courseName);
+        }
     }
 
     private void generateStudents() {
         List<Group> groups = (List<Group>) groupRepository.findAll();
-        for(int i = 0; i < AMOUNT_OF_STUDENTS; i++) {
+        for (int i = 0; i < AMOUNT_OF_STUDENTS; i++) {
             int randomFirstNameIndex = random.nextInt(firstNames.size());
             int randomLastNameIndex = random.nextInt(lastNames.size());
             int randomGroupIndex = random.nextInt(groups.size());
             String randomFirstName = firstNames.get(randomFirstNameIndex);
             String randomLastName = lastNames.get(randomLastNameIndex);
             Group randomGroup = groups.get(randomGroupIndex);
-            studentRepository.save(new Student(0L, randomFirstName, randomLastName, randomGroup));
+            studentRepository.save(new Student(0L, randomFirstName, randomLastName, randomGroup, 12, "john.dao@gmail.com", "static/images/avatar.png"));
             logger.info("Created Student: {} {}", randomFirstName, randomLastName);
 
         }
     }
+
     private void generateLectures() {
         List<Teacher> teachers = (List<Teacher>) teacherRepository.findAll();
         List<Course> courses = (List<Course>) courseRepository.findAll();
@@ -188,6 +163,7 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
 
         return randomDate;
     }
+
     private List<String> readFilePerOneLine(String filePath) {
         List<String> stringList = new ArrayList<>();
         InputStream inputStream = ReaderInputStream.class.getResourceAsStream(filePath);
@@ -207,4 +183,5 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
         }
         return stringList;
     }
-}
+}*/
+
