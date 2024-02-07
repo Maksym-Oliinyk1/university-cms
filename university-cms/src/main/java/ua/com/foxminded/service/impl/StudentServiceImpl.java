@@ -19,7 +19,7 @@ import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class StudentServiceImpl implements StudentService {
-
+    private static final String STUDENT_ROLE = "STUDENT";
     private static final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
 
     private final StudentRepository studentRepository;
@@ -38,11 +38,13 @@ public class StudentServiceImpl implements StudentService {
                 && isValidEmail(student.getEmail())) {
             if (imageFile == null || imageFile.isEmpty()) {
                 imageService.setDefaultImageForUser(student);
+                studentRepository.save(student);
             } else {
-                String imageName = imageService.saveUserImage(student.getId(), imageFile);
+                student = studentRepository.save(student);
+                String imageName = imageService.saveUserImage(STUDENT_ROLE, student.getId(), imageFile);
                 student.setImageName(imageName);
+                studentRepository.save(student);
             }
-            studentRepository.save(student);
             logger.info("Saved student: {} {}", student.getFirstName(), student.getLastName());
         } else {
             throw new RuntimeException("Invalid name for student");
@@ -51,29 +53,33 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void update(Long id, Student updatedStudent, MultipartFile imageFile) {
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-        if (optionalStudent.isPresent()) {
-            Student existingStudent = optionalStudent.get();
-            existingStudent.setFirstName(updatedStudent.getFirstName());
-            existingStudent.setLastName(updatedStudent.getLastName());
-            existingStudent.setAge(updatedStudent.getAge());
-            existingStudent.setEmail(updatedStudent.getEmail());
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(existingStudent);
-            } else {
-                String imageName = imageService.saveUserImage(id, imageFile);
-                existingStudent.setImageName(imageName);
-            }
-            studentRepository.save(existingStudent);
-            logger.info("Student updated by id: {}", id);
-        } else {
-            throw new RuntimeException("There is no such student");
+        Student existingStudent = studentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+        if (!isValidNameForUser(updatedStudent.getFirstName()) ||
+                !isValidNameForUser(updatedStudent.getLastName()) ||
+                !isValidEmail(updatedStudent.getEmail())) {
+            throw new RuntimeException("Invalid data for student");
         }
+        existingStudent.setFirstName(updatedStudent.getFirstName());
+        existingStudent.setLastName(updatedStudent.getLastName());
+        existingStudent.setGender(updatedStudent.getGender());
+        existingStudent.setAge(updatedStudent.getAge());
+        existingStudent.setEmail(updatedStudent.getEmail());
+
+        if (imageFile == null || imageFile.isEmpty()) {
+            imageService.setDefaultImageForUser(existingStudent);
+        } else {
+            String imageName = imageService.saveUserImage(STUDENT_ROLE, id, imageFile);
+            existingStudent.setImageName(imageName);
+        }
+        studentRepository.save(existingStudent);
+        logger.info("Student updated by id: {}", id);
     }
+
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(id);
+        imageService.deleteUserImage(STUDENT_ROLE, id);
         studentRepository.deleteById(id);
         logger.info("Student was deleted by id: {}", id);
     }

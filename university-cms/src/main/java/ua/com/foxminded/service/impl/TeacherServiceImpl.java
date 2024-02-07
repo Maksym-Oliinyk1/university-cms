@@ -25,7 +25,7 @@ import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
-
+    private static final String TEACHER_ROLE = "TEACHER";
     private static final Logger logger = LoggerFactory.getLogger(TeacherServiceImpl.class);
 
     private final TeacherRepository teacherRepository;
@@ -46,11 +46,13 @@ public class TeacherServiceImpl implements TeacherService {
                 && isValidEmail(teacher.getEmail())) {
             if (imageFile == null || imageFile.isEmpty()) {
                 imageService.setDefaultImageForUser(teacher);
+                teacherRepository.save(teacher);
             } else {
-                String imageName = imageService.saveUserImage(teacher.getId(), imageFile);
+                teacher = teacherRepository.save(teacher);
+                String imageName = imageService.saveUserImage(TEACHER_ROLE, teacher.getId(), imageFile);
                 teacher.setImageName(imageName);
+                teacherRepository.save(teacher);
             }
-            teacherRepository.save(teacher);
             logger.info("Saved teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
         } else {
             throw new RuntimeException("Invalid name for teacher");
@@ -63,15 +65,22 @@ public class TeacherServiceImpl implements TeacherService {
         Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
         if (optionalTeacher.isPresent()) {
             Teacher existingTeacher = optionalTeacher.get();
+
+            if (!isValidNameForUser(updatedTeacher.getFirstName()) ||
+                    !isValidNameForUser(updatedTeacher.getLastName()) ||
+                    !isValidEmail(updatedTeacher.getEmail())) {
+                throw new RuntimeException("Invalid data for teacher");
+            }
             existingTeacher.setFirstName(updatedTeacher.getFirstName());
             existingTeacher.setLastName(updatedTeacher.getLastName());
             existingTeacher.setAcademicDegree(updatedTeacher.getAcademicDegree());
             existingTeacher.setAge(updatedTeacher.getAge());
             existingTeacher.setEmail(updatedTeacher.getEmail());
+
             if (imageFile == null || imageFile.isEmpty()) {
                 imageService.setDefaultImageForUser(existingTeacher);
             } else {
-                String imageName = imageService.saveUserImage(id, imageFile);
+                String imageName = imageService.saveUserImage(TEACHER_ROLE, id, imageFile);
                 existingTeacher.setImageName(imageName);
             }
             teacherRepository.save(existingTeacher);
@@ -81,9 +90,10 @@ public class TeacherServiceImpl implements TeacherService {
         }
     }
 
+
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(id);
+        imageService.deleteUserImage(TEACHER_ROLE, id);
         teacherRepository.deleteById(id);
         logger.info("Teacher was deleted by id: {}", id);
     }

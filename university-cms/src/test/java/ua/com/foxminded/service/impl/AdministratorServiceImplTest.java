@@ -25,6 +25,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {AdministratorServiceImpl.class})
 class AdministratorServiceImplTest {
+    private static final String ADMIN_ROLE = "ADMIN";
 
     @MockBean
     private AdministratorRepository administratorRepository;
@@ -45,14 +46,14 @@ class AdministratorServiceImplTest {
         Administrator admin = createAdministrator();
         MultipartFile imageFile = mock(MultipartFile.class);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-
+        when(imageService.saveUserImage(eq(ADMIN_ROLE), anyLong(), eq(imageFile))).thenReturn("32.png");
+        when(administratorRepository.save(admin)).thenReturn(admin);
         administratorService.save(admin, imageFile);
-
-        verify(administratorRepository, times(1)).save(admin);
-        verify(imageService, times(1)).saveUserImage(eq(admin.getId()), eq(imageFile));
+        verify(administratorRepository, times(2)).save(admin);
+        verify(imageService, times(1)).saveUserImage(eq(ADMIN_ROLE), eq(admin.getId()), eq(imageFile));
         assertEquals("32.png", admin.getImageName());
     }
+
 
     @Test
     void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
@@ -74,7 +75,7 @@ class AdministratorServiceImplTest {
 
         verify(administratorRepository, times(1)).save(admin);
         verify(imageService, times(1)).setDefaultImageForUser(admin);
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
@@ -86,7 +87,7 @@ class AdministratorServiceImplTest {
 
         verify(administratorRepository, never()).save(any(Administrator.class));
         verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
@@ -97,12 +98,12 @@ class AdministratorServiceImplTest {
         MultipartFile imageFile = mock(MultipartFile.class);
         when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
 
         administratorService.update(id, updatedAdministrator, imageFile);
 
         verify(administratorRepository, times(1)).save(existingAdministrator);
-        verify(imageService, times(1)).saveUserImage(eq(id), eq(imageFile));
+        verify(imageService, times(1)).saveUserImage(anyString(), eq(id), eq(imageFile));
         assertEquals("32.png", existingAdministrator.getImageName());
     }
 
@@ -144,7 +145,7 @@ class AdministratorServiceImplTest {
         assertThrows(RuntimeException.class, () -> administratorService.update(id, updatedAdministrator, null));
 
         verify(administratorRepository, never()).save(any(Administrator.class));
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
         verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
     }
 
@@ -157,7 +158,7 @@ class AdministratorServiceImplTest {
         administratorService.delete(id);
 
         verify(administratorRepository, times(1)).deleteById(id);
-        verify(imageService, times(1)).deleteUserImage(id);
+        verify(imageService, times(1)).deleteUserImage(anyString(), id);
     }
 
     @Test

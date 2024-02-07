@@ -18,6 +18,7 @@ import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class AdministratorServiceImpl implements AdministratorService {
+    private final String ADMIN_ROLE = "ADMIN";
     private static final Logger logger = LoggerFactory.getLogger(AdministratorServiceImpl.class);
 
     private final AdministratorRepository administratorRepository;
@@ -37,10 +38,10 @@ public class AdministratorServiceImpl implements AdministratorService {
                 imageService.setDefaultImageForUser(administrator);
                 administratorRepository.save(administrator);
             } else {
-                Administrator admin = administratorRepository.save(administrator);
-                String imageName = imageService.saveUserImage(admin.getId(), imageFile);
-                admin.setImageName(imageName);
-                administratorRepository.save(admin);
+                administrator = administratorRepository.save(administrator);
+                String imageName = imageService.saveUserImage(ADMIN_ROLE, administrator.getId(), imageFile);
+                administrator.setImageName(imageName);
+                administratorRepository.save(administrator);
             }
             logger.info("Saved administrator: {} {}", administrator.getFirstName(), administrator.getLastName());
         } else {
@@ -64,7 +65,7 @@ public class AdministratorServiceImpl implements AdministratorService {
         if (imageFile == null || imageFile.isEmpty()) {
             imageService.setDefaultImageForUser(existingAdministrator);
         } else {
-            String imageName = imageService.saveUserImage(id, imageFile);
+            String imageName = imageService.saveUserImage(ADMIN_ROLE, id, imageFile);
             existingAdministrator.setImageName(imageName);
         }
         administratorRepository.save(existingAdministrator);
@@ -73,7 +74,7 @@ public class AdministratorServiceImpl implements AdministratorService {
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(id);
+        imageService.deleteUserImage(ADMIN_ROLE, id);
         administratorRepository.deleteById(id);
         logger.info("Admin was deleted by id: {}", id);
     }
