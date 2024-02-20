@@ -128,4 +128,17 @@ public class LectureServiceImpl implements LectureService {
         groupRepository.save(group);
         logger.info("Group removed from the lecture");
     }
+
+    @Override
+    /*
+    TODO Write tests for that method
+    * */
+    public Page<Lecture> findAllOfCourse(Long courseId, Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find lectures of course: {} from {} to {}", courseId, from, to);
+        return lectureRepository.findByCourseId(courseId, pageable);
+    }
 }

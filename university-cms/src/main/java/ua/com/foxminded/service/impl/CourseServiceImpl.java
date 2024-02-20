@@ -70,7 +70,6 @@ public class CourseServiceImpl implements CourseService {
         }
     }
 
-
     @Override
     public Page<Course> findAll(Pageable pageable) {
         int pageNumber = pageable.getPageNumber();
@@ -79,5 +78,15 @@ public class CourseServiceImpl implements CourseService {
         int to = from + pageSize;
         logger.info("Find courses from {} to {}", from, to);
         return courseRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Course> findAllOfFaculty(Long facultyId, Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find courses of faculty: {} from {} to {}", facultyId, from, to);
+        return courseRepository.findByFacultyId(facultyId, pageable);
     }
 }

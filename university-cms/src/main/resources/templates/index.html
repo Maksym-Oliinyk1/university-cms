@@ -8,7 +8,6 @@
     <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
-
 </head>
 
 <body>
@@ -30,9 +29,9 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Group</h5>
-                    <p class="card-text">View and manage groups and their lectures.</p>
-                    <a class="btn btn-primary" th:href="@{/goup}">Go to Group</a>
+                    <h5 class="card-title">Student</h5>
+                    <p class="card-text">View lectures for a student between two dates.</p>
+                    <a class="btn btn-primary" href="#">Go to Group</a>
                 </div>
             </div>
         </div>
@@ -42,7 +41,17 @@
                 <div class="card-body">
                     <h5 class="card-title">Teacher</h5>
                     <p class="card-text">View lectures for a teacher between two dates.</p>
-                    <a class="btn btn-primary" th:href="@{/teacher}">Go to Teacher</a>
+                    <a class="btn btn-primary" href="#">Go to Teacher</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Maintainer</h5>
+                    <p class="card-text">Access and manage maintainer details and tasks.</p>
+                    <a class="btn btn-primary" th:href="@{/maintainerAuthorization}">Go to Maintainer</a>
                 </div>
             </div>
         </div>
@@ -60,3 +69,4 @@
         src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

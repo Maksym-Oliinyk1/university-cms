@@ -26,7 +26,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {StudentServiceImpl.class})
 class StudentServiceImplTest {
-
     @MockBean
     private StudentRepository studentRepository;
 
@@ -46,12 +45,13 @@ class StudentServiceImplTest {
         Student student = createStudent();
         MultipartFile imageFile = mock(MultipartFile.class);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyLong(), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
+        when(studentRepository.save(student)).thenReturn(student);
 
         studentService.save(student, imageFile);
 
-        verify(studentRepository, times(1)).save(student);
-        verify(imageService, times(1)).saveUserImage(eq(student.getId()), eq(imageFile));
+        verify(studentRepository, times(2)).save(student);
+        verify(imageService, times(1)).saveUserImage(anyString(), eq(student.getId()), eq(imageFile));
         assertEquals("32.png", student.getImageName());
     }
 
@@ -75,7 +75,7 @@ class StudentServiceImplTest {
 
         verify(studentRepository, times(1)).save(student);
         verify(imageService, times(1)).setDefaultImageForUser(student);
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
@@ -87,7 +87,7 @@ class StudentServiceImplTest {
 
         verify(studentRepository, never()).save(any(Student.class));
         verify(imageService, never()).setDefaultImageForUser(any(Student.class));
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
@@ -98,12 +98,12 @@ class StudentServiceImplTest {
         MultipartFile imageFile = mock(MultipartFile.class);
         when(studentRepository.findById(id)).thenReturn(Optional.of(existingStudent));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
 
         studentService.update(id, updatedStudent, imageFile);
 
         verify(studentRepository, times(1)).save(existingStudent);
-        verify(imageService, times(1)).saveUserImage(eq(id), eq(imageFile));
+        verify(imageService, times(1)).saveUserImage(anyString(), eq(id), eq(imageFile));
         assertEquals("32.png", existingStudent.getImageName());
     }
 
@@ -145,7 +145,7 @@ class StudentServiceImplTest {
         assertThrows(RuntimeException.class, () -> studentService.update(id, updatedStudent, null));
 
         verify(studentRepository, never()).save(any(Student.class));
-        verify(imageService, never()).saveUserImage(anyLong(), any(MultipartFile.class));
+        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
         verify(imageService, never()).setDefaultImageForUser(any(Student.class));
     }
 
@@ -158,7 +158,7 @@ class StudentServiceImplTest {
         studentService.delete(id);
 
         verify(studentRepository, times(1)).deleteById(id);
-        verify(imageService, times(1)).deleteUserImage(id);
+        verify(imageService, times(1)).deleteUserImage(anyString(), id);
     }
 
     @Test
