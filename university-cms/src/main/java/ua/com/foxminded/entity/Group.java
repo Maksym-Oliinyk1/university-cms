@@ -1,12 +1,17 @@
 package ua.com.foxminded.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "groups")
 public class Group {
 
@@ -15,6 +20,8 @@ public class Group {
     @Column(name = "group_id")
     private Long id;
     @Column(name = "group_name")
+    @Pattern(regexp = "^[A-Z]{2}-\\d{2}$")
+    @NotNull
     private String name;
     @OneToMany(mappedBy = "group")
     private List<Student> students;

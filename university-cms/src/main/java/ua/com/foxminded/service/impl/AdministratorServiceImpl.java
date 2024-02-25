@@ -5,67 +5,62 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.repository.AdministratorRepository;
 import ua.com.foxminded.service.AdministratorService;
 import ua.com.foxminded.service.ImageService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
 
-import static ua.com.foxminded.utill.NameValidator.isValidEmail;
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
-
 @Service
 public class AdministratorServiceImpl implements AdministratorService {
-    private final String ADMIN_ROLE = "ADMIN";
+    private final String ADMIN_ROLE = "ADMINISTRATOR";
     private static final Logger logger = LoggerFactory.getLogger(AdministratorServiceImpl.class);
 
     private final AdministratorRepository administratorRepository;
     private final ImageService imageService;
+    private final UserMapper userMapper;
 
-    public AdministratorServiceImpl(AdministratorRepository administratorRepository, ImageService imageService) {
+    public AdministratorServiceImpl(AdministratorRepository administratorRepository, ImageService imageService, UserMapper userMapper) {
         this.administratorRepository = administratorRepository;
         this.imageService = imageService;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public void save(Administrator administrator, MultipartFile imageFile) {
-        if (isValidNameForUser(administrator.getFirstName())
-                && isValidNameForUser(administrator.getLastName())
-                && isValidEmail(administrator.getEmail())) {
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(administrator);
-                administratorRepository.save(administrator);
-            } else {
-                administrator = administratorRepository.save(administrator);
-                String imageName = imageService.saveUserImage(ADMIN_ROLE, administrator.getId(), imageFile);
-                administrator.setImageName(imageName);
-                administratorRepository.save(administrator);
-            }
-            logger.info("Saved administrator: {} {}", administrator.getFirstName(), administrator.getLastName());
+    public void save(AdministratorDTO administratorDTO) {
+        if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
+            Administrator administrator = userMapper.mapFromDto(administratorDTO);
+            administrator.setImageName(imageService.getDefaultIUserImage(administrator.getGender(), ADMIN_ROLE));
+            administratorRepository.save(administrator);
         } else {
-            throw new RuntimeException("Invalid data for administrator");
+            Administrator administrator = userMapper.mapFromDto(administratorDTO);
+            administrator = administratorRepository.save(administrator);
+            String imageName = imageService.saveUserImage(ADMIN_ROLE, administrator.getId(), administratorDTO.getImage());
+            administrator.setImageName(imageName);
+            administratorRepository.save(administrator);
         }
+        logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
     }
 
-    public void update(Long id, Administrator updatedAdministrator, MultipartFile imageFile) {
+    @Override
+    public void update(Long id, AdministratorDTO administratorDTO) {
         Administrator existingAdministrator = administratorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrator not found with id: " + id));
-        if (!isValidNameForUser(updatedAdministrator.getFirstName()) ||
-                !isValidNameForUser(updatedAdministrator.getLastName()) ||
-                !isValidEmail(updatedAdministrator.getEmail())) {
-            throw new RuntimeException("Invalid data for administrator");
-        }
-        existingAdministrator.setFirstName(updatedAdministrator.getFirstName());
-        existingAdministrator.setLastName(updatedAdministrator.getLastName());
-        existingAdministrator.setGender(updatedAdministrator.getGender());
-        existingAdministrator.setAge(updatedAdministrator.getAge());
-        existingAdministrator.setEmail(updatedAdministrator.getEmail());
-        if (imageFile == null || imageFile.isEmpty()) {
-            imageService.setDefaultImageForUser(existingAdministrator);
+
+        existingAdministrator.setFirstName(administratorDTO.getFirstName());
+        existingAdministrator.setLastName(administratorDTO.getLastName());
+        existingAdministrator.setGender(administratorDTO.getGender());
+        existingAdministrator.setAge(administratorDTO.getAge());
+        existingAdministrator.setEmail(administratorDTO.getEmail());
+        if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
+            imageService.deleteUserImage(existingAdministrator.getImageName());
+            existingAdministrator.setImageName(imageService.getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE));
         } else {
-            String imageName = imageService.saveUserImage(ADMIN_ROLE, id, imageFile);
+            imageService.deleteUserImage(existingAdministrator.getImageName());
+            String imageName = imageService.saveUserImage(ADMIN_ROLE, id, administratorDTO.getImage());
             existingAdministrator.setImageName(imageName);
         }
         administratorRepository.save(existingAdministrator);
@@ -74,7 +69,8 @@ public class AdministratorServiceImpl implements AdministratorService {
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(ADMIN_ROLE, id);
+        Administrator administrator = findById(id);
+        imageService.deleteUserImage(administrator.getImageName());
         administratorRepository.deleteById(id);
         logger.info("Admin was deleted by id: {}", id);
     }
@@ -98,5 +94,10 @@ public class AdministratorServiceImpl implements AdministratorService {
         int to = from + pageSize;
         logger.info("Find administrators from {} to {}", from, to);
         return administratorRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return administratorRepository.count();
     }
 }

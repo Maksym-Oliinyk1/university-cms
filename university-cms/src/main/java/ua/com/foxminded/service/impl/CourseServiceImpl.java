@@ -12,8 +12,6 @@ import ua.com.foxminded.service.CourseService;
 
 import java.util.Optional;
 
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
-
 @Service
 public class CourseServiceImpl implements CourseService {
     private static final Logger logger = LoggerFactory.getLogger(CourseServiceImpl.class);
@@ -26,12 +24,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void save(Course course) {
-        if (isValidNameForUniversityEntity(course.getName())) {
-            courseRepository.save(course);
-            logger.info("Saved course: {}", course.getName());
-        } else {
-            throw new RuntimeException("Invalid name for course");
-        }
+        courseRepository.save(course);
+        logger.info("Saved course: {}", course.getName());
+
     }
 
     @Override
@@ -78,6 +73,11 @@ public class CourseServiceImpl implements CourseService {
         int to = from + pageSize;
         logger.info("Find courses from {} to {}", from, to);
         return courseRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return courseRepository.count();
     }
 
     @Override

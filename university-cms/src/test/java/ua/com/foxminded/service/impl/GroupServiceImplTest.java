@@ -16,6 +16,7 @@ import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,14 +51,6 @@ class GroupServiceImplTest {
         groupService.save(group);
 
         verify(groupRepository, times(1)).save(group);
-    }
-
-    @Test
-    void saveGroup_InvalidName_ThrowsException() {
-        Group group = new Group(1L, "Invalid123");
-        assertThrows(RuntimeException.class, () -> groupService.save(group));
-
-        verify(groupRepository, never()).save(group);
     }
 
     @Test
@@ -153,7 +146,7 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, 20, "astro@gmail.com", null);
+        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, LocalDate.of(2004, 12, 31), "astro@gmail.com", null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -169,7 +162,7 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, 20, "astro@gmail.com", null);
+        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, LocalDate.of(2004, 12, 31), "astro@gmail.com", null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));

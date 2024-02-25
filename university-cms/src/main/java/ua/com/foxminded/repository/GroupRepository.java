@@ -1,5 +1,7 @@
 package ua.com.foxminded.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -20,4 +22,7 @@ public interface GroupRepository extends PagingAndSortingRepository<Group, Long>
 
     @Query("SELECT COUNT(l) FROM Lecture l JOIN l.groups g WHERE g.id = :groupId")
     Long countLecturesByGroup(@Param("groupId") Long groupId);
+
+    Page<Group> findAllByLectures_Id(Long lectureId, Pageable pageable);
+
 }

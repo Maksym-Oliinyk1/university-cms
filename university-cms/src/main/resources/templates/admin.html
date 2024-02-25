@@ -5,6 +5,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
 </head>
 <body>
 <div class="container">
@@ -17,7 +19,7 @@
         <div class="col-md-8 user-details">
             <h2 th:text="${administrator.firstName + ' ' + administrator.lastName}">Admin Name</h2>
             <div class="user-details-container">
-                <p><strong>Age:</strong> <span th:text="${administrator.age}">30</span></p>
+                <p><strong>Birth Date:</strong> <span th:text="${administrator.age}">Birth Date</span></p>
                 <p><strong>Gender:</strong> <span th:text="${administrator.gender}">Male/Female</span></p>
                 <p><strong>Email:</strong> <span th:text="${administrator.email}">admin@example.com</span></p>
             </div>
@@ -35,30 +37,21 @@
                 <a class="btn btn-outline-primary btn-block" th:href="@{'/manageFaculty'}">Faculty</a>
             </div>
             <div class="col-md-2">
-                <a class="btn btn-outline-primary btn-block" href="#">Group</a>
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageGroup'}">Group</a>
             </div>
             <div class="col-md-2">
-                <a class="btn btn-outline-primary btn-block" href="#">Lecture</a>
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageLecture'}">Lecture</a>
             </div>
             <div class="col-md-2">
-                <a class="btn btn-outline-primary btn-block" href="#">Student</a>
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageStudent'}">Student</a>
             </div>
             <div class="col-md-2">
-                <a class="btn btn-outline-primary btn-block" href="#">Teacher</a>
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageTeacher'}">Teacher</a>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-<script crossorigin="anonymous"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        crossorigin="anonymous"></script>
 </div>
 </body>
 </html>

@@ -10,4 +10,6 @@ import ua.com.foxminded.entity.Lecture;
 @Repository
 public interface LectureRepository extends PagingAndSortingRepository<Lecture, Long>, CrudRepository<Lecture, Long> {
     Page<Lecture> findByCourseId(Long courseId, Pageable pageable);
+
+    Page<Lecture> findAllByGroups_Id(Long groupId, Pageable pageable);
 }

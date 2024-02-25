@@ -50,15 +50,6 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void saveCourse_InvalidName_ThrowsException() {
-        Faculty faculty = new Faculty();
-        Course course = new Course(1L, "I1", faculty);
-        assertThrows(RuntimeException.class, () -> courseService.save(course));
-
-        verify(courseRepository, never()).save(course);
-    }
-
-    @Test
     void updateCourse_ValidIdAndData_Success() {
         Long id = 1L;
         Course existingCourse = new Course(id, "Mathematics", new Faculty(1L, "Engineering"));

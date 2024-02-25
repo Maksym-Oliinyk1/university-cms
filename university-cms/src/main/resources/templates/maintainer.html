@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Maintainer Details</title>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <img alt="Maintainer Image" class="user-image"
+                 height="200px" th:if="${maintainer.imageName}"
+                 th:src="@{'/showImages/' + ${maintainer.imageName}}" width="200px">
+        </div>
+        <div class="col-md-8 user-details">
+            <h2 th:text="${maintainer.firstName + ' ' + maintainer.lastName}">Maintainer Name</h2>
+            <div class="user-details-container">
+                <p><strong>Birth Date:</strong> <span th:text="${maintainer.age}">Birth Date</span></p>
+                <p><strong>Gender:</strong> <span th:text="${maintainer.gender}">Male/Female</span></p>
+                <p><strong>Email:</strong> <span th:text="${maintainer.email}">Email</span></p>
+            </div>
+            <a class="btn btn-primary" th:href="@{'/updateFormMaintainer/' + ${maintainer.id}}">Update</a>
+        </div>
+    </div>
+
+    <div class="manage-section">
+        <h3>Manage Admin:</h3>
+        <div class="row manage-buttons">
+            <div class="col-md-12">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageAdmin'}">Admins</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="manage-section">
+        <h3>Manage:</h3>
+        <div class="row manage-buttons">
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageCourse'}">Course</a>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageFaculty'}">Faculty</a>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageGroup'}">Group</a>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageLecture'}">Lecture</a>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageStudent'}">Student</a>
+            </div>
+            <div class="col-md-2">
+                <a class="btn btn-outline-primary btn-block" th:href="@{'/manageTeacher'}">Teacher</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+</body>
+</html>

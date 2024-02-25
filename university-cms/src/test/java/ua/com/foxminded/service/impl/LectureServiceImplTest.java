@@ -51,29 +51,7 @@ class LectureServiceImplTest {
 
         lectureService.save(lecture);
 
-        verify(lectureRepository, times(1)).save(lecture);
-    }
-
-    @Test
-    void saveLecture_InvalidName_ThrowsException() {
-        Course testCourse = new Course();
-        Teacher testTeacher = new Teacher();
-        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "I2",
-                "Mathematics is the universal language of patterns.", LocalDateTime.now());
-        assertThrows(RuntimeException.class, () -> lectureService.save(lecture));
-
-        verify(lectureRepository, never()).save(lecture);
-    }
-
-    @Test
-    void saveLecture_InvalidDescription_ThrowsException() {
-        Course testCourse = new Course();
-        Teacher testTeacher = new Teacher();
-        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "Math101",
-                "InvalidDescription123", LocalDateTime.now());
-        assertThrows(RuntimeException.class, () -> lectureService.save(lecture));
-
-        verify(lectureRepository, never()).save(lecture);
+        verify(lectureRepository, times(2)).save(lecture);
     }
 
     @Test
@@ -116,11 +94,15 @@ class LectureServiceImplTest {
     @Test
     void deleteLecture_Exists_Success() {
         Long id = 1L;
+        Lecture lecture = new Lecture(id, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
         when(lectureRepository.existsById(id)).thenReturn(true);
+        when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
 
         lectureService.delete(id);
 
+        verify(lectureRepository, times(1)).findById(id);
         verify(lectureRepository, times(1)).deleteById(id);
+        verify(lectureRepository, never()).save(any(Lecture.class));
     }
 
     @Test

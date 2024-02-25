@@ -11,29 +11,6 @@ import ua.com.foxminded.service.*;
 @Controller
 public class AdministratorController {
     private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-    private final AdministratorService administratorService;
-    private final CourseService courseService;
-    private final FacultyService facultyService;
-    private final GroupService groupService;
-    private final LectureService lectureService;
-    private final StudentService studentService;
-    private final TeacherService teacherService;
-
-    public AdministratorController(AdministratorService administratorService,
-                                   CourseService courseService,
-                                   FacultyService facultyService,
-                                   GroupService groupService,
-                                   LectureService lectureService,
-                                   StudentService studentService,
-                                   TeacherService teacherService) {
-        this.administratorService = administratorService;
-        this.courseService = courseService;
-        this.facultyService = facultyService;
-        this.groupService = groupService;
-        this.lectureService = lectureService;
-        this.studentService = studentService;
-        this.teacherService = teacherService;
-    }
 
     @RequestMapping("/admin")
     public String showAdminPage(Model model) {
@@ -41,12 +18,7 @@ public class AdministratorController {
         return "admin";
     }
 
-    @RequestMapping("/admin/manage-course")
-    public String showCoursePage(Model model) {
-        model.addAttribute("course", new Course());
-        model.addAttribute("faculties", facultyService.findAll());
-        return "manage-course";
-    }
+    private final AdministratorService administratorService;
 
     @RequestMapping("/admin/manage-faculty")
     public String showFacultyPage(Model model) {
@@ -80,6 +52,36 @@ public class AdministratorController {
         model.addAttribute("courses", courseService.findAll());
         model.addAttribute("teachers", teacherService.findAll());
         return "manage-lecture";
+    }
+
+    private final CourseService courseService;
+    private final FacultyService facultyService;
+    private final GroupService groupService;
+    private final LectureService lectureService;
+    private final StudentService studentService;
+    private final TeacherService teacherService;
+
+    public AdministratorController(AdministratorService administratorService,
+                                   CourseService courseService,
+                                   FacultyService facultyService,
+                                   GroupService groupService,
+                                   LectureService lectureService,
+                                   StudentService studentService,
+                                   TeacherService teacherService) {
+        this.administratorService = administratorService;
+        this.courseService = courseService;
+        this.facultyService = facultyService;
+        this.groupService = groupService;
+        this.lectureService = lectureService;
+        this.studentService = studentService;
+        this.teacherService = teacherService;
+    }
+
+    @RequestMapping("/admin/manage-course")
+    public String showCoursePage(Model model) {
+        model.addAttribute("course", new Course());
+        model.addAttribute("faculties", facultyService.findAll());
+        return "manage-course";
     }
 
     @GetMapping("/admin/listAdmin")

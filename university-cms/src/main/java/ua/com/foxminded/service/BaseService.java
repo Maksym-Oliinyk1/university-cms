@@ -12,4 +12,6 @@ public interface BaseService<E> {
 
     Page<E> findAll(Pageable pageable);
 
+    Long count();
+
 }

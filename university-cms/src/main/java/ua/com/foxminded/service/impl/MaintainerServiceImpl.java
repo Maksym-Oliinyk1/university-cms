@@ -5,73 +5,70 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 import ua.com.foxminded.repository.MaintainerRepository;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.MaintainerService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
-
-import static ua.com.foxminded.utill.NameValidator.isValidEmail;
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class MaintainerServiceImpl implements MaintainerService {
     private static final Logger logger = LoggerFactory.getLogger(MaintainerServiceImpl.class);
-
+    private final String MAINTAINER_ROLE = "MAINTAINER";
     private final MaintainerRepository maintainerRepository;
     private final ImageService imageService;
+    private final UserMapper userMapper;
 
-    public MaintainerServiceImpl(MaintainerRepository maintainerRepository, ImageService imageService) {
+    public MaintainerServiceImpl(MaintainerRepository maintainerRepository, ImageService imageService, UserMapper userMapper) {
         this.maintainerRepository = maintainerRepository;
         this.imageService = imageService;
+        this.userMapper = userMapper;
     }
 
-
     @Override
-    public void save(Maintainer maintainer, MultipartFile imageFile) {
-        if (isValidNameForUser(maintainer.getFirstName())
-                && isValidNameForUser(maintainer.getLastName())
-                && isValidEmail(maintainer.getEmail())) {
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(maintainer);
-            } else {
-                String imageName = imageService.saveUserImage(maintainer.getId(), imageFile);
-                maintainer.setImageName(imageName);
-            }
+    public void save(MaintainerDTO maintainerDTO) {
+        if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
+            Maintainer maintainer = userMapper.mapFromDto(maintainerDTO);
+            maintainer.setImageName(imageService.getDefaultIUserImage(maintainer.getGender(), MAINTAINER_ROLE));
             maintainerRepository.save(maintainer);
-            logger.info("Saved maintainer: {} {}", maintainer.getFirstName(), maintainer.getLastName());
         } else {
-            throw new RuntimeException("Invalid name for maintainer");
+            Maintainer maintainer = userMapper.mapFromDto(maintainerDTO);
+            maintainer = maintainerRepository.save(maintainer);
+            String imageName = imageService.saveUserImage(MAINTAINER_ROLE, maintainer.getId(), maintainerDTO.getImage());
+            maintainer.setImageName(imageName);
+            maintainerRepository.save(maintainer);
         }
+        logger.info("Saved maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
     }
 
     @Override
-    public void update(Long id, Maintainer updatedMaintainer, MultipartFile imageFile) {
-        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(id);
-        if (optionalMaintainer.isPresent()) {
-            Maintainer existingMaintainer = optionalMaintainer.get();
-            existingMaintainer.setFirstName(updatedMaintainer.getFirstName());
-            existingMaintainer.setLastName(updatedMaintainer.getLastName());
-            existingMaintainer.setAge(updatedMaintainer.getAge());
-            existingMaintainer.setEmail(updatedMaintainer.getEmail());
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(existingMaintainer);
-            } else {
-                String imageName = imageService.saveUserImage(id, imageFile);
-                existingMaintainer.setImageName(imageName);
-            }
-            maintainerRepository.save(existingMaintainer);
-            logger.info("Maintainer updated by id: {}", id);
+    public void update(Long id, MaintainerDTO maintainerDTO) {
+        Maintainer existingMaintainer = maintainerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Maintainer not found with id: " + id));
+        existingMaintainer.setFirstName(maintainerDTO.getFirstName());
+        existingMaintainer.setLastName(maintainerDTO.getLastName());
+        existingMaintainer.setGender(maintainerDTO.getGender());
+        existingMaintainer.setAge(maintainerDTO.getAge());
+        existingMaintainer.setEmail(maintainerDTO.getEmail());
+        if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
+            imageService.deleteUserImage(existingMaintainer.getImageName());
+            existingMaintainer.setImageName(imageService.getDefaultIUserImage(maintainerDTO.getGender(), MAINTAINER_ROLE));
         } else {
-            throw new RuntimeException("There is no such maintainer");
+            imageService.deleteUserImage(existingMaintainer.getImageName());
+            String imageName = imageService.saveUserImage(MAINTAINER_ROLE, id, maintainerDTO.getImage());
+            existingMaintainer.setImageName(imageName);
         }
+        maintainerRepository.save(existingMaintainer);
+        logger.info("Maintainer updated by id: {}", id);
     }
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(id);
+        Maintainer maintainer = findById(id);
+        imageService.deleteUserImage(maintainer.getImageName());
         maintainerRepository.deleteById(id);
         logger.info("Maintainer was deleted by id: {}", id);
     }
@@ -95,5 +92,10 @@ public class MaintainerServiceImpl implements MaintainerService {
         int to = from + pageSize;
         logger.info("Find maintainers from {} to {}", from, to);
         return maintainerRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return maintainerRepository.count();
     }
 }
