@@ -11,10 +11,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.AdministratorRepository;
 import ua.com.foxminded.service.ImageService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
 
@@ -25,7 +27,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {AdministratorServiceImpl.class})
 class AdministratorServiceImplTest {
-    private static final String ADMIN_ROLE = "ADMIN";
+
+    private static final String ADMIN_ROLE = "ADMINISTRATOR";
 
     @MockBean
     private AdministratorRepository administratorRepository;
@@ -33,74 +36,72 @@ class AdministratorServiceImplTest {
     @MockBean
     private ImageService imageService;
 
+    @MockBean
+    private UserMapper userMapper;
+
     @Autowired
     private AdministratorServiceImpl administratorService;
 
     @BeforeEach
     void setUp() {
-        Mockito.reset(administratorRepository);
+        Mockito.reset(administratorRepository, imageService, userMapper);
     }
 
     @Test
     void save_ValidDataWithImage_SaveSuccessful() {
-        Administrator admin = createAdministrator();
+        AdministratorDTO administratorDTO = createAdministratorDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
+        administratorDTO.setImage(imageFile);
+        when(userMapper.mapFromDto(administratorDTO)).thenReturn(createAdministrator());
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(eq(ADMIN_ROLE), anyLong(), eq(imageFile))).thenReturn("32.png");
-        when(administratorRepository.save(admin)).thenReturn(admin);
-        administratorService.save(admin, imageFile);
-        verify(administratorRepository, times(2)).save(admin);
-        verify(imageService, times(1)).saveUserImage(eq(ADMIN_ROLE), eq(admin.getId()), eq(imageFile));
-        assertEquals("32.png", admin.getImageName());
-    }
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
+        when(administratorRepository.save(any(Administrator.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        administratorService.save(administratorDTO);
+
+        verify(userMapper, times(1)).mapFromDto(administratorDTO);
+        verify(imageService, times(1)).saveUserImage(anyString(), anyLong(), eq(imageFile));
+        verify(administratorRepository, times(2)).save(any(Administrator.class));
+    }
 
     @Test
     void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
-        Administrator admin = createAdministrator();
-        MultipartFile emptyFile = mock(MultipartFile.class);
-        when(emptyFile.isEmpty()).thenReturn(true);
+        AdministratorDTO administratorDTO = createAdministratorDTO();
+        when(userMapper.mapFromDto(administratorDTO)).thenReturn(createAdministrator());
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
 
-        administratorService.save(admin, emptyFile);
+        administratorService.save(administratorDTO);
 
-        verify(administratorRepository, times(1)).save(admin);
-        verify(imageService, times(1)).setDefaultImageForUser(admin);
+        verify(userMapper, times(1)).mapFromDto(administratorDTO);
+        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
+        verify(administratorRepository, times(1)).save(any(Administrator.class));
     }
 
     @Test
     void save_ValidDataWithoutImage_SaveSuccessful() {
-        Administrator admin = createAdministrator();
+        AdministratorDTO administratorDTO = createAdministratorDTO();
+        when(userMapper.mapFromDto(administratorDTO)).thenReturn(createAdministrator());
 
-        administratorService.save(admin, null);
+        administratorService.save(administratorDTO);
 
-        verify(administratorRepository, times(1)).save(admin);
-        verify(imageService, times(1)).setDefaultImageForUser(admin);
-        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-    }
-
-    @Test
-    void save_InvalidData_ThrowException() {
-        Administrator admin = createAdministrator();
-        admin.setEmail("invalidemail");
-
-        assertThrows(RuntimeException.class, () -> administratorService.save(admin, null));
-
-        verify(administratorRepository, never()).save(any(Administrator.class));
-        verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
+        verify(userMapper, times(1)).mapFromDto(administratorDTO);
+        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
+        verify(administratorRepository, times(1)).save(any(Administrator.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
     void update_ExistingAdministratorWithValidDataAndImage_UpdateSuccessful() {
         Long id = 1L;
-        Administrator existingAdministrator = createAdministrator();
-        Administrator updatedAdministrator = createAdministrator();
+        AdministratorDTO administratorDTO = createAdministratorDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
+        administratorDTO.setImage(imageFile);
+        Administrator existingAdministrator = createAdministrator();
         when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
         when(imageFile.isEmpty()).thenReturn(false);
         when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
 
-        administratorService.update(id, updatedAdministrator, imageFile);
+        administratorService.update(id, administratorDTO);
 
         verify(administratorRepository, times(1)).save(existingAdministrator);
         verify(imageService, times(1)).saveUserImage(anyString(), eq(id), eq(imageFile));
@@ -110,43 +111,45 @@ class AdministratorServiceImplTest {
     @Test
     void update_ShouldSetDefaultImageWhenImageFileIsNull() {
         Long id = 1L;
+        AdministratorDTO administratorDTO = createAdministratorDTO();
         Administrator existingAdministrator = createAdministrator();
-        Administrator updatedAdministrator = createAdministrator();
-        updatedAdministrator.setImageName(null);
+        administratorDTO.setImage(null);
         when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
 
-        administratorService.update(id, updatedAdministrator, null);
+        administratorService.update(id, administratorDTO);
 
         verify(administratorRepository, times(1)).save(existingAdministrator);
-        verify(imageService, times(1)).setDefaultImageForUser(existingAdministrator);
+        verify(imageService, times(1)).getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE);
     }
 
     @Test
     void update_ShouldSetDefaultImageWhenImageFileIsEmpty() {
         Long id = 1L;
+        AdministratorDTO administratorDTO = createAdministratorDTO();
         Administrator existingAdministrator = createAdministrator();
-        Administrator updatedAdministrator = createAdministrator();
         MultipartFile emptyFile = mock(MultipartFile.class);
-        when(emptyFile.isEmpty()).thenReturn(true);
+
+        lenient().when(emptyFile.isEmpty()).thenReturn(true);
+
         when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
 
-        administratorService.update(id, updatedAdministrator, emptyFile);
+        administratorService.update(id, administratorDTO);
 
         verify(administratorRepository, times(1)).save(existingAdministrator);
-        verify(imageService, times(1)).setDefaultImageForUser(existingAdministrator);
+        verify(imageService, times(1)).getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE);
     }
 
     @Test
     void update_NonExistingAdministrator_ThrowException() {
         Long id = 1L;
-        Administrator updatedAdministrator = createAdministrator();
+        AdministratorDTO administratorDTO = createAdministratorDTO();
         when(administratorRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> administratorService.update(id, updatedAdministrator, null));
+        assertThrows(RuntimeException.class, () -> administratorService.update(id, administratorDTO));
 
         verify(administratorRepository, never()).save(any(Administrator.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-        verify(imageService, never()).setDefaultImageForUser(any(Administrator.class));
+        verify(imageService, never()).getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE);
     }
 
     @Test
@@ -158,7 +161,7 @@ class AdministratorServiceImplTest {
         administratorService.delete(id);
 
         verify(administratorRepository, times(1)).deleteById(id);
-        verify(imageService, times(1)).deleteUserImage(anyString(), id);
+        verify(imageService, times(1)).deleteUserImage(administrator.getImageName());
     }
 
     @Test
@@ -190,6 +193,15 @@ class AdministratorServiceImplTest {
         Page<Administrator> result = administratorService.findAll(pageable);
 
         assertEquals(page, result);
+    }
+
+    private AdministratorDTO createAdministratorDTO() {
+        AdministratorDTO administratorDTO = new AdministratorDTO();
+        administratorDTO.setFirstName("John");
+        administratorDTO.setLastName("Doe");
+        administratorDTO.setEmail("john.doe@example.com");
+        administratorDTO.setGender(Gender.MALE);
+        return administratorDTO;
     }
 
     private Administrator createAdministrator() {

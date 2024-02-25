@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Lecture</title>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Create Lecture</h2>
+
+    <form method="post" th:action="@{/createLecture}">
+        <div class="form-group">
+            <label for="lectureName">Lecture Name:</label>
+            <input class="form-control" id="lectureName" name="name" required type="text">
+        </div>
+
+        <div class="form-group">
+            <label for="courses">Select Course:</label>
+            <select class="form-control" id="courses" name="course" required>
+                <option disabled selected value="">Select Course</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" data-content="courses">
+            <ul class="pagination justify-content-center">
+                <li th:class="${pageNumber != null && i == pageNumber ? 'page-item active' : 'page-item'}"
+                    th:each="i : ${#numbers.sequence(0, totalPages != null ? totalPages - 1 : 0)}">
+                    <a class="page-link" href="#" th:data-page="${i}" th:onclick="'loadContent(this, \'course\')'">[[${i
+                        + 1}]]</a>
+                </li>
+            </ul>
+        </nav>
+
+
+        <div class="form-group">
+            <label for="teachers">Select Teacher:</label>
+            <select class="form-control" id="teachers" name="teacher" required>
+                <option disabled selected value="">Select Teacher</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" data-content="teachers">
+            <ul class="pagination justify-content-center">
+                <li th:class="${pageNumber != null && i == pageNumber ? 'page-item active' : 'page-item'}"
+                    th:each="i : ${#numbers.sequence(0, totalPages != null ? totalPages - 1 : 0)}">
+                    <a class="page-link" href="#" th:data-page="${i}" th:onclick="'loadContent(this, \'teachers\')'">[[${i
+                        + 1}]]</a>
+            </ul>
+        </nav>
+
+
+        <div class="form-group">
+            <label for="groups">Select Groups:</label>
+            <select class="form-control" id="groups" multiple name="groups" required>
+                <option disabled selected value="">Select Groups</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" data-content="groups">
+            <ul class="pagination justify-content-center">
+                <li th:class="${pageNumber != null && i == pageNumber ? 'page-item active' : 'page-item'}"
+                    th:each="i : ${#numbers.sequence(0, totalPages != null ? totalPages - 1 : 0)}">
+                    <a class="page-link" href="#" th:data-page="${i}" th:onclick="'loadContent(this, \'groups\')'">[[${i
+                        + 1}]]</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="form-group">
+            <label for="description">Lecture Description:</label>
+            <textarea class="form-control" id="description" name="description" onchange="saveLectureDescription()"
+                      required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="date">Lecture Date:</label>
+            <input class="form-control" id="date" name="date" onchange="saveLectureDate()" required
+                   type="datetime-local">
+        </div>
+
+        <button class="btn btn-primary" type="submit">Submit</button>
+
+        <script src="/js/saveSelections.js"></script>
+        <script src="/js/ajax.js"></script>
+    </form>
+</div>
+</body>
+</html>

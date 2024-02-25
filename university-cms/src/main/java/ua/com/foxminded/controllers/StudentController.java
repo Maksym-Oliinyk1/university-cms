@@ -1,25 +1,45 @@
 package ua.com.foxminded.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.StudentDTO;
+import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
+import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.StudentService;
+import ua.com.foxminded.service.UserMapper;
 
-@RestController
+@Controller
 public class StudentController {
     private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
 
     private final StudentService studentService;
+    private final GroupService groupService;
+    private final UserMapper userMapper;
 
-    public StudentController(StudentService studentService) {
+    public StudentController(StudentService studentService, GroupService groupService, UserMapper userMapper) {
         this.studentService = studentService;
+        this.groupService = groupService;
+        this.userMapper = userMapper;
     }
 
-    @GetMapping("/showStudent/{id}")
-    public String showStudent(@PathVariable Long id, Model model) {
+    @GetMapping("/studentAuthorization")
+    public String studentAuthorization() {
+        return "mock-student-authorization";
+    }
+
+    @GetMapping("/manageStudent")
+    public String manageStudent() {
+        return "manage-student";
+    }
+
+
+    @GetMapping("/showStudent")
+    public String showStudent(@RequestParam("id") Long id, Model model) {
         Student student = studentService.findById(id);
         model.addAttribute("student", student);
         return "student";
@@ -28,38 +48,51 @@ public class StudentController {
     @GetMapping("/listStudents")
     public String listStudents(@RequestParam(defaultValue = "0") int pageNumber, Model model) {
         Page<Student> pageStudent = studentService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
-        model.addAttribute("student", pageStudent.getContent());
+        model.addAttribute("students", pageStudent.getContent());
         model.addAttribute("pageNumber", pageStudent.getNumber());
         model.addAttribute("totalPages", pageStudent.getTotalPages());
-        return "list-students";
+        return "manage-student";
+    }
+
+    @GetMapping("/listStudentsByGroup/{groupId}")
+    public String listStudentsByGroup(@PathVariable Long groupId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
+        Page<Student> pageStudent = studentService.findAllStudentByGroup(groupId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Group group = groupService.findById(groupId);
+        model.addAttribute("group", group);
+        model.addAttribute("students", pageStudent.getContent());
+        model.addAttribute("pageNumber", pageStudent.getNumber());
+        model.addAttribute("totalPages", pageStudent.getTotalPages());
+        return "group";
     }
 
     @GetMapping("/createFormStudent")
     public String showCreateForm(Model model) {
-        model.addAttribute("student", new Student());
+        model.addAttribute("student", new StudentDTO());
         return "create-form-student";
     }
 
     @PostMapping("/createStudent")
-    public String createStudent(@ModelAttribute Student student, @RequestParam("imageFile") MultipartFile imageFile) {
-        studentService.save(student, imageFile);
+    public String createStudent(@ModelAttribute @Valid StudentDTO studentDTO) {
+        studentService.save(studentDTO);
         return "create-form-student-successful";
     }
 
     @GetMapping("/updateFormStudent/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
         Student student = studentService.findById(id);
-        model.addAttribute("student", student);
+        StudentDTO studentDTO = userMapper.mapToDto(student);
+        studentDTO.setId(id);
+        model.addAttribute("student", studentDTO);
         return "update-form-student";
     }
 
-    @PutMapping("updateStudent/{id}")
-    public String updateStudent(@PathVariable Long id, @ModelAttribute Student student, @RequestParam("imageFile") MultipartFile imageFile) {
-        studentService.update(id, student, imageFile);
+    @PostMapping("/updateStudent/{id}")
+    public String updateStudent(@PathVariable Long id, @ModelAttribute @Valid StudentDTO studentDTO) {
+        studentService.update(id, studentDTO);
         return "update-form-student-successful";
     }
 
-    @DeleteMapping("deleteStudent/{id}")
+    @PostMapping("deleteStudent/{id}")
     public String deleteStudent(@PathVariable Long id) {
         studentService.delete(id);
         return "delete-form-student-successful";

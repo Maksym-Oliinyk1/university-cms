@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Update Teacher</title>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Update Teacher</h2>
+
+    <form enctype="multipart/form-data" method="post" th:action="@{'/updateTeacher/' + ${teacher.id}}">
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input class="form-control" id="firstName" name="firstName" required th:value="${teacher.firstName}"
+                   type="text">
+        </div>
+
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input class="form-control" id="lastName" name="lastName" required th:value="${teacher.lastName}"
+                   type="text">
+        </div>
+
+        <div class="form-group">
+            <label for="academicDegree">Academic Degree:</label>
+            <input class="form-control" id="academicDegree" name="academicDegree" required
+                   th:value="${teacher.academicDegree}" type="text">
+        </div>
+
+        <div class="form-group">
+            <label>Gender:</label>
+            <div class="form-check">
+                <input class="form-check-input" id="male" name="gender" required type="radio" value="MALE">
+                <label class="form-check-label" for="male">Male</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" id="female" name="gender" required type="radio" value="FEMALE">
+                <label class="form-check-label" for="female">Female</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Birth Date:</label>
+            <input class="form-control" id="age" name="age" required th:value="${teacher.age}" type="date">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input class="form-control" id="email" name="email" required th:value="${teacher.email}" type="email">
+        </div>
+
+        <div class="form-group">
+            <label for="lectures">Select Lectures:</label>
+            <select class="form-control" id="lectures" multiple name="lectures">
+                <option disabled selected value="">Select Lectures</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" data-content="lectures">
+            <ul class="pagination justify-content-center">
+                <li th:class="${pageNumber != null && i == pageNumber ? 'page-item active' : 'page-item'}"
+                    th:each="i : ${#numbers.sequence(0, totalPages != null ? totalPages - 1 : 0)}">
+                    <a class="page-link" href="#" th:data-page="${i}" th:onclick="'loadLectures(this, \'lectures\')'">[[${i
+                        + 1}]]</a>
+            </ul>
+        </nav>
+
+        <div class="form-group">
+            <label for="image">Image(JPEG or PNG):</label>
+            <input accept="image/*" class="form-control-file" id="image" name="image" type="file">
+        </div>
+
+        <button class="btn btn-primary" type="submit">Submit</button>
+        <script src="/js/ajax_for_teacher_form.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    </form>
+</div>
+</body>
+</html>

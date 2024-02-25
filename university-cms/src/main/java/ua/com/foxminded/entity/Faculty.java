@@ -1,5 +1,6 @@
 package ua.com.foxminded.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class Faculty {
     @Column(name = "faculty_name")
     private String name;
     @OneToMany(mappedBy = "faculty")
+    @JsonManagedReference
     private List<Course> courses;
 
     public Faculty(Long id, String name) {

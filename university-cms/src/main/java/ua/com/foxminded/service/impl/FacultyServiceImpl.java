@@ -16,7 +16,6 @@ import ua.com.foxminded.service.FacultyService;
 
 import java.util.Optional;
 
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
@@ -32,12 +31,9 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public void save(Faculty faculty) {
-        if (isValidNameForUniversityEntity(faculty.getName())) {
-            facultyRepository.save(faculty);
-            logger.info("Saved faculty {}", faculty.getName());
-        } else {
-            throw new RuntimeException("Invalid name for faculty");
-        }
+        facultyRepository.save(faculty);
+        logger.info("Saved faculty {}", faculty.getName());
+
     }
 
     @Override
@@ -84,6 +80,11 @@ public class FacultyServiceImpl implements FacultyService {
         int to = from + pageSize;
         logger.info("Find faculties from {} to {}", from, to);
         return facultyRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return facultyRepository.count();
     }
 
     @Override

@@ -8,20 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.TeacherService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
-import static ua.com.foxminded.utill.NameValidator.isValidEmail;
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -31,69 +29,60 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final LectureRepository lectureRepository;
     private final ImageService imageService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public TeacherServiceImpl(TeacherRepository teacherRepository, LectureRepository lectureRepository, ImageService imageService) {
+    public TeacherServiceImpl(TeacherRepository teacherRepository, LectureRepository lectureRepository, ImageService imageService, UserMapper userMapper) {
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
         this.imageService = imageService;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public void save(Teacher teacher, MultipartFile imageFile) {
-        if (isValidNameForUser(teacher.getFirstName())
-                && isValidNameForUser(teacher.getLastName())
-                && isValidEmail(teacher.getEmail())) {
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(teacher);
-                teacherRepository.save(teacher);
-            } else {
-                teacher = teacherRepository.save(teacher);
-                String imageName = imageService.saveUserImage(TEACHER_ROLE, teacher.getId(), imageFile);
-                teacher.setImageName(imageName);
-                teacherRepository.save(teacher);
-            }
-            logger.info("Saved teacher: {} {}", teacher.getFirstName(), teacher.getLastName());
+    public void save(TeacherDTO teacherDTO) {
+        if (teacherDTO.getImage() == null || teacherDTO.getImage().isEmpty()) {
+            Teacher teacher = userMapper.mapFromDto(teacherDTO);
+            teacher.setImageName(imageService.getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE));
+            teacherRepository.save(teacher);
         } else {
-            throw new RuntimeException("Invalid name for teacher");
+            Teacher teacher = userMapper.mapFromDto(teacherDTO);
+            teacher = teacherRepository.save(teacher);
+            String imageName = imageService.saveUserImage(TEACHER_ROLE, teacher.getId(), teacherDTO.getImage());
+            teacher.setImageName(imageName);
+            teacherRepository.save(teacher);
         }
+        logger.info("Saved teacher: {} {}", teacherDTO.getFirstName(), teacherDTO.getLastName());
     }
 
     @Override
     @Transactional
-    public void update(Long id, Teacher updatedTeacher, MultipartFile imageFile) {
-        Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
-        if (optionalTeacher.isPresent()) {
-            Teacher existingTeacher = optionalTeacher.get();
+    public void update(Long id, TeacherDTO teacherDTO) {
+        Teacher existingTeacher = teacherRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
+        existingTeacher.setFirstName(teacherDTO.getFirstName());
+        existingTeacher.setLastName(teacherDTO.getLastName());
+        existingTeacher.setAcademicDegree(teacherDTO.getAcademicDegree());
+        existingTeacher.setAge(teacherDTO.getAge());
+        existingTeacher.setEmail(teacherDTO.getEmail());
 
-            if (!isValidNameForUser(updatedTeacher.getFirstName()) ||
-                    !isValidNameForUser(updatedTeacher.getLastName()) ||
-                    !isValidEmail(updatedTeacher.getEmail())) {
-                throw new RuntimeException("Invalid data for teacher");
-            }
-            existingTeacher.setFirstName(updatedTeacher.getFirstName());
-            existingTeacher.setLastName(updatedTeacher.getLastName());
-            existingTeacher.setAcademicDegree(updatedTeacher.getAcademicDegree());
-            existingTeacher.setAge(updatedTeacher.getAge());
-            existingTeacher.setEmail(updatedTeacher.getEmail());
-
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(existingTeacher);
-            } else {
-                String imageName = imageService.saveUserImage(TEACHER_ROLE, id, imageFile);
-                existingTeacher.setImageName(imageName);
-            }
-            teacherRepository.save(existingTeacher);
-            logger.info("Teacher updated by id: {}", id);
+        if (teacherDTO.getImage() == null || teacherDTO.getImage().isEmpty()) {
+            imageService.deleteUserImage(existingTeacher.getImageName());
+            existingTeacher.setImageName(imageService.getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE));
         } else {
-            throw new RuntimeException("There is no such teacher");
+            imageService.deleteUserImage(existingTeacher.getImageName());
+            String imageName = imageService.saveUserImage(TEACHER_ROLE, id, teacherDTO.getImage());
+            existingTeacher.setImageName(imageName);
         }
+        teacherRepository.save(existingTeacher);
+        logger.info("Teacher updated by id: {}", id);
     }
 
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(TEACHER_ROLE, id);
+        Teacher teacher = findById(id);
+        imageService.deleteUserImage(teacher.getImageName());
         teacherRepository.deleteById(id);
         logger.info("Teacher was deleted by id: {}", id);
     }
@@ -117,6 +106,11 @@ public class TeacherServiceImpl implements TeacherService {
         int to = from + pageSize;
         logger.info("Find teachers from {} to {}", from, to);
         return teacherRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return teacherRepository.count();
     }
 
     @Override

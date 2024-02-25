@@ -1,3 +1,16 @@
+.card-header {
+    margin-bottom: 20px;
+}
+
+.container {
+    margin-bottom: 20px;
+}
+
+.btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
 .user-image {
     margin-top: 20px;
     border-radius: 10px;
@@ -15,6 +28,12 @@
 .user-details h2 {
     margin-bottom: 20px;
     color: #007bff;
+}
+
+.manage-section h2 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    color: #343a40;
 }
 
 .manage-section h3 {

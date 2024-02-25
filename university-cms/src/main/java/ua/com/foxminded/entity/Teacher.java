@@ -3,6 +3,7 @@ package ua.com.foxminded.entity;
 import jakarta.persistence.*;
 import ua.com.foxminded.enums.Gender;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -14,13 +15,13 @@ public class Teacher extends User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "teacher_id")
-    protected Long id;
+    private Long id;
     @Column(name = "academic_degree")
     private String academicDegree;
     @OneToMany(mappedBy = "teacher")
     private List<Lecture> lectures;
 
-    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, int age, String email, String imageName) {
+    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, LocalDate age, String email, String imageName) {
         super(firstName, lastName, gender, age, email, imageName);
         this.id = id;
         this.academicDegree = academicDegree;

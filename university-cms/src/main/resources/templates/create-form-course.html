@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Course</title>
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Create Course</h2>
+
+    <form method="post" th:action="@{/createCourse}">
+        <div class="form-group">
+            <label for="courseName">Course Name:</label>
+            <input class="form-control" id="courseName" name="name" required type="text">
+        </div>
+
+        <div class="form-group">
+            <label for="faculties">Select Faculty:</label>
+            <select class="form-control" id="faculties" name="faculty" required>
+                <option disabled selected value="">Select Faculty</option>
+            </select>
+        </div>
+
+        <nav aria-label="Page navigation" data-content="faculties">
+            <ul class="pagination justify-content-center">
+                <li th:class="${pageNumber != null && i == pageNumber ? 'page-item active' : 'page-item'}"
+                    th:each="i : ${#numbers.sequence(0, totalPages != null ? totalPages - 1 : 0)}">
+                    <a class="page-link" href="#" th:data-page="${i}" th:onclick="'loadFaculties(this, \'faculties\')'">[[${i
+                        + 1}]]</a>
+            </ul>
+        </nav>
+
+        <button class="btn btn-primary" type="submit">Submit</button>
+        <script src="/js/ajax_for_course_form.js"></script>
+    </form>
+</div>
+
+</body>
+</html>
+

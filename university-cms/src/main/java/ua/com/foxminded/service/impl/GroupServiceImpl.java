@@ -19,8 +19,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static ua.com.foxminded.utill.NameValidator.isValidNameForGroup;
-
 @Service
 public class GroupServiceImpl implements GroupService {
     private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
@@ -36,12 +34,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void save(Group group) {
-        if (isValidNameForGroup(group.getName())) {
-            groupRepository.save(group);
-            logger.info("Saved group {}", group.getName());
-        } else {
-            throw new RuntimeException("Invalid name for group");
-        }
+        groupRepository.save(group);
+        logger.info("Saved group {}", group.getName());
     }
 
     @Override
@@ -91,6 +85,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public Long count() {
+        return groupRepository.count();
+    }
+
+    @Override
     @Transactional
     public void attachStudentToGroup(Long studentId, Long groupId) {
         Group group = groupRepository
@@ -130,6 +129,16 @@ public class GroupServiceImpl implements GroupService {
             throw new RuntimeException("The group was not found");
         }
         return groupRepository.findLecturesByDateBetween(groupId, firstDate, secondDate);
+    }
+
+    @Override
+    public Page<Group> findAllByLecture(Long lectureId, Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find groups of lecture: {} from {} to {}", lectureId, from, to);
+        return groupRepository.findAllByLectures_Id(lectureId, pageable);
     }
 }
 

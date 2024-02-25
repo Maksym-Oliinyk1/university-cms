@@ -6,16 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.repository.StudentRepository;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.StudentService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
-
-import static ua.com.foxminded.utill.NameValidator.isValidEmail;
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUser;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -24,52 +22,48 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final ImageService imageService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public StudentServiceImpl(StudentRepository studentRepository, ImageService imageService) {
+    public StudentServiceImpl(StudentRepository studentRepository, ImageService imageService, UserMapper userMapper) {
         this.studentRepository = studentRepository;
         this.imageService = imageService;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public void save(Student student, MultipartFile imageFile) {
-        if (isValidNameForUser(student.getFirstName())
-                && isValidNameForUser(student.getLastName())
-                && isValidEmail(student.getEmail())) {
-            if (imageFile == null || imageFile.isEmpty()) {
-                imageService.setDefaultImageForUser(student);
-                studentRepository.save(student);
-            } else {
-                student = studentRepository.save(student);
-                String imageName = imageService.saveUserImage(STUDENT_ROLE, student.getId(), imageFile);
-                student.setImageName(imageName);
-                studentRepository.save(student);
-            }
-            logger.info("Saved student: {} {}", student.getFirstName(), student.getLastName());
+    public void save(StudentDTO studentDTO) {
+        if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
+            Student student = userMapper.mapFromDto(studentDTO);
+            student.setImageName(imageService.getDefaultIUserImage(student.getGender(), STUDENT_ROLE));
+            studentRepository.save(student);
         } else {
-            throw new RuntimeException("Invalid name for student");
+            Student student = userMapper.mapFromDto(studentDTO);
+            student = studentRepository.save(student);
+            String imageName = imageService.saveUserImage(STUDENT_ROLE, student.getId(), studentDTO.getImage());
+            student.setImageName(imageName);
+            studentRepository.save(student);
         }
+        logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
     }
 
+
     @Override
-    public void update(Long id, Student updatedStudent, MultipartFile imageFile) {
+    public void update(Long id, StudentDTO studentDTO) {
         Student existingStudent = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
-        if (!isValidNameForUser(updatedStudent.getFirstName()) ||
-                !isValidNameForUser(updatedStudent.getLastName()) ||
-                !isValidEmail(updatedStudent.getEmail())) {
-            throw new RuntimeException("Invalid data for student");
-        }
-        existingStudent.setFirstName(updatedStudent.getFirstName());
-        existingStudent.setLastName(updatedStudent.getLastName());
-        existingStudent.setGender(updatedStudent.getGender());
-        existingStudent.setAge(updatedStudent.getAge());
-        existingStudent.setEmail(updatedStudent.getEmail());
+        existingStudent.setFirstName(studentDTO.getFirstName());
+        existingStudent.setLastName(studentDTO.getLastName());
+        existingStudent.setGender(studentDTO.getGender());
+        existingStudent.setAge(studentDTO.getAge());
+        existingStudent.setEmail(studentDTO.getEmail());
 
-        if (imageFile == null || imageFile.isEmpty()) {
-            imageService.setDefaultImageForUser(existingStudent);
+        if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
+            imageService.deleteUserImage(existingStudent.getImageName());
+            existingStudent.setImageName(imageService.getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE));
         } else {
-            String imageName = imageService.saveUserImage(STUDENT_ROLE, id, imageFile);
+            imageService.deleteUserImage(existingStudent.getImageName());
+            String imageName = imageService.saveUserImage(STUDENT_ROLE, id, studentDTO.getImage());
             existingStudent.setImageName(imageName);
         }
         studentRepository.save(existingStudent);
@@ -79,7 +73,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void delete(Long id) {
-        imageService.deleteUserImage(STUDENT_ROLE, id);
+        Student student = findById(id);
+        imageService.deleteUserImage(student.getImageName());
         studentRepository.deleteById(id);
         logger.info("Student was deleted by id: {}", id);
     }
@@ -103,5 +98,20 @@ public class StudentServiceImpl implements StudentService {
         int to = from + pageSize;
         logger.info("Find students from {} to {}", from, to);
         return studentRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return studentRepository.count();
+    }
+
+    @Override
+    public Page<Student> findAllStudentByGroup(Long groupId, Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find students if group: {} from {} to {}", groupId, from, to);
+        return studentRepository.findByGroupId(groupId, pageable);
     }
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Maintainer Authorization</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}"/>
+    <th:block th:include="fragments/scripts-for-page"></th:block>
+
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>Maintainer Authorization</h2>
+    <form method="get" th:action="@{/showMaintainer}">
+        <div class="form-group">
+            <label for="id">Maintainer ID:</label>
+            <input class="form-control" id="id" name="id" placeholder="Enter Maintainer ID" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">View Maintainer</button>
+    </form>
+</div>
+
+</body>
+</html>

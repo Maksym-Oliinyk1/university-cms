@@ -9,5 +9,8 @@ public interface LectureService extends EntityService<Lecture> {
 
     void detachGroupFromLecture(Long groupId, Long lectureId);
 
-    Page<Lecture> findAllOfCourse(Long courseId, Pageable pageable);
+    Page<Lecture> findAllByCourse(Long courseId, Pageable pageable);
+
+    Page<Lecture> findAllByGroup(Long groupId, Pageable pageable);
+
 }

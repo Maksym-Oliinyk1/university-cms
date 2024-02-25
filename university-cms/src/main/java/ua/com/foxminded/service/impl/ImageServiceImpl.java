@@ -7,6 +7,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.User;
+import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.service.ImageService;
 
 import java.io.IOException;
@@ -16,9 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.UUID;
 
 @Service
 public class ImageServiceImpl implements ImageService {
@@ -34,6 +34,19 @@ public class ImageServiceImpl implements ImageService {
     private static final String DEFAULT_PLACEHOLDER_AVATAR = "placeholder.png";
     private static final String FEMALE_GENDER = "FEMALE";
     private static final String MALE_GENDER = "MALE";
+    private static final Map<String, String> DEFAULT_IMAGES = new HashMap<>();
+
+    static {
+        DEFAULT_IMAGES.put("ADMINISTRATOR" + FEMALE_GENDER, DEFAULT_FEMALE_ADMIN_AVATAR);
+        DEFAULT_IMAGES.put("ADMINISTRATOR" + MALE_GENDER, DEFAULT_MALE_ADMIN_AVATAR);
+        DEFAULT_IMAGES.put("MAINTAINER" + FEMALE_GENDER, DEFAULT_FEMALE_MAINTAINER_AVATAR);
+        DEFAULT_IMAGES.put("MAINTAINER" + MALE_GENDER, DEFAULT_MALE_MAINTAINER_AVATAR);
+        DEFAULT_IMAGES.put("TEACHER" + FEMALE_GENDER, DEFAULT_FEMALE_TEACHER_AVATAR);
+        DEFAULT_IMAGES.put("TEACHER" + MALE_GENDER, DEFAULT_MALE_TEACHER_AVATAR);
+        DEFAULT_IMAGES.put("STUDENT" + FEMALE_GENDER, DEFAULT_FEMALE_STUDENT_AVATAR);
+        DEFAULT_IMAGES.put("STUDENT" + MALE_GENDER, DEFAULT_MALE_STUDENT_MALE_AVATAR);
+    }
+
     private final PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
     @Value("${app.image.storage.userProfileDirectory}")
     private String userProfileDirPath;
@@ -65,15 +78,14 @@ public class ImageServiceImpl implements ImageService {
         }
     }
 
-
-    public String saveUserImage(Long userId, MultipartFile imageFile) {
-        deleteUserImage(userId);
+    @Override
+    public String saveUserImage(String userRole, Long userId, MultipartFile imageFile) {
         try {
             byte[] bytes = imageFile.getBytes();
             String originalFilename = imageFile.getOriginalFilename();
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
 
-            String imageName = userId + fileExtension;
+            String imageName = generateUniqueImageName(userRole, fileExtension);
             Path path = Paths.get(userProfileDirPath + imageName);
 
             Files.write(path, bytes);
@@ -85,41 +97,20 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public void deleteUserImage(Long userId) {
-        if (userId != null) {
-            try (Stream<Path> filesStream = Files.list(Paths.get(userProfileDirPath))) {
-                List<Path> files = filesStream
-                        .filter(path -> path.getFileName().toString().startsWith(String.valueOf(userId)))
-                        .toList();
-                for (Path file : files) {
-                    Files.deleteIfExists(file);
-                }
+    public void deleteUserImage(String imageName) {
+        if (imageName != null) {
+            Path imagePath = Paths.get(userProfileDirPath, imageName);
+            try {
+                Files.deleteIfExists(imagePath);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-
     @Override
-    public void setDefaultImageForUser(User user) {
-        Map<String, String> defaultImages = new HashMap<>();
-        defaultImages.put("Administrator" + FEMALE_GENDER, DEFAULT_FEMALE_ADMIN_AVATAR);
-        defaultImages.put("Administrator" + MALE_GENDER, DEFAULT_MALE_ADMIN_AVATAR);
-        defaultImages.put("Maintainer" + FEMALE_GENDER, DEFAULT_FEMALE_MAINTAINER_AVATAR);
-        defaultImages.put("Maintainer" + MALE_GENDER, DEFAULT_MALE_MAINTAINER_AVATAR);
-        defaultImages.put("Teacher" + FEMALE_GENDER, DEFAULT_FEMALE_TEACHER_AVATAR);
-        defaultImages.put("Teacher" + MALE_GENDER, DEFAULT_MALE_TEACHER_AVATAR);
-        defaultImages.put("Student" + FEMALE_GENDER, DEFAULT_FEMALE_STUDENT_AVATAR);
-        defaultImages.put("Student" + MALE_GENDER, DEFAULT_MALE_STUDENT_MALE_AVATAR);
-
-        String userType = user.getClass().getSimpleName();
-        String gender = user.getGender().name();
-        String imageName = defaultImages.get(userType + gender);
-
-        if (imageName != null) {
-            user.setImageName(imageName);
-        }
+    public String getDefaultIUserImage(Gender gender, String userRole) {
+        return DEFAULT_IMAGES.get(userRole + gender.name());
     }
 
     @Override
@@ -169,6 +160,18 @@ public class ImageServiceImpl implements ImageService {
             return path;
         }
         throw new RuntimeException("Image not found with name: " + imageName);
+    }
+
+    private String generateUniqueImageName(String userRole, String fileExtension) {
+        String imageName;
+        Path path;
+
+        do {
+            imageName = String.format("%s_%s.%s", UUID.randomUUID(), userRole, fileExtension);
+            path = Paths.get(userProfileDirPath, imageName);
+        } while (Files.exists(path));
+
+        return imageName;
     }
 
 }

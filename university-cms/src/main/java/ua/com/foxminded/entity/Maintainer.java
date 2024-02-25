@@ -3,6 +3,7 @@ package ua.com.foxminded.entity;
 import jakarta.persistence.*;
 import ua.com.foxminded.enums.Gender;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -14,7 +15,7 @@ public class Maintainer extends User {
     @Column(name = "maintainer_id")
     private Long id;
 
-    public Maintainer(Long id, String firstName, String lastName, Gender gender, int age, String email, String imageName) {
+    public Maintainer(Long id, String firstName, String lastName, Gender gender, LocalDate age, String email, String imageName) {
         super(firstName, lastName, gender, age, email, imageName);
         this.id = id;
     }

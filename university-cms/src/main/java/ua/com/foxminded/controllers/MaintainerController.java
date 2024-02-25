@@ -1,25 +1,35 @@
 package ua.com.foxminded.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 import ua.com.foxminded.service.MaintainerService;
+import ua.com.foxminded.service.UserMapper;
 
-@RestController
+@Controller
 public class MaintainerController {
 
     private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
     private final MaintainerService maintainerService;
+    private final UserMapper userMapper;
 
-    public MaintainerController(MaintainerService maintainerService) {
+    public MaintainerController(MaintainerService maintainerService, UserMapper userMapper) {
         this.maintainerService = maintainerService;
+        this.userMapper = userMapper;
     }
 
-    @GetMapping("/showMaintainer/{id}")
-    public String showMaintainer(@PathVariable Long id, Model model) {
+    @GetMapping("/maintainerAuthorization")
+    public String maintainerAuthorization() {
+        return "mock-maintainer-authorization";
+    }
+
+    @GetMapping("/showMaintainer")
+    public String showAdministrator(@RequestParam("id") Long id, Model model) {
         Maintainer maintainer = maintainerService.findById(id);
         model.addAttribute("maintainer", maintainer);
         return "maintainer";
@@ -36,30 +46,33 @@ public class MaintainerController {
 
     @GetMapping("/createFormMaintainer")
     public String showCreateForm(Model model) {
-        model.addAttribute("maintainer", new Maintainer());
+        model.addAttribute("maintainer", new MaintainerDTO());
         return "create-form-maintainer";
     }
 
     @PostMapping("/createMaintainer")
-    public String createMaintainer(@ModelAttribute Maintainer maintainer, @RequestParam("imageFile") MultipartFile imageFile) {
-        maintainerService.save(maintainer, imageFile);
+    public String createMaintainer(@ModelAttribute @Valid MaintainerDTO maintainerDTO) {
+        maintainerService.save(maintainerDTO);
         return "create-form-maintainer-successful";
     }
 
     @GetMapping("/updateFormMaintainer/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
         Maintainer maintainer = maintainerService.findById(id);
-        model.addAttribute("maintainer", maintainer);
+        MaintainerDTO maintainerDTO = userMapper.mapToDto(maintainer);
+        maintainerDTO.setId(id);
+        model.addAttribute("maintainer", maintainerDTO);
         return "update-form-maintainer";
     }
 
-    @PutMapping("/updateMaintainer/{id}")
-    public String updateMaintainer(@PathVariable Long id, @ModelAttribute Maintainer maintainer, @RequestParam("imageFile") MultipartFile imageFile) {
-        maintainerService.update(id, maintainer, imageFile);
+    @PostMapping("/updateMaintainer/{id}")
+    public String updateMaintainer(@PathVariable Long id, @ModelAttribute @Valid MaintainerDTO maintainerDTO, Model model) {
+        maintainerService.update(id, maintainerDTO);
+        model.addAttribute("maintainerId", id);
         return "update-form-maintainer-successful";
     }
 
-    @DeleteMapping("/deleteMaintainer")
+    @PostMapping("/deleteMaintainer")
     public String deleteMaintainer(Long id) {
         maintainerService.delete(id);
         return "delete-form-maintainer-successful";

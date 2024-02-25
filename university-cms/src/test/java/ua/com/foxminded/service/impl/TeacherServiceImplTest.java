@@ -12,12 +12,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.ImageService;
+import ua.com.foxminded.service.UserMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,6 +33,9 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = {TeacherServiceImpl.class})
 class TeacherServiceImplTest {
+
+    private static final String TEACHER_ROLE = "TEACHER";
+
     @MockBean
     private TeacherRepository teacherRepository;
 
@@ -40,75 +45,72 @@ class TeacherServiceImplTest {
     @MockBean
     private ImageService imageService;
 
+    @MockBean
+    private UserMapper userMapper;
+
     @Autowired
     private TeacherServiceImpl teacherService;
 
     @BeforeEach
     void setUp() {
-        Mockito.reset(teacherRepository, lectureRepository, imageService);
+        Mockito.reset(teacherRepository, lectureRepository, imageService, userMapper);
     }
 
     @Test
     void save_ValidDataWithImage_SaveSuccessful() {
-        Teacher teacher = createTeacher();
+        TeacherDTO teacherDTO = createTeacherDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
+        teacherDTO.setImage(imageFile);
+        when(userMapper.mapFromDto(teacherDTO)).thenReturn(createTeacher());
         when(imageFile.isEmpty()).thenReturn(false);
         when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-        when(teacherRepository.save(teacher)).thenReturn(teacher);
+        when(teacherRepository.save(any(Teacher.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        teacherService.save(teacher, imageFile);
+        teacherService.save(teacherDTO);
 
-        verify(teacherRepository, times(2)).save(teacher);
-        verify(imageService, times(1)).saveUserImage(anyString(), eq(teacher.getId()), eq(imageFile));
-        assertEquals("32.png", teacher.getImageName());
+        verify(userMapper, times(1)).mapFromDto(teacherDTO);
+        verify(imageService, times(1)).saveUserImage(anyString(), anyLong(), eq(imageFile));
+        verify(teacherRepository, times(2)).save(any(Teacher.class));
     }
 
     @Test
     void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
-        Teacher teacher = createTeacher();
-        MultipartFile emptyFile = mock(MultipartFile.class);
-        when(emptyFile.isEmpty()).thenReturn(true);
+        TeacherDTO teacherDTO = createTeacherDTO();
+        when(userMapper.mapFromDto(teacherDTO)).thenReturn(createTeacher());
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
 
-        teacherService.save(teacher, emptyFile);
+        teacherService.save(teacherDTO);
 
-        verify(teacherRepository, times(1)).save(teacher);
-        verify(imageService, times(1)).setDefaultImageForUser(teacher);
+        verify(userMapper, times(1)).mapFromDto(teacherDTO);
+        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
+        verify(teacherRepository, times(1)).save(any(Teacher.class));
     }
 
     @Test
     void save_ValidDataWithoutImage_SaveSuccessful() {
-        Teacher teacher = createTeacher();
+        TeacherDTO teacherDTO = createTeacherDTO();
+        when(userMapper.mapFromDto(teacherDTO)).thenReturn(createTeacher());
 
-        teacherService.save(teacher, null);
+        teacherService.save(teacherDTO);
 
-        verify(teacherRepository, times(1)).save(teacher);
-        verify(imageService, times(1)).setDefaultImageForUser(teacher);
-        verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-    }
-
-    @Test
-    void save_InvalidData_ThrowException() {
-        Teacher teacher = createTeacher();
-        teacher.setEmail("invalidemail");
-
-        assertThrows(RuntimeException.class, () -> teacherService.save(teacher, null));
-
-        verify(teacherRepository, never()).save(any(Teacher.class));
-        verify(imageService, never()).setDefaultImageForUser(any(Teacher.class));
+        verify(userMapper, times(1)).mapFromDto(teacherDTO);
+        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
+        verify(teacherRepository, times(1)).save(any(Teacher.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
     @Test
     void update_ExistingTeacherWithValidDataAndImage_UpdateSuccessful() {
         Long id = 1L;
-        Teacher existingTeacher = createTeacher();
-        Teacher updatedTeacher = createTeacher();
+        TeacherDTO teacherDTO = createTeacherDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
+        teacherDTO.setImage(imageFile);
+        Teacher existingTeacher = createTeacher();
         when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
         when(imageFile.isEmpty()).thenReturn(false);
         when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
 
-        teacherService.update(id, updatedTeacher, imageFile);
+        teacherService.update(id, teacherDTO);
 
         verify(teacherRepository, times(1)).save(existingTeacher);
         verify(imageService, times(1)).saveUserImage(anyString(), eq(id), eq(imageFile));
@@ -118,43 +120,45 @@ class TeacherServiceImplTest {
     @Test
     void update_ShouldSetDefaultImageWhenImageFileIsNull() {
         Long id = 1L;
+        TeacherDTO teacherDTO = createTeacherDTO();
         Teacher existingTeacher = createTeacher();
-        Teacher updatedTeacher = createTeacher();
-        updatedTeacher.setImageName(null);
+        teacherDTO.setImage(null);
         when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
 
-        teacherService.update(id, updatedTeacher, null);
+        teacherService.update(id, teacherDTO);
 
         verify(teacherRepository, times(1)).save(existingTeacher);
-        verify(imageService, times(1)).setDefaultImageForUser(existingTeacher);
+        verify(imageService, times(1)).getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE);
     }
 
     @Test
     void update_ShouldSetDefaultImageWhenImageFileIsEmpty() {
         Long id = 1L;
+        TeacherDTO teacherDTO = createTeacherDTO();
         Teacher existingTeacher = createTeacher();
-        Teacher updatedTeacher = createTeacher();
         MultipartFile emptyFile = mock(MultipartFile.class);
-        when(emptyFile.isEmpty()).thenReturn(true);
+
+        lenient().when(emptyFile.isEmpty()).thenReturn(true);
+
         when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
 
-        teacherService.update(id, updatedTeacher, emptyFile);
+        teacherService.update(id, teacherDTO);
 
         verify(teacherRepository, times(1)).save(existingTeacher);
-        verify(imageService, times(1)).setDefaultImageForUser(existingTeacher);
+        verify(imageService, times(1)).getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE);
     }
 
     @Test
     void update_NonExistingTeacher_ThrowException() {
         Long id = 1L;
-        Teacher updatedTeacher = createTeacher();
+        TeacherDTO teacherDTO = createTeacherDTO();
         when(teacherRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> teacherService.update(id, updatedTeacher, null));
+        assertThrows(RuntimeException.class, () -> teacherService.update(id, teacherDTO));
 
         verify(teacherRepository, never()).save(any(Teacher.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-        verify(imageService, never()).setDefaultImageForUser(any(Teacher.class));
+        verify(imageService, never()).getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE);
     }
 
     @Test
@@ -166,38 +170,7 @@ class TeacherServiceImplTest {
         teacherService.delete(id);
 
         verify(teacherRepository, times(1)).deleteById(id);
-        verify(imageService, times(1)).deleteUserImage(anyString(), id);
-    }
-
-    @Test
-    void findById_ExistingTeacher_ReturnTeacher() {
-        Long id = 1L;
-        Teacher teacher = createTeacher();
-        when(teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
-
-        Teacher result = teacherService.findById(id);
-
-        assertEquals(teacher, result);
-    }
-
-    @Test
-    void findById_NonExistingTeacher_ThrowException() {
-        Long id = 1L;
-        when(teacherRepository.findById(id)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> teacherService.findById(id));
-    }
-
-    @Test
-    void findAll_ReturnPageOfTeachers() {
-        Pageable pageable = mock(Pageable.class);
-        Page page = mock(Page.class);
-
-        when(teacherRepository.findAll(pageable)).thenReturn(page);
-
-        Page<Teacher> result = teacherService.findAll(pageable);
-
-        assertEquals(page, result);
+        verify(imageService, times(1)).deleteUserImage(teacher.getImageName());
     }
 
     @Test
@@ -320,6 +293,47 @@ class TeacherServiceImplTest {
         verify(teacherRepository, never()).findLecturesByDateBetween(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class));
     }
 
+    @Test
+    void findById_ExistingTeacher_ReturnTeacher() {
+        Long id = 1L;
+        Teacher teacher = createTeacher();
+        when(teacherRepository.findById(id)).thenReturn(Optional.of(teacher));
+
+        Teacher result = teacherService.findById(id);
+
+        assertEquals(teacher, result);
+    }
+
+    @Test
+    void findById_NonExistingTeacher_ThrowException() {
+        Long id = 1L;
+        when(teacherRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> teacherService.findById(id));
+    }
+
+    @Test
+    void findAll_ReturnPageOfTeachers() {
+        Pageable pageable = mock(Pageable.class);
+        Page page = mock(Page.class);
+
+        when(teacherRepository.findAll(pageable)).thenReturn(page);
+
+        Page<Teacher> result = teacherService.findAll(pageable);
+
+        assertEquals(page, result);
+    }
+
+    private TeacherDTO createTeacherDTO() {
+        TeacherDTO teacherDTO = new TeacherDTO();
+        teacherDTO.setFirstName("John");
+        teacherDTO.setLastName("Doe");
+        teacherDTO.setEmail("john.doe@example.com");
+        teacherDTO.setGender(Gender.MALE);
+        teacherDTO.setAcademicDegree("Ph.D.");
+        return teacherDTO;
+    }
+
     private Teacher createTeacher() {
         Teacher teacher = new Teacher();
         teacher.setId(1L);
@@ -339,5 +353,6 @@ class TeacherServiceImplTest {
         return lecture;
     }
 }
+
 
 

@@ -49,14 +49,6 @@ class FacultyServiceImplTest {
     }
 
     @Test
-    void saveFaculty_InvalidName_ThrowsException() {
-        Faculty faculty = new Faculty(1L, "I2");
-        assertThrows(RuntimeException.class, () -> facultyService.save(faculty));
-
-        verify(facultyRepository, never()).save(faculty);
-    }
-
-    @Test
     void updateFaculty_ValidIdAndData_Success() {
         Long id = 1L;
         Faculty existingFaculty = new Faculty(id, "Engineering");

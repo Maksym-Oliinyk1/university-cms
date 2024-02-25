@@ -20,23 +20,23 @@ public class ImageController {
     @GetMapping(value = "/showImages/{imageName}")
     @ResponseBody
     public ResponseEntity<byte[]> getUserImage(@PathVariable String imageName) {
-        try {
-            byte[] imageBytes = imageService.readImageAsBytes(imageName);
+        byte[] imageBytes = imageService.readImageAsBytes(imageName);
 
-            String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
-            MediaType mediaType = getMediaTypeForFileExtension(fileExtension);
+        String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
+        MediaType mediaType = getMediaTypeForFileExtension(fileExtension);
 
-            return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
     }
 
     private MediaType getMediaTypeForFileExtension(String fileExtension) {
-        return switch (fileExtension.toLowerCase()) {
-            case ".jpg", ".jpeg" -> MediaType.IMAGE_JPEG;
-            case ".png" -> MediaType.IMAGE_PNG;
-            default -> throw new RuntimeException("Unsupported file extension: " + fileExtension);
-        };
+        fileExtension = fileExtension.toLowerCase();
+
+        if (".jpg".equals(fileExtension) || ".jpeg".equals(fileExtension)) {
+            return MediaType.IMAGE_JPEG;
+        } else if (".png".equals(fileExtension)) {
+            return MediaType.IMAGE_PNG;
+        } else {
+            throw new RuntimeException("Unsupported file extension: " + fileExtension);
+        }
     }
 }

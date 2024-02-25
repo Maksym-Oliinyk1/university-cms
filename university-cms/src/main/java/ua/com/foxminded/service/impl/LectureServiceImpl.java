@@ -14,10 +14,9 @@ import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.LectureRepository;
 import ua.com.foxminded.service.LectureService;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-
-import static ua.com.foxminded.utill.NameValidator.isValidDescriptionForLecture;
-import static ua.com.foxminded.utill.NameValidator.isValidNameForUniversityEntity;
 
 @Service
 public class LectureServiceImpl implements LectureService {
@@ -35,15 +34,29 @@ public class LectureServiceImpl implements LectureService {
 
 
     @Override
+    @Transactional
     public void save(Lecture lecture) {
-        if (!isValidNameForUniversityEntity(lecture.getName())) {
-            throw new RuntimeException("Invalid name for lecture");
-        }
-        if (!isValidDescriptionForLecture(lecture.getDescription())) {
-            throw new RuntimeException("Invalid description for lecture");
-        }
-        lectureRepository.save(lecture);
+        List<Group> lectureGroups = lecture.getGroups();
+        Lecture savedLecture = lectureRepository.save(lecture);
+        attachGroupsOfLecture(savedLecture.getId(), lectureGroups);
+        lectureRepository.save(savedLecture);
         logger.info("Saved lecture: {}", lecture.getName());
+    }
+
+    @Transactional
+    private void attachGroupsOfLecture(Long lectureId, List<Group> lectureGroups) {
+        List<Group> groupsCopy = new ArrayList<>(lectureGroups);
+        for (Group lectureGroup : groupsCopy) {
+            attachGroupToLecture(lectureGroup.getId(), lectureId);
+        }
+    }
+
+    @Transactional
+    private void detachGroupsFromLecture(Long lectureId, List<Group> lectureGroups) {
+        List<Group> groupsCopy = new ArrayList<>(lectureGroups);
+        for (Group lectureGroup : groupsCopy) {
+            detachGroupFromLecture(lectureGroup.getId(), lectureId);
+        }
     }
 
     @Override
@@ -51,12 +64,19 @@ public class LectureServiceImpl implements LectureService {
     public void update(Long id, Lecture updatedLecture) {
         Optional<Lecture> optionalLecture = lectureRepository.findById(id);
         if (optionalLecture.isPresent()) {
+            List<Group> newLectureGroups = updatedLecture.getGroups();
             Lecture existingLecture = optionalLecture.get();
+
+            detachGroupsFromLecture(id, existingLecture.getGroups());
+
             existingLecture.setName(updatedLecture.getName());
             existingLecture.setDescription(updatedLecture.getDescription());
             existingLecture.setTeacher(updatedLecture.getTeacher());
             existingLecture.setCourse(updatedLecture.getCourse());
-            existingLecture.setGroups(updatedLecture.getGroups());
+            existingLecture.setGroups(newLectureGroups);
+
+            attachGroupsOfLecture(id, newLectureGroups);
+
             lectureRepository.save(existingLecture);
             logger.info("Lecture updated by id: {}", id);
         } else {
@@ -64,9 +84,13 @@ public class LectureServiceImpl implements LectureService {
         }
     }
 
+
     @Override
+    @Transactional
     public void delete(Long id) {
         if (lectureRepository.existsById(id)) {
+            List<Group> lectureGroups = lectureRepository.findById(id).get().getGroups();
+            detachGroupsFromLecture(id, lectureGroups);
             lectureRepository.deleteById(id);
             logger.info("The lecture was deleted by id {}", id);
         } else {
@@ -75,6 +99,7 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
+    @Transactional
     public Lecture findById(Long id) {
         Optional<Lecture> optionalLecture = lectureRepository.findById(id);
         if (optionalLecture.isPresent()) {
@@ -93,6 +118,11 @@ public class LectureServiceImpl implements LectureService {
         int to = from + pageSize;
         logger.info("Find lectures from {} to {}", from, to);
         return lectureRepository.findAll(pageable);
+    }
+
+    @Override
+    public Long count() {
+        return lectureRepository.count();
     }
 
     @Override
@@ -130,15 +160,22 @@ public class LectureServiceImpl implements LectureService {
     }
 
     @Override
-    /*
-    TODO Write tests for that method
-    * */
-    public Page<Lecture> findAllOfCourse(Long courseId, Pageable pageable) {
+    public Page<Lecture> findAllByCourse(Long courseId, Pageable pageable) {
         int pageNumber = pageable.getPageNumber();
         int pageSize = pageable.getPageSize();
         int from = pageNumber * pageSize;
         int to = from + pageSize;
         logger.info("Find lectures of course: {} from {} to {}", courseId, from, to);
         return lectureRepository.findByCourseId(courseId, pageable);
+    }
+
+    @Override
+    public Page<Lecture> findAllByGroup(Long groupId, Pageable pageable) {
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int from = pageNumber * pageSize;
+        int to = from + pageSize;
+        logger.info("Find lectures of group: {} from {} to {}", groupId, from, to);
+        return lectureRepository.findAllByGroups_Id(groupId, pageable);
     }
 }
