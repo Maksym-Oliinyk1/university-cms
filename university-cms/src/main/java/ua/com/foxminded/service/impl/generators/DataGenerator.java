@@ -32,9 +32,6 @@ public abstract class DataGenerator {
         return firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + randomString + EMAIL_DOMAIN;
     }
 
-    public void generateIfEmpty() {
-    }
-
     protected static List<String> readFilePerOneLine(String filePath) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 (ReaderInputStream.class.getResourceAsStream(filePath))))) {
@@ -45,6 +42,9 @@ public abstract class DataGenerator {
             logger.error("Error reading file: " + filePath, e);
             throw new RuntimeException(e);
         }
+    }
+
+    public void generateIfEmpty() {
     }
 
     protected void fillUserFields(UserDTO userDTO) {

@@ -16,9 +16,8 @@ import java.util.Optional;
 
 @Service
 public class AdministratorServiceImpl implements AdministratorService {
-    private final String ADMIN_ROLE = "ADMINISTRATOR";
     private static final Logger logger = LoggerFactory.getLogger(AdministratorServiceImpl.class);
-
+    private final String ADMIN_ROLE = "ADMINISTRATOR";
     private final AdministratorRepository administratorRepository;
     private final ImageService imageService;
     private final UserMapper userMapper;
