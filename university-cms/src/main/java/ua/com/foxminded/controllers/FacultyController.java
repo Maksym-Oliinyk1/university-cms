@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.service.FacultyService;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
+
 @Controller
 public class FacultyController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final FacultyService facultyService;
 
     public FacultyController(FacultyService facultyService) {

@@ -2,14 +2,15 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.service.GroupService;
+import ua.com.foxminded.service.LectureService;
 
 import java.util.Collections;
 
@@ -19,21 +20,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(GroupController.class)
 @ExtendWith(MockitoExtension.class)
 class GroupControllerTest {
 
-    @Mock
+    @MockBean
     private GroupService groupService;
 
-    @InjectMocks
-    private GroupController groupController;
+    @MockBean
+    private LectureService lectureService;
 
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
     void createGroup_ValidInput_ShouldReturnCreateFormGroupSuccessfulPage() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
-
         mockMvc.perform(post("/createGroup")
                         .param("name", "AB-12"))
                 .andExpect(status().isOk())
@@ -44,8 +45,6 @@ class GroupControllerTest {
 
     @Test
     void createGroup_InvalidInput_ShouldReturnCreateFormGroupPageWithErrors() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
-
         mockMvc.perform(post("/createGroup"))
                 .andExpect(status().isBadRequest());
 
@@ -55,7 +54,6 @@ class GroupControllerTest {
     @Test
     void updateGroup_ValidInput_ShouldReturnUpdateFormGroupSuccessfulPage() throws Exception {
         Long groupId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(post("/updateGroup/{id}", groupId)
                         .param("name", "BC-23"))
@@ -70,7 +68,6 @@ class GroupControllerTest {
     @Test
     void updateGroup_InvalidInput_ShouldReturnUpdateFormGroupPageWithErrors() throws Exception {
         Long groupId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(post("/updateGroup/{id}", groupId))
                 .andExpect(status().isBadRequest());
@@ -80,8 +77,6 @@ class GroupControllerTest {
 
     @Test
     void manageGroup_ShouldReturnManageGroupPage() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
-
         mockMvc.perform(get("/manageGroup"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-group"));
@@ -92,8 +87,6 @@ class GroupControllerTest {
         Long groupId = 1L;
         Group mockGroup = new Group();
         when(groupService.findById(groupId)).thenReturn(mockGroup);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(get("/showGroup")
                         .param("id", String.valueOf(groupId)))
@@ -111,8 +104,6 @@ class GroupControllerTest {
         when(mockGroupPage.getContent()).thenReturn(Collections.emptyList());
         when(groupService.findAll(any())).thenReturn(mockGroupPage);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
-
         mockMvc.perform(get("/listGroups"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-group"))
@@ -126,7 +117,6 @@ class GroupControllerTest {
     @Test
     void deleteGroup_ValidId_ShouldReturnDeleteFormGroupSuccessfulPage() throws Exception {
         Long groupId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(post("/deleteGroup/{id}", groupId))
                 .andExpect(status().isOk())
@@ -139,7 +129,6 @@ class GroupControllerTest {
     void attachStudentToGroup_ShouldAttachStudentToGroup() throws Exception {
         Long studentId = 1L;
         Long groupId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(post("/attachStudentToGroup")
                         .param("studentId", String.valueOf(studentId))
@@ -154,7 +143,6 @@ class GroupControllerTest {
     void detachStudentFromGroup_ShouldDetachStudentFromGroup() throws Exception {
         Long studentId = 1L;
         Long groupId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(groupController).build();
 
         mockMvc.perform(post("/detachStudentFromGroup")
                         .param("studentId", String.valueOf(studentId))

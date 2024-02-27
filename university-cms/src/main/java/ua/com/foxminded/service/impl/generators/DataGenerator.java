@@ -18,8 +18,9 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class DataGenerator {
+public abstract class DataGenerator {
     private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
+    private static final String EMAIL_DOMAIN = "@example.com";
     private static final String FIRST_NAMES_FOR_USERS_DIRECTORY = "/populate/first_names";
     private static final String LAST_NAMES_FOR_USER_DIRECTORY = "/populate/last_names";
     private static final List<String> FIRST_NAMES = readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
@@ -27,9 +28,11 @@ public class DataGenerator {
     protected final Random random = new Random();
 
     private static String generateRandomEmail(String firstName, String lastName) {
-        String domain = "@example.com";
         String randomString = String.valueOf(System.currentTimeMillis());
-        return firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + randomString + domain;
+        return firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + randomString + EMAIL_DOMAIN;
+    }
+
+    public void generateIfEmpty() {
     }
 
     protected static List<String> readFilePerOneLine(String filePath) {
@@ -54,12 +57,12 @@ public class DataGenerator {
         userDTO.setFirstName(firstName);
         userDTO.setLastName(lastName);
         userDTO.setGender(gender);
-        userDTO.setAge(generateRandomAge());
+        userDTO.setBirthDate(generateRandomBirthDate());
         userDTO.setEmail(email);
         userDTO.setImage(null);
     }
 
-    private LocalDate generateRandomAge() {
+    private LocalDate generateRandomBirthDate() {
         LocalDate currentDate = LocalDate.now();
 
         int randomYearsAgo = random.nextInt(53) + 18;
@@ -71,4 +74,6 @@ public class DataGenerator {
                 .minus(Period.ofMonths(randomMountsAgo))
                 .minus(Period.ofDays(randomDaysAgo));
     }
+
+    public abstract int getOrder();
 }

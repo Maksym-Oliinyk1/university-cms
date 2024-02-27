@@ -63,7 +63,7 @@ public class TeacherServiceImpl implements TeacherService {
         existingTeacher.setFirstName(teacherDTO.getFirstName());
         existingTeacher.setLastName(teacherDTO.getLastName());
         existingTeacher.setAcademicDegree(teacherDTO.getAcademicDegree());
-        existingTeacher.setAge(teacherDTO.getAge());
+        existingTeacher.setBirthDate(teacherDTO.getBirthDate());
         existingTeacher.setEmail(teacherDTO.getEmail());
 
         if (teacherDTO.getImage() == null || teacherDTO.getImage().isEmpty()) {
@@ -76,6 +76,17 @@ public class TeacherServiceImpl implements TeacherService {
         }
         teacherRepository.save(existingTeacher);
         logger.info("Teacher updated by id: {}", id);
+    }
+
+    @Override
+    public TeacherDTO findByIdDTO(Long id) {
+        Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
+        if (optionalTeacher.isPresent()) {
+            logger.info("The teacher was found by id: {}", id);
+            return userMapper.mapToDto(optionalTeacher.get());
+        } else {
+            throw new RuntimeException("There is no such teacher");
+        }
     }
 
 

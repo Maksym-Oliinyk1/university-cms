@@ -53,7 +53,7 @@ public class AdministratorServiceImpl implements AdministratorService {
         existingAdministrator.setFirstName(administratorDTO.getFirstName());
         existingAdministrator.setLastName(administratorDTO.getLastName());
         existingAdministrator.setGender(administratorDTO.getGender());
-        existingAdministrator.setAge(administratorDTO.getAge());
+        existingAdministrator.setBirthDate(administratorDTO.getBirthDate());
         existingAdministrator.setEmail(administratorDTO.getEmail());
         if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingAdministrator.getImageName());
@@ -73,6 +73,17 @@ public class AdministratorServiceImpl implements AdministratorService {
         imageService.deleteUserImage(administrator.getImageName());
         administratorRepository.deleteById(id);
         logger.info("Admin was deleted by id: {}", id);
+    }
+
+    @Override
+    public AdministratorDTO findByIdDTO(Long id) {
+        Optional<Administrator> optionalAdministrator = administratorRepository.findById(id);
+        if (optionalAdministrator.isPresent()) {
+            logger.info("The administrator was found by id: {}", id);
+            return userMapper.mapToDto(optionalAdministrator.get());
+        } else {
+            throw new RuntimeException("There is no such administrator");
+        }
     }
 
     @Override

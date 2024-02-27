@@ -15,8 +15,8 @@ public class Administrator extends User {
     @Column(name = "administrator_id")
     private Long id;
 
-    public Administrator(Long id, String firstName, String lastName, Gender gender, LocalDate age, String email, String imageName) {
-        super(firstName, lastName, gender, age, email, imageName);
+    public Administrator(Long id, String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName) {
+        super(firstName, lastName, gender, birthDate, email, imageName);
         this.id = id;
     }
 

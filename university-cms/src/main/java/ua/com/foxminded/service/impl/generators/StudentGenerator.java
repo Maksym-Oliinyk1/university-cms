@@ -14,6 +14,7 @@ public class StudentGenerator extends DataGenerator {
     private static final Logger logger = LoggerFactory.getLogger(StudentGenerator.class);
 
     private static final int AMOUNT_OF_STUDENTS = 200;
+    private static final int AMOUNT_OF_GROUPS = 20;
 
     private final StudentService studentService;
     private final GroupService groupService;
@@ -23,17 +24,21 @@ public class StudentGenerator extends DataGenerator {
         this.groupService = groupService;
     }
 
-    public void generateStudentsIfEmpty() {
+    public void generateIfEmpty() {
         if (studentService.count() == 0) {
             generateStudents();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 7;
     }
 
     private void generateStudents() {
         for (int i = 0; i < AMOUNT_OF_STUDENTS; i++) {
             StudentDTO studentDTO = new StudentDTO();
             fillUserFields(studentDTO);
-            int AMOUNT_OF_GROUPS = 20;
             Group randomGroup = groupService.findById(Math.abs(random.nextLong() % AMOUNT_OF_GROUPS) + 1);
             studentDTO.setGroup(randomGroup);
             logger.info("Created student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());

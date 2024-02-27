@@ -9,18 +9,17 @@ import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 import ua.com.foxminded.service.MaintainerService;
-import ua.com.foxminded.service.UserMapper;
+
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
 
 @Controller
 public class MaintainerController {
 
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
     private final MaintainerService maintainerService;
-    private final UserMapper userMapper;
 
-    public MaintainerController(MaintainerService maintainerService, UserMapper userMapper) {
+    public MaintainerController(MaintainerService maintainerService) {
         this.maintainerService = maintainerService;
-        this.userMapper = userMapper;
     }
 
     @GetMapping("/maintainerAuthorization")
@@ -41,7 +40,7 @@ public class MaintainerController {
         model.addAttribute("maintainers", maintainerPage.getContent());
         model.addAttribute("pageNumber", maintainerPage.getNumber());
         model.addAttribute("totalPages", maintainerPage.getTotalPages());
-        return "list-maintainers";
+        return "manage-maintainer";
     }
 
     @GetMapping("/createFormMaintainer")
@@ -58,8 +57,7 @@ public class MaintainerController {
 
     @GetMapping("/updateFormMaintainer/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
-        Maintainer maintainer = maintainerService.findById(id);
-        MaintainerDTO maintainerDTO = userMapper.mapToDto(maintainer);
+        MaintainerDTO maintainerDTO = maintainerService.findByIdDTO(id);
         maintainerDTO.setId(id);
         model.addAttribute("maintainer", maintainerDTO);
         return "update-form-maintainer";

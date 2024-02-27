@@ -2,19 +2,18 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.service.FacultyService;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -26,30 +25,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(FacultyRestController.class)
 class FacultyRestControllerTest {
 
-    @Mock
+    @MockBean
     private FacultyService facultyService;
-
-    @InjectMocks
-    private FacultyRestController facultyRestController;
 
     @Autowired
     private MockMvc mockMvc;
 
+
     @Test
     void getFaculties_ShouldReturnListOfFaculties() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(facultyRestController).build();
-
-        List<Faculty> mockFaculties = new ArrayList<>();
-        Faculty facultyOne = new Faculty();
-        Faculty facultyTwo = new Faculty();
-        facultyOne.setId(1L);
-        facultyOne.setName("Engineering");
-        facultyTwo.setId(2L);
-        facultyTwo.setName("Science");
-        mockFaculties.add(facultyOne);
-        mockFaculties.add(facultyTwo);
+        List<Faculty> mockFaculties = Arrays.asList(
+                createFaculty(1L, "Engineering"),
+                createFaculty(2L, "Science")
+        );
 
         Page<Faculty> mockFacultyPage = new PageImpl<>(mockFaculties);
 
@@ -64,5 +55,12 @@ class FacultyRestControllerTest {
                 .andExpect(jsonPath("$[1].name", is("Science")));
 
         verify(facultyService, times(1)).findAll(any(PageRequest.class));
+    }
+
+    private Faculty createFaculty(Long id, String name) {
+        Faculty faculty = new Faculty();
+        faculty.setId(id);
+        faculty.setName(name);
+        return faculty;
     }
 }

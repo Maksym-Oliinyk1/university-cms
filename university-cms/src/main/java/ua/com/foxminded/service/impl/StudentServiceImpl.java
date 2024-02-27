@@ -55,7 +55,7 @@ public class StudentServiceImpl implements StudentService {
         existingStudent.setFirstName(studentDTO.getFirstName());
         existingStudent.setLastName(studentDTO.getLastName());
         existingStudent.setGender(studentDTO.getGender());
-        existingStudent.setAge(studentDTO.getAge());
+        existingStudent.setBirthDate(studentDTO.getBirthDate());
         existingStudent.setEmail(studentDTO.getEmail());
 
         if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
@@ -68,6 +68,17 @@ public class StudentServiceImpl implements StudentService {
         }
         studentRepository.save(existingStudent);
         logger.info("Student updated by id: {}", id);
+    }
+
+    @Override
+    public StudentDTO findByIdDTO(Long id) {
+        Optional<Student> optionalStudent = studentRepository.findById(id);
+        if (optionalStudent.isPresent()) {
+            logger.info("Student was found by id: {}", id);
+            return userMapper.mapToDto(optionalStudent.get());
+        } else {
+            throw new RuntimeException("There is no such student");
+        }
     }
 
 

@@ -12,9 +12,11 @@ import ua.com.foxminded.service.GroupService;
 
 import java.util.List;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
+
 @RestController
 public class GroupRestController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
     private final GroupService groupService;
 
     public GroupRestController(GroupService groupService) {

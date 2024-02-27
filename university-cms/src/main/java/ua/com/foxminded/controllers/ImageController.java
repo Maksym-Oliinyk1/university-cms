@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ua.com.foxminded.service.ImageService;
+import ua.com.foxminded.utill.UtilController;
 
 @Controller
 public class ImageController {
@@ -23,20 +24,8 @@ public class ImageController {
         byte[] imageBytes = imageService.readImageAsBytes(imageName);
 
         String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
-        MediaType mediaType = getMediaTypeForFileExtension(fileExtension);
+        MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
 
         return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
-    }
-
-    private MediaType getMediaTypeForFileExtension(String fileExtension) {
-        fileExtension = fileExtension.toLowerCase();
-
-        if (".jpg".equals(fileExtension) || ".jpeg".equals(fileExtension)) {
-            return MediaType.IMAGE_JPEG;
-        } else if (".png".equals(fileExtension)) {
-            return MediaType.IMAGE_PNG;
-        } else {
-            throw new RuntimeException("Unsupported file extension: " + fileExtension);
-        }
     }
 }

@@ -21,10 +21,15 @@ public class FacultyGenerator extends DataGenerator {
         this.facultyService = facultyService;
     }
 
-    public void generateFacultiesIfEmpty() {
+    public void generateIfEmpty() {
         if (facultyService.count() == 0) {
             generateFaculties();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 4;
     }
 
     private void generateFaculties() {

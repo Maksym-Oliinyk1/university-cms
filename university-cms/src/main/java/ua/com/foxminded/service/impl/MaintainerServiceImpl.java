@@ -51,7 +51,7 @@ public class MaintainerServiceImpl implements MaintainerService {
         existingMaintainer.setFirstName(maintainerDTO.getFirstName());
         existingMaintainer.setLastName(maintainerDTO.getLastName());
         existingMaintainer.setGender(maintainerDTO.getGender());
-        existingMaintainer.setAge(maintainerDTO.getAge());
+        existingMaintainer.setBirthDate(maintainerDTO.getBirthDate());
         existingMaintainer.setEmail(maintainerDTO.getEmail());
         if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingMaintainer.getImageName());
@@ -63,6 +63,17 @@ public class MaintainerServiceImpl implements MaintainerService {
         }
         maintainerRepository.save(existingMaintainer);
         logger.info("Maintainer updated by id: {}", id);
+    }
+
+    @Override
+    public MaintainerDTO findByIdDTO(Long id) {
+        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(id);
+        if (optionalMaintainer.isPresent()) {
+            logger.info("The maintainer was found by id: {}", id);
+            return userMapper.mapToDto(optionalMaintainer.get());
+        } else {
+            throw new RuntimeException("There is no such maintainer");
+        }
     }
 
     @Override

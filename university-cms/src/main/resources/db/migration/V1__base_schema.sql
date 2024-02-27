@@ -4,7 +4,7 @@ CREATE TABLE administrators
     first_name       VARCHAR(255),
     last_name        VARCHAR(255),
     gender           VARCHAR(10),
-    age              DATE,
+    birth_date       DATE,
     email            VARCHAR(255),
     image_name       VARCHAR(255)
 );
@@ -15,7 +15,7 @@ CREATE TABLE maintainers
     first_name    VARCHAR(255),
     last_name     VARCHAR(255),
     gender        VARCHAR(10),
-    age           DATE,
+    birth_date    DATE,
     email         VARCHAR(255),
     image_name    VARCHAR(255)
 );
@@ -26,7 +26,7 @@ CREATE TABLE teachers
     first_name      VARCHAR(255),
     last_name       VARCHAR(255),
     gender          VARCHAR(10),
-    age             DATE,
+    birth_date      DATE,
     email           VARCHAR(255),
     image_name      VARCHAR(255),
     academic_degree VARCHAR(255)
@@ -62,7 +62,7 @@ CREATE TABLE students
     gender     VARCHAR(10),
 
     FOREIGN KEY (group_id) REFERENCES groups (group_id),
-    age        DATE,
+    birth_date DATE,
     email      VARCHAR(255),
     image_name VARCHAR(255)
 );

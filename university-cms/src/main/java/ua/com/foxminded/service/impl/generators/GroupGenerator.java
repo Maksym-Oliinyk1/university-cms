@@ -22,10 +22,15 @@ public class GroupGenerator extends DataGenerator {
         this.groupService = groupService;
     }
 
-    public void generateGroupsIfEmpty() {
+    public void generateIfEmpty() {
         if (groupService.count() == 0) {
             generateGroups();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 6;
     }
 
     private void generateGroups() {

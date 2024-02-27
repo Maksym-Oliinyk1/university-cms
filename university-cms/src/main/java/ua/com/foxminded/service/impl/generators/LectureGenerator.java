@@ -44,10 +44,15 @@ public class LectureGenerator extends DataGenerator {
         this.groupService = groupService;
     }
 
-    public void generateLecturesIfEmpty() {
+    public void generateIfEmpty() {
         if (lectureService.count() == 0) {
             generateLectures();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 8;
     }
 
     private void generateLectures() {

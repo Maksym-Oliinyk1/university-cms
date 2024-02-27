@@ -28,7 +28,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes = {StudentServiceImpl.class})
 class StudentServiceImplTest {
 
-    private static final String STUDENT_ROLE = "STUDENT";
+    private static final String USER_ROLE = "STUDENT";
 
     @MockBean
     private StudentRepository studentRepository;
@@ -49,10 +49,11 @@ class StudentServiceImplTest {
 
     @Test
     void save_ValidDataWithImage_SaveSuccessful() {
+        Student student = createStudent();
         StudentDTO studentDTO = createStudentDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
         studentDTO.setImage(imageFile);
-        when(userMapper.mapFromDto(studentDTO)).thenReturn(createStudent());
+        when(userMapper.mapFromDto(studentDTO)).thenReturn(student);
         when(imageFile.isEmpty()).thenReturn(false);
         when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
         when(studentRepository.save(any(Student.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -61,32 +62,34 @@ class StudentServiceImplTest {
 
         verify(userMapper, times(1)).mapFromDto(studentDTO);
         verify(imageService, times(1)).saveUserImage(anyString(), anyLong(), eq(imageFile));
-        verify(studentRepository, times(2)).save(any(Student.class));
+        verify(studentRepository, times(2)).save(student);
     }
 
     @Test
     void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Student student = createStudent();
         StudentDTO studentDTO = createStudentDTO();
-        when(userMapper.mapFromDto(studentDTO)).thenReturn(createStudent());
+        when(userMapper.mapFromDto(studentDTO)).thenReturn(student);
         when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
 
         studentService.save(studentDTO);
 
         verify(userMapper, times(1)).mapFromDto(studentDTO);
-        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
-        verify(studentRepository, times(1)).save(any(Student.class));
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
+        verify(studentRepository, times(1)).save(student);
     }
 
     @Test
     void save_ValidDataWithoutImage_SaveSuccessful() {
         StudentDTO studentDTO = createStudentDTO();
-        when(userMapper.mapFromDto(studentDTO)).thenReturn(createStudent());
+        Student student = createStudent();
+        when(userMapper.mapFromDto(studentDTO)).thenReturn(student);
 
         studentService.save(studentDTO);
 
         verify(userMapper, times(1)).mapFromDto(studentDTO);
-        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
-        verify(studentRepository, times(1)).save(any(Student.class));
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
+        verify(studentRepository, times(1)).save(student);
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
@@ -119,7 +122,7 @@ class StudentServiceImplTest {
         studentService.update(id, studentDTO);
 
         verify(studentRepository, times(1)).save(existingStudent);
-        verify(imageService, times(1)).getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE);
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -136,7 +139,7 @@ class StudentServiceImplTest {
         studentService.update(id, studentDTO);
 
         verify(studentRepository, times(1)).save(existingStudent);
-        verify(imageService, times(1)).getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE);
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -149,7 +152,7 @@ class StudentServiceImplTest {
 
         verify(studentRepository, never()).save(any(Student.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-        verify(imageService, never()).getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE);
+        verify(imageService, never()).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -163,6 +166,30 @@ class StudentServiceImplTest {
         verify(studentRepository, times(1)).deleteById(id);
         verify(imageService, times(1)).deleteUserImage(student.getImageName());
     }
+
+    @Test
+    void findByIdDTO_ExistingStudent_ReturnStudentDTO() {
+        Long id = 1L;
+        Student student = createStudent();
+        StudentDTO studentDTO = createStudentDTO();
+
+        when(studentRepository.findById(id)).thenReturn(Optional.of(student));
+        when(userMapper.mapToDto(student)).thenReturn(studentDTO);
+
+        StudentDTO result = studentService.findByIdDTO(id);
+
+        assertEquals(studentDTO, result);
+    }
+
+    @Test
+    void findByIdDTO_NonExistingStudent_ThrowException() {
+        Long id = 1L;
+
+        when(studentRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> studentService.findByIdDTO(id));
+    }
+
 
     @Test
     void findById_ExistingStudent_ReturnStudent() {

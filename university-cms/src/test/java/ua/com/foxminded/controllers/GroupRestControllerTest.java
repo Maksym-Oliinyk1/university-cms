@@ -2,18 +2,18 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.service.GroupService;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -26,29 +26,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(GroupRestController.class)
 class GroupRestControllerTest {
 
-    @Mock
+    @MockBean
     private GroupService groupService;
 
-    @InjectMocks
-    private GroupRestController groupRestController;
-
+    @Autowired
     private MockMvc mockMvc;
+
 
     @Test
     void getGroups_ShouldReturnListOfGroups() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(groupRestController).build();
-
-        List<Group> mockGroups = new ArrayList<>();
-        Group groupOne = new Group();
-        Group groupTwo = new Group();
-        groupOne.setId(1L);
-        groupOne.setName("AB-12");
-        groupTwo.setId(2L);
-        groupTwo.setName("CD-32");
-        mockGroups.add(groupOne);
-        mockGroups.add(groupTwo);
+        List<Group> mockGroups = Arrays.asList(
+                createGroup(1L, "AB-12"),
+                createGroup(2L, "CD-32")
+        );
 
         Page<Group> mockGroupPage = new PageImpl<>(mockGroups);
 
@@ -63,5 +56,12 @@ class GroupRestControllerTest {
                 .andExpect(jsonPath("$[1].name", is("CD-32")));
 
         verify(groupService, times(1)).findAll(any(PageRequest.class));
+    }
+
+    private Group createGroup(Long id, String name) {
+        Group group = new Group();
+        group.setId(id);
+        group.setName(name);
+        return group;
     }
 }
