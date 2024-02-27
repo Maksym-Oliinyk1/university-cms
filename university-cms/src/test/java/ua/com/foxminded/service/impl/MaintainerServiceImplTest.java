@@ -49,10 +49,11 @@ class MaintainerServiceImplTest {
 
     @Test
     void save_ValidDataWithImage_SaveSuccessful() {
+        Maintainer maintainer = createMaintainer();
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         MultipartFile imageFile = mock(MultipartFile.class);
         maintainerDTO.setImage(imageFile);
-        when(userMapper.mapFromDto(maintainerDTO)).thenReturn(createMaintainer());
+        when(userMapper.mapFromDto(maintainerDTO)).thenReturn(maintainer);
         when(imageFile.isEmpty()).thenReturn(false);
         when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
         when(maintainerRepository.save(any(Maintainer.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -61,11 +62,12 @@ class MaintainerServiceImplTest {
 
         verify(userMapper, times(1)).mapFromDto(maintainerDTO);
         verify(imageService, times(1)).saveUserImage(anyString(), anyLong(), eq(imageFile));
-        verify(maintainerRepository, times(2)).save(any(Maintainer.class));
+        verify(maintainerRepository, times(2)).save(maintainer);
     }
 
     @Test
     void save_ShouldSetDefaultImageWhenImageFileIsEmpty() {
+        Maintainer maintainer = createMaintainer();
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         when(userMapper.mapFromDto(maintainerDTO)).thenReturn(createMaintainer());
         when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
@@ -73,20 +75,21 @@ class MaintainerServiceImplTest {
         maintainerService.save(maintainerDTO);
 
         verify(userMapper, times(1)).mapFromDto(maintainerDTO);
-        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
-        verify(maintainerRepository, times(1)).save(any(Maintainer.class));
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
+        verify(maintainerRepository, times(1)).save(maintainer);
     }
 
     @Test
     void save_ValidDataWithoutImage_SaveSuccessful() {
+        Maintainer maintainer = createMaintainer();
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         when(userMapper.mapFromDto(maintainerDTO)).thenReturn(createMaintainer());
 
         maintainerService.save(maintainerDTO);
 
         verify(userMapper, times(1)).mapFromDto(maintainerDTO);
-        verify(imageService, times(1)).getDefaultIUserImage(any(Gender.class), anyString());
-        verify(maintainerRepository, times(1)).save(any(Maintainer.class));
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
+        verify(maintainerRepository, times(1)).save(maintainer);
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
     }
 
@@ -119,7 +122,7 @@ class MaintainerServiceImplTest {
         maintainerService.update(id, maintainerDTO);
 
         verify(maintainerRepository, times(1)).save(existingMaintainer);
-        verify(imageService, times(1)).getDefaultIUserImage(maintainerDTO.getGender(), USER_ROLE);
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -136,7 +139,7 @@ class MaintainerServiceImplTest {
         maintainerService.update(id, maintainerDTO);
 
         verify(maintainerRepository, times(1)).save(existingMaintainer);
-        verify(imageService, times(1)).getDefaultIUserImage(maintainerDTO.getGender(), USER_ROLE);
+        verify(imageService, times(1)).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -149,7 +152,7 @@ class MaintainerServiceImplTest {
 
         verify(maintainerRepository, never()).save(any(Maintainer.class));
         verify(imageService, never()).saveUserImage(anyString(), anyLong(), any(MultipartFile.class));
-        verify(imageService, never()).getDefaultIUserImage(maintainerDTO.getGender(), USER_ROLE);
+        verify(imageService, never()).getDefaultIUserImage(Gender.MALE, USER_ROLE);
     }
 
     @Test
@@ -162,6 +165,29 @@ class MaintainerServiceImplTest {
 
         verify(maintainerRepository, times(1)).deleteById(id);
         verify(imageService, times(1)).deleteUserImage(maintainer.getImageName());
+    }
+
+    @Test
+    void findByIdDTO_ExistingMaintainer_ReturnMaintainerDTO() {
+        Long id = 1L;
+        Maintainer maintainer = createMaintainer();
+        MaintainerDTO maintainerDTO = createMaintainerDTO();
+
+        when(maintainerRepository.findById(id)).thenReturn(Optional.of(maintainer));
+        when(userMapper.mapToDto(maintainer)).thenReturn(maintainerDTO);
+
+        MaintainerDTO result = maintainerService.findByIdDTO(id);
+
+        assertEquals(maintainerDTO, result);
+    }
+
+    @Test
+    void findByIdDTO_NonExistingMaintainer_ThrowException() {
+        Long id = 1L;
+
+        when(maintainerRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> maintainerService.findByIdDTO(id));
     }
 
     @Test

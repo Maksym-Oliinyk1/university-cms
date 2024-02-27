@@ -18,8 +18,8 @@ public class Student extends User {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    public Student(Long id, String firstName, String lastName, Gender gender, Group group, LocalDate age, String email, String imageName) {
-        super(firstName, lastName, gender, age, email, imageName);
+    public Student(Long id, String firstName, String lastName, Gender gender, Group group, LocalDate birthDate, String email, String imageName) {
+        super(firstName, lastName, gender, birthDate, email, imageName);
         this.group = group;
         this.id = id;
     }

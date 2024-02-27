@@ -54,6 +54,13 @@ public class AdministratorController {
         return "manage-lecture";
     }
 
+    @RequestMapping("/admin/manage-course")
+    public String showCoursePage(Model model) {
+        model.addAttribute("course", new Course());
+        model.addAttribute("faculties", facultyService.findAll());
+        return "manage-course";
+    }
+
     private final CourseService courseService;
     private final FacultyService facultyService;
     private final GroupService groupService;
@@ -75,13 +82,6 @@ public class AdministratorController {
         this.lectureService = lectureService;
         this.studentService = studentService;
         this.teacherService = teacherService;
-    }
-
-    @RequestMapping("/admin/manage-course")
-    public String showCoursePage(Model model) {
-        model.addAttribute("course", new Course());
-        model.addAttribute("faculties", facultyService.findAll());
-        return "manage-course";
     }
 
     @GetMapping("/admin/listAdmin")

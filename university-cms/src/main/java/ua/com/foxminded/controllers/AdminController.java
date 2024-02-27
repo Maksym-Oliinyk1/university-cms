@@ -9,18 +9,15 @@ import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.service.AdministratorService;
-import ua.com.foxminded.service.UserMapper;
+
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
 
 @Controller
 public class AdminController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final AdministratorService administratorService;
-    private final UserMapper userMapper;
 
-    public AdminController(AdministratorService administratorService, UserMapper userMapper) {
+    public AdminController(AdministratorService administratorService) {
         this.administratorService = administratorService;
-        this.userMapper = userMapper;
     }
 
     @GetMapping("/adminAuthorization")
@@ -63,8 +60,7 @@ public class AdminController {
 
     @GetMapping("/updateFormAdmin/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
-        Administrator administrator = administratorService.findById(id);
-        AdministratorDTO administratorDTO = userMapper.mapToDto(administrator);
+        AdministratorDTO administratorDTO = administratorService.findByIdDTO(id);
         administratorDTO.setId(id);
         model.addAttribute("administrator", administratorDTO);
         return "update-form-administrator";

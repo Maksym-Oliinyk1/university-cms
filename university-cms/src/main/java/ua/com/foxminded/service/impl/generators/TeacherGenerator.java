@@ -26,10 +26,15 @@ public class TeacherGenerator extends DataGenerator {
         this.teacherService = teacherService;
     }
 
-    public void generateTeachersIfEmpty() {
+    public void generateIfEmpty() {
         if (teacherService.count() == 0) {
             generateTeachers();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 3;
     }
 
     private void generateTeachers() {

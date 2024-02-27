@@ -12,10 +12,11 @@ import ua.com.foxminded.service.CourseService;
 
 import java.util.List;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
+
 @RestController
 public class CourseRestController {
-
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
 
     private final CourseService courseService;
 

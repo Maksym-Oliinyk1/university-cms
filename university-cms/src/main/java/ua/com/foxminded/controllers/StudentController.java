@@ -11,20 +11,18 @@ import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.StudentService;
-import ua.com.foxminded.service.UserMapper;
+
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
 
 @Controller
 public class StudentController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final StudentService studentService;
     private final GroupService groupService;
-    private final UserMapper userMapper;
 
-    public StudentController(StudentService studentService, GroupService groupService, UserMapper userMapper) {
+    public StudentController(StudentService studentService, GroupService groupService) {
         this.studentService = studentService;
         this.groupService = groupService;
-        this.userMapper = userMapper;
     }
 
     @GetMapping("/studentAuthorization")
@@ -79,8 +77,7 @@ public class StudentController {
 
     @GetMapping("/updateFormStudent/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
-        Student student = studentService.findById(id);
-        StudentDTO studentDTO = userMapper.mapToDto(student);
+        StudentDTO studentDTO = studentService.findByIdDTO(id);
         studentDTO.setId(id);
         model.addAttribute("student", studentDTO);
         return "update-form-student";

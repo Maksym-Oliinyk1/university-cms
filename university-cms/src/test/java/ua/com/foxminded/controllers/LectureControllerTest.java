@@ -2,16 +2,17 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
+import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.service.CourseService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
@@ -25,26 +26,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(LectureController.class)
 class LectureControllerTest {
 
-    @Mock
+    @MockBean
     private LectureService lectureService;
 
-    @Mock
+    @MockBean
     private CourseService courseService;
 
-    @Mock
+    @MockBean
     private GroupService groupService;
 
-    @InjectMocks
-    private LectureController lectureController;
-
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
     void createLecture_ValidInput_ShouldReturnCreateFormLectureSuccessfulPage() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/createLecture")
                         .param("course.id", "1")
                         .param("teacher.id", "1")
@@ -59,8 +57,6 @@ class LectureControllerTest {
 
     @Test
     void createLecture_InvalidInput_ShouldReturnCreateFormLecturePageWithErrors() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/createLecture"))
                 .andExpect(status().isBadRequest());
 
@@ -70,8 +66,6 @@ class LectureControllerTest {
     @Test
     void updateLecture_ValidInput_ShouldReturnUpdateFormLectureSuccessfulPage() throws Exception {
         Long lectureId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/updateLecture/{id}", lectureId)
                         .param("course.id", "1")
                         .param("teacher.id", "1")
@@ -89,7 +83,6 @@ class LectureControllerTest {
     @Test
     void updateLecture_InvalidInput_ShouldReturnUpdateFormLecturePageWithErrors() throws Exception {
         Long lectureId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(post("/updateLecture/{id}", lectureId))
                 .andExpect(status().isBadRequest());
@@ -100,10 +93,8 @@ class LectureControllerTest {
     @Test
     void showLecture_ValidId_ShouldReturnLecturePage() throws Exception {
         Long lectureId = 1L;
-        Lecture mockLecture = new Lecture();
+        Lecture mockLecture = createMockLecture();
         when(lectureService.findById(lectureId)).thenReturn(mockLecture);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(get("/showLecture")
                         .param("id", String.valueOf(lectureId)))
@@ -120,8 +111,6 @@ class LectureControllerTest {
         Page<Lecture> mockLecturePage = mock(Page.class);
         when(mockLecturePage.getContent()).thenReturn(Collections.emptyList());
         when(lectureService.findAll(any())).thenReturn(mockLecturePage);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(get("/listLectures"))
                 .andExpect(status().isOk())
@@ -141,8 +130,6 @@ class LectureControllerTest {
         when(mockLecturePage.getContent()).thenReturn(Collections.emptyList());
         when(lectureService.findAllByCourse(courseId, PageRequest.of(0, 10))).thenReturn(mockLecturePage);
         when(courseService.findById(courseId)).thenReturn(mockCourse);
-
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(get("/listLecturesByCourse/{courseId}", courseId))
                 .andExpect(status().isOk())
@@ -166,8 +153,6 @@ class LectureControllerTest {
         when(lectureService.findAllByGroup(groupId, PageRequest.of(0, 10))).thenReturn(mockLecturePage);
         when(groupService.findById(groupId)).thenReturn(mockGroup);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(get("/listLecturesByGroup/{groupId}", groupId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("group"))
@@ -186,8 +171,6 @@ class LectureControllerTest {
         Long groupId = 1L;
         Long lectureId = 1L;
 
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/attachGroupToLecture")
                         .param("groupId", String.valueOf(groupId))
                         .param("lectureId", String.valueOf(lectureId)))
@@ -202,8 +185,6 @@ class LectureControllerTest {
         Long groupId = 1L;
         Long lectureId = 1L;
 
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/detachGroupFromLecture")
                         .param("groupId", String.valueOf(groupId))
                         .param("lectureId", String.valueOf(lectureId)))
@@ -215,8 +196,6 @@ class LectureControllerTest {
 
     @Test
     void createLecture_InvalidInput_ShouldReturnBadRequest() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
-
         mockMvc.perform(post("/createLecture"))
                 .andExpect(status().isBadRequest());
 
@@ -226,7 +205,6 @@ class LectureControllerTest {
     @Test
     void updateLecture_InvalidInput_ShouldReturnBadRequest() throws Exception {
         Long lectureId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(post("/updateLecture/{id}", lectureId))
                 .andExpect(status().isBadRequest());
@@ -237,13 +215,23 @@ class LectureControllerTest {
     @Test
     void deleteLecture_ValidId_ShouldReturnDeleteFormLectureSuccessfulPage() throws Exception {
         Long lectureId = 1L;
-        mockMvc = MockMvcBuilders.standaloneSetup(lectureController).build();
 
         mockMvc.perform(post("/deleteLecture/{id}", lectureId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-lecture-successful"));
 
         verify(lectureService, times(1)).delete(lectureId);
+    }
+
+    private Lecture createMockLecture() {
+        Lecture mockLecture = new Lecture();
+        Course mockCourse = new Course();
+        Teacher mockTeacher = new Teacher();
+        mockCourse.setId(1L);
+        mockTeacher.setId(1L);
+        mockLecture.setCourse(mockCourse);
+        mockLecture.setTeacher(mockTeacher);
+        return mockLecture;
     }
 }
 

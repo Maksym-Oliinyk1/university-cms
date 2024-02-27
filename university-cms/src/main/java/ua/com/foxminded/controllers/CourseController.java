@@ -10,10 +10,10 @@ import ua.com.foxminded.entity.Faculty;
 import ua.com.foxminded.service.CourseService;
 import ua.com.foxminded.service.FacultyService;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
 @Controller
 public class CourseController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final CourseService courseService;
     private final FacultyService facultyService;
 

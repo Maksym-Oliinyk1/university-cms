@@ -22,15 +22,12 @@ public abstract class UserDTO {
     private Gender gender;
 
     @NotNull
-    private LocalDate age;
+    private LocalDate birthDate;
 
     @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
     @NotNull
     private String email;
     private MultipartFile image;
-
-    UserDTO(Long id, String firstName, String lastName, Gender gender, int age, String email, MultipartFile multipartFile) {
-    }
 
     UserDTO() {
 
@@ -68,12 +65,12 @@ public abstract class UserDTO {
         this.gender = gender;
     }
 
-    public LocalDate getAge() {
-        return age;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(LocalDate age) {
-        this.age = age;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getEmail() {

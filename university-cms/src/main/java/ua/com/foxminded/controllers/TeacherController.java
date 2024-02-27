@@ -9,18 +9,16 @@ import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.service.TeacherService;
-import ua.com.foxminded.service.UserMapper;
+
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
 
 @Controller
 public class TeacherController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final TeacherService teacherService;
-    private final UserMapper userMapper;
 
-    public TeacherController(TeacherService teacherService, UserMapper userMapper) {
+    public TeacherController(TeacherService teacherService) {
         this.teacherService = teacherService;
-        this.userMapper = userMapper;
     }
 
     @GetMapping("/teacherAuthorization")
@@ -67,8 +65,7 @@ public class TeacherController {
 
     @GetMapping("/updateFormTeacher/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
-        Teacher teacher = teacherService.findById(id);
-        TeacherDTO teacherDTO = userMapper.mapToDto(teacher);
+        TeacherDTO teacherDTO = teacherService.findByIdDTO(id);
         teacherDTO.setId(id);
         model.addAttribute("teacher", teacherDTO);
         return "update-form-teacher";

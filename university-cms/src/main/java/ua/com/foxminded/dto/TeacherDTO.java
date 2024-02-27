@@ -1,22 +1,12 @@
 package ua.com.foxminded.dto;
 
-import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.entity.Lecture;
-import ua.com.foxminded.enums.Gender;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class TeacherDTO extends UserDTO {
-
     private List<Lecture> lectures;
     private String academicDegree;
-
-    public TeacherDTO(Long id, String firstName, String lastName, Gender gender, String academicDegree, int age, String email, MultipartFile multipartFile) {
-        super(id, firstName, lastName, gender, age, email, multipartFile);
-        this.academicDegree = academicDegree;
-        this.lectures = new ArrayList<>();
-    }
 
     public TeacherDTO() {
 

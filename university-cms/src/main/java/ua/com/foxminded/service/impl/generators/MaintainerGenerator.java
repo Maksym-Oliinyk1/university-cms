@@ -19,10 +19,15 @@ public class MaintainerGenerator extends DataGenerator {
         this.maintainerService = maintainerService;
     }
 
-    public void generateMaintainersIfEmpty() {
+    public void generateIfEmpty() {
         if (maintainerService.count() == 0) {
             generateMaintainers();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 1;
     }
 
     private void generateMaintainers() {

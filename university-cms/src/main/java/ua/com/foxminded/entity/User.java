@@ -28,9 +28,9 @@ public abstract class User {
     @NotNull
     protected Gender gender;
 
-    @Column(name = "age")
+    @Column(name = "birth_date")
     @NotNull
-    protected LocalDate age;
+    protected LocalDate birthDate;
 
     @Column(name = "email")
     @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
@@ -40,11 +40,11 @@ public abstract class User {
     @Column(name = "image_name")
     protected String imageName;
 
-    protected User(String firstName, String lastName, Gender gender, LocalDate age, String email, String imageName) {
+    protected User(String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
-        this.age = age;
+        this.birthDate = birthDate;
         this.email = email;
         this.imageName = imageName;
     }
@@ -77,12 +77,12 @@ public abstract class User {
         this.lastName = lastName;
     }
 
-    public LocalDate getAge() {
-        return age;
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
-    public void setAge(LocalDate age) {
-        this.age = age;
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
     }
 
     public String getEmail() {

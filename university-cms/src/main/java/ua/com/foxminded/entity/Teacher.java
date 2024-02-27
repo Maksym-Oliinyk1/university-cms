@@ -21,8 +21,8 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher")
     private List<Lecture> lectures;
 
-    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, LocalDate age, String email, String imageName) {
-        super(firstName, lastName, gender, age, email, imageName);
+    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, LocalDate birthDate, String email, String imageName) {
+        super(firstName, lastName, gender, birthDate, email, imageName);
         this.id = id;
         this.academicDegree = academicDegree;
         this.lectures = new ArrayList<>();

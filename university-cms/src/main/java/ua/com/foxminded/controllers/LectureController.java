@@ -14,10 +14,11 @@ import ua.com.foxminded.service.CourseService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
+
 @Controller
 public class LectureController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-
     private final LectureService lectureService;
     private final CourseService courseService;
     private final GroupService groupService;

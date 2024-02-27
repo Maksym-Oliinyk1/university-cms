@@ -4,4 +4,6 @@ public interface UserService<E, D> extends BaseService<E> {
     void save(D user);
 
     void update(Long id, D user);
+
+    D findByIdDTO(Long id);
 }

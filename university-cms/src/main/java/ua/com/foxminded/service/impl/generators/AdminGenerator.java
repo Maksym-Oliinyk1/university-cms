@@ -20,10 +20,15 @@ public class AdminGenerator extends DataGenerator {
         this.adminService = adminService;
     }
 
-    public void generateAdministratorsIfEmpty() {
+    public void generateIfEmpty() {
         if (adminService.count() == 0) {
             generateAdmins();
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 2;
     }
 
     private void generateAdmins() {

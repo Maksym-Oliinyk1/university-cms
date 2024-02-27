@@ -2,18 +2,18 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.service.TeacherService;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -25,29 +25,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
+@WebMvcTest(TeacherRestController.class)
 class TeacherRestControllerTest {
 
-    @Mock
+    @MockBean
     private TeacherService teacherService;
 
-    @InjectMocks
-    private TeacherRestController teacherRestController;
-
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
     void getTeachers_ShouldReturnListOfTeachers() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(teacherRestController).build();
-
-        List<Teacher> mockTeachers = new ArrayList<>();
-        Teacher teacherOne = new Teacher();
-        Teacher teacherTwo = new Teacher();
-        teacherOne.setId(1L);
-        teacherOne.setFirstName("John");
-        teacherTwo.setId(2L);
-        teacherTwo.setFirstName("Robert");
-        mockTeachers.add(teacherOne);
-        mockTeachers.add(teacherTwo);
+        List<Teacher> mockTeachers = Arrays.asList(
+                createTeacher(1L, "John"),
+                createTeacher(2L, "Robert")
+        );
 
         Page<Teacher> mockTeacherPage = new PageImpl<>(mockTeachers);
 
@@ -62,5 +54,12 @@ class TeacherRestControllerTest {
                 .andExpect(jsonPath("$[1].firstName", is("Robert")));
 
         verify(teacherService, times(1)).findAll(any(PageRequest.class));
+    }
+
+    private Teacher createTeacher(Long id, String firstName) {
+        Teacher teacher = new Teacher();
+        teacher.setId(id);
+        teacher.setFirstName(firstName);
+        return teacher;
     }
 }

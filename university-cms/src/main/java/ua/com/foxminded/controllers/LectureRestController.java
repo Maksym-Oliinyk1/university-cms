@@ -12,9 +12,11 @@ import ua.com.foxminded.service.LectureService;
 
 import java.util.List;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
+
 @RestController
 public class LectureRestController {
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
     private final LectureService lectureService;
 
     public LectureRestController(LectureService lectureService) {
