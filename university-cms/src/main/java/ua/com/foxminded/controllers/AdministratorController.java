@@ -60,7 +60,6 @@ public class AdministratorController {
         model.addAttribute("faculties", facultyService.findAll());
         return "manage-course";
     }
-
     private final CourseService courseService;
     private final FacultyService facultyService;
     private final GroupService groupService;

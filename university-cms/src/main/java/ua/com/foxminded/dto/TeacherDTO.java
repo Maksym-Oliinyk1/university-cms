@@ -8,10 +8,6 @@ public class TeacherDTO extends UserDTO {
     private List<Lecture> lectures;
     private String academicDegree;
 
-    public TeacherDTO() {
-
-    }
-
     public List<Lecture> getLectures() {
         return lectures;
     }

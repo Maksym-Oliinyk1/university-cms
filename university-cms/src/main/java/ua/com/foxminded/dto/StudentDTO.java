@@ -5,9 +5,6 @@ import ua.com.foxminded.entity.Group;
 public class StudentDTO extends UserDTO {
     private Group group;
 
-    public StudentDTO() {
-
-    }
     public Group getGroup() {
         return group;
     }
