@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @ComponentScan("ua.com.foxminded.repository")
 public abstract class BaseTest {
     @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
+    protected static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
 
     @Autowired
     protected DataSource dataSource;
@@ -34,7 +34,7 @@ public abstract class BaseTest {
     }
 
     @AfterAll
-    protected static void tearUp() {
+    public static void tearUp() {
         postgreSQLContainer.close();
     }
 
