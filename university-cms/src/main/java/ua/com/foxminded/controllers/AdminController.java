@@ -54,7 +54,6 @@ public class AdminController {
 
     @PostMapping("/createAdmin")
     public String createAdmin(@ModelAttribute @Valid AdministratorDTO administratorDTO) {
-        System.out.println("Received AdministratorDTO: " + administratorDTO.toString());
         administratorService.save(administratorDTO);
         return "create-form-administrator-successful";
     }

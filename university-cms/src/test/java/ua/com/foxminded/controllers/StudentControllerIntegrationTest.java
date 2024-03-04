@@ -1,0 +1,124 @@
+package ua.com.foxminded.controllers;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import ua.com.foxminded.dto.StudentDTO;
+import ua.com.foxminded.entity.Group;
+import ua.com.foxminded.entity.Student;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@Testcontainers
+@SpringBootTest
+class StudentControllerIntegrationTest extends BaseIntegrationTest {
+
+    @Test
+    void studentAuthorization() throws Exception {
+        mvc.perform(get("/studentAuthorization"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("mock-student-authorization"));
+    }
+
+    @Test
+    void manageStudent() throws Exception {
+        mvc.perform(get("/manageStudent"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("manage-student"));
+    }
+
+    @Test
+    void showStudent() throws Exception {
+        Student student = createStudent();
+        studentRepository.save(student);
+
+        mvc.perform(get("/showStudent?id=1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("student"))
+                .andExpect(model().attributeExists("student"));
+    }
+
+    @Test
+    void listStudents() throws Exception {
+        mvc.perform(get("/listStudents"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("manage-student"));
+    }
+
+    @Test
+    void listStudentsByGroup() throws Exception {
+        Group group = createGroup();
+        groupRepository.save(group);
+
+        mvc.perform(get("/listStudentsByGroup/1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("group"))
+                .andExpect(model().attributeExists("group", "students", "pageNumber", "totalPages"));
+    }
+
+    @Test
+    void createFormStudent() throws Exception {
+        mvc.perform(get("/createFormStudent"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("create-form-student"))
+                .andExpect(model().attributeExists("student"));
+    }
+
+    @Test
+    void createStudent_successful() throws Exception {
+        StudentDTO studentDTO = createStudentDTO();
+
+        mvc.perform(post("/createStudent")
+                        .flashAttr("studentDTO", studentDTO))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("create-form-student-successful"));
+    }
+
+    @Test
+    void showUpdateForm() throws Exception {
+        Student student = createStudent();
+        studentRepository.save(student);
+
+        mvc.perform(get("/updateFormStudent/1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("update-form-student"))
+                .andExpect(model().attributeExists("student"));
+    }
+
+    @Test
+    void updateStudent_successful() throws Exception {
+        String updatedStudentName = "UpdatedStudent";
+        Student student = createStudent();
+        studentRepository.save(student);
+
+        StudentDTO studentDTO = createStudentDTO();
+        studentDTO.setFirstName(updatedStudentName);
+
+        mvc.perform(post("/updateStudent/1")
+                        .flashAttr("studentDTO", studentDTO))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("update-form-student-successful"));
+
+        Optional<Student> optionalStudent = studentRepository.findById(1L);
+        assertTrue(optionalStudent.isPresent());
+        Student updatedStudent = optionalStudent.get();
+        assertEquals(updatedStudent.getFirstName(), updatedStudentName);
+    }
+
+    @Test
+    void deleteStudent_successful() throws Exception {
+        Student student = createStudent();
+        studentRepository.save(student);
+
+        mvc.perform(post("/deleteStudent/1"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(view().name("delete-form-student-successful"));
+
+        assertFalse(studentRepository.findById(1L).isPresent());
+    }
+}
