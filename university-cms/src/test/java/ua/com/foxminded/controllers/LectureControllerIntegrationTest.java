@@ -2,11 +2,15 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,9 +25,23 @@ class LectureControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listLectures() throws Exception {
-        mvc.perform(get("/listLectures"))
+        MvcResult result = mvc.perform(get("/listLectures"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-lecture"));
+                .andExpect(view().name("manage-lecture"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("lectures"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Lecture> lectures = (List<Lecture>) model.get("lectures");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(lectures.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(4, totalPages);
     }
 
     @Test
@@ -78,7 +96,10 @@ class LectureControllerIntegrationTest extends BaseIntegrationTest {
 
         Optional<Lecture> optionalSavedLecture = lectureRepository.findById(1L);
         assertTrue(optionalSavedLecture.isPresent());
-        assertEquals("Introduction to Programming", optionalSavedLecture.get().getName());
+        Lecture lectureFromModel = optionalSavedLecture.get();
+        assertEquals("Introduction to Programming", lectureFromModel.getName());
+        assertEquals("Test.Introduction to Programming.Test.Test.Introduction to Programming.Test.", lectureFromModel.getDescription());
+        assertEquals(LocalDateTime.of(2025, 4, 23, 8, 30, 0), lectureFromModel.getDate());
     }
 
     @Test

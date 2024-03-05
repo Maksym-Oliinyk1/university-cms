@@ -6,7 +6,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ua.com.foxminded.entity.User;
 import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.service.ImageService;
 
@@ -31,7 +30,6 @@ public class ImageServiceImpl implements ImageService {
     private static final String DEFAULT_MALE_ADMIN_AVATAR = "admin_male.png";
     private static final String DEFAULT_FEMALE_MAINTAINER_AVATAR = "maintainer_female.png";
     private static final String DEFAULT_MALE_MAINTAINER_AVATAR = "maintainer_male.png";
-    private static final String DEFAULT_PLACEHOLDER_AVATAR = "placeholder.png";
     private static final String FEMALE_GENDER = "FEMALE";
     private static final String MALE_GENDER = "MALE";
     private static final Map<String, String> DEFAULT_IMAGES = new HashMap<>();
@@ -114,29 +112,6 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
-    public String getImagePath(User user) {
-        String imageName = user.getImageName();
-
-        if (hasUserImage(imageName)) {
-            return userProfileDirPath + imageName;
-        }
-
-        if (hasDefaultImage(imageName)) {
-            return applicationImagesDirectory + imageName;
-        }
-
-        return applicationImagesDirectory + DEFAULT_PLACEHOLDER_AVATAR;
-    }
-
-    public boolean hasUserImage(String imageName) {
-        return Files.exists(Paths.get(userProfileDirPath + imageName));
-    }
-
-    public boolean hasDefaultImage(String imageName) {
-        return Files.exists(Paths.get(applicationImagesDirectory, imageName));
-    }
-
-    @Override
     public byte[] readImageAsBytes(String imageName) {
         Path imagePath = determineImagePath(imageName);
         if (Files.exists(imagePath)) {
@@ -173,6 +148,5 @@ public class ImageServiceImpl implements ImageService {
 
         return imageName;
     }
-
 }
 

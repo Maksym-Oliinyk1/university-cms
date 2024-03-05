@@ -2,10 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,17 +32,40 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         Maintainer maintainer = createMaintainer();
         maintainerRepository.save(maintainer);
 
-        mvc.perform(get("/showMaintainer?id=1"))
+        MvcResult result = mvc.perform(get("/showMaintainer?id=1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("maintainer"))
-                .andExpect(model().attributeExists("maintainer"));
+                .andExpect(model().attributeExists("maintainer"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("maintainer"));
+
+        Maintainer maintainerFromModel = (Maintainer) model.get("maintainer");
+
+        baseTestForUser(maintainerFromModel);
     }
 
     @Test
     void listMaintainers() throws Exception {
-        mvc.perform(get("/listMaintainers"))
+        MvcResult result = mvc.perform(get("/listMaintainers"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-maintainer"));
+                .andExpect(view().name("manage-maintainer"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("maintainers"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Maintainer> maintainers = (List<Maintainer>) model.get("maintainers");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(maintainers.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(1, totalPages);
     }
 
     @Test
@@ -58,6 +84,11 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
                         .flashAttr("maintainerDTO", maintainerDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-maintainer-successful"));
+
+        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
+        assertTrue(optionalMaintainer.isPresent());
+        Maintainer maintainerFromModel = optionalMaintainer.get();
+        baseTestForUser(maintainerFromModel);
     }
 
     @Test
@@ -86,7 +117,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(view().name("update-form-maintainer-successful"))
                 .andExpect(model().attributeExists("maintainerId"));
 
-        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(1L);
+        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
         assertTrue(optionalMaintainer.isPresent());
         Maintainer updatedMaintainer = optionalMaintainer.get();
         assertEquals(updatedMaintainer.getFirstName(), updatedMaintainerName);
@@ -102,6 +133,6 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("delete-form-maintainer-successful"));
 
-        assertFalse(maintainerRepository.findById(1L).isPresent());
+        assertFalse(maintainerRepository.findById(DEFAULT_ID).isPresent());
     }
 }

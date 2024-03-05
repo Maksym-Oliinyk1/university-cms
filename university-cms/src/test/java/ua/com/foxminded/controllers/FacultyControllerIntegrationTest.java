@@ -2,9 +2,12 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.entity.Faculty;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,10 +21,24 @@ class FacultyControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listFaculties() throws Exception {
-        mvc.perform(get("/listFaculties?pageNumber=0"))
+        MvcResult result = mvc.perform(get("/listFaculties?pageNumber=0"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("manage-faculty"))
-                .andExpect(model().attributeExists("faculties", "pageNumber", "totalPages"));
+                .andExpect(model().attributeExists("faculties", "pageNumber", "totalPages"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("faculties"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Faculty> faculties = (List<Faculty>) model.get("faculties");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(faculties.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(2, totalPages);
     }
 
     @Test

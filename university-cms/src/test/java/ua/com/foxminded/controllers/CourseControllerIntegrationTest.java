@@ -2,10 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.entity.Course;
 import ua.com.foxminded.entity.Faculty;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,9 +23,23 @@ class CourseControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listCourses() throws Exception {
-        mvc.perform(get("/listCourses"))
+        MvcResult result = mvc.perform(get("/listCourses"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-course"));
+                .andExpect(view().name("manage-course"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("courses"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Course> courses = (List<Course>) model.get("courses");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(courses.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(3, totalPages);
     }
 
     @Test
