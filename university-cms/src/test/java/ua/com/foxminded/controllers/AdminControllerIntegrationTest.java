@@ -3,13 +3,15 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -22,9 +24,23 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listAdmins() throws Exception {
-        mvc.perform(get("/listAdmins"))
+        MvcResult result = mvc.perform(get("/listAdmins"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-administrator"));
+                .andExpect(view().name("manage-administrator"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("administrators"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Administrator> admins = (List<Administrator>) model.get("administrators");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(admins.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(2, totalPages);
     }
 
     @Test
@@ -32,10 +48,18 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
-        mvc.perform(get("/showAdmin?id=1"))
+        MvcResult result = mvc.perform(get("/showAdmin?id=1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("admin"))
-                .andExpect(content().string(containsString("<h2>John Doe</h2>")));
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("administrator"));
+
+        Administrator adminFromModel = (Administrator) model.get("administrator");
+
+        baseTestForUser(adminFromModel);
     }
 
 
@@ -69,6 +93,10 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
                         .flashAttr("administratorDTO", administratorDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-administrator-successful"));
+
+        Optional<Administrator> optionalAdministrator = administratorRepository.findById(DEFAULT_ID);
+        assertTrue(optionalAdministrator.isPresent());
+        baseTestForUser(optionalAdministrator.get());
     }
 
     @Test
@@ -97,7 +125,7 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(view().name("update-form-administrator-successful"))
                 .andExpect(model().attributeExists("adminId"));
 
-        Optional<Administrator> optionalAdministrator = administratorRepository.findById(1L);
+        Optional<Administrator> optionalAdministrator = administratorRepository.findById(DEFAULT_ID);
         assertTrue(optionalAdministrator.isPresent());
         Administrator updatedAdministrator = optionalAdministrator.get();
         assertEquals(updatedAdministrator.getFirstName(), firstNameUpdate);
@@ -112,7 +140,7 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("delete-form-administrator-successful"));
 
-        assertFalse(administratorRepository.findById(1L).isPresent());
+        assertFalse(administratorRepository.findById(DEFAULT_ID).isPresent());
     }
 
 }

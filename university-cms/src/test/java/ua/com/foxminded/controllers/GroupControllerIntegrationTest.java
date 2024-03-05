@@ -2,10 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,9 +23,23 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listGroups() throws Exception {
-        mvc.perform(get("/listGroups"))
+        MvcResult result = mvc.perform(get("/listGroups"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-group"));
+                .andExpect(view().name("manage-group"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("groups"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Group> groups = (List<Group>) model.get("groups");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(groups.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(2, totalPages);
     }
 
     @Test

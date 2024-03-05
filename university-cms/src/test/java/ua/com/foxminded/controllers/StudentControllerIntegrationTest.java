@@ -2,11 +2,14 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,17 +40,40 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
         Student student = createStudent();
         studentRepository.save(student);
 
-        mvc.perform(get("/showStudent?id=1"))
+        MvcResult result = mvc.perform(get("/showStudent?id=1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("student"))
-                .andExpect(model().attributeExists("student"));
+                .andExpect(model().attributeExists("student"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("student"));
+
+        Student studentFromModel = (Student) model.get("student");
+
+        baseTestForUser(studentFromModel);
     }
 
     @Test
     void listStudents() throws Exception {
-        mvc.perform(get("/listStudents"))
+        MvcResult result = mvc.perform(get("/listStudents"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-student"));
+                .andExpect(view().name("manage-student"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("students"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Student> students = (List<Student>) model.get("students");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(students.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(20, totalPages);
     }
 
     @Test
@@ -77,6 +103,11 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
                         .flashAttr("studentDTO", studentDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-student-successful"));
+
+        Optional<Student> optionalStudent = studentRepository.findById(DEFAULT_ID);
+        assertTrue(optionalStudent.isPresent());
+        Student studentFromModel = optionalStudent.get();
+        baseTestForUser(studentFromModel);
     }
 
     @Test

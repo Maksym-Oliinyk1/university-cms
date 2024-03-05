@@ -2,10 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Teacher;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,9 +48,23 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listTeachers() throws Exception {
-        mvc.perform(get("/listTeachers"))
+        MvcResult result = mvc.perform(get("/listTeachers"))
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-teacher"));
+                .andExpect(view().name("manage-teacher"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("teachers"));
+        assertTrue(model.containsKey("pageNumber"));
+        assertTrue(model.containsKey("totalPages"));
+
+        List<Teacher> teachers = (List<Teacher>) model.get("teachers");
+        int pageNumber = (int) model.get("pageNumber");
+        int totalPages = (int) model.get("totalPages");
+        assertFalse(teachers.isEmpty());
+        assertEquals(0, pageNumber);
+        assertEquals(3, totalPages);
     }
 
     @Test
@@ -66,6 +83,12 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
                         .flashAttr("teacherDTO", teacherDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-teacher-successful"));
+
+        Optional<Teacher> optionalTeacher = teacherRepository.findById(DEFAULT_ID);
+        assertTrue(optionalTeacher.isPresent());
+        Teacher teacherFromModel = optionalTeacher.get();
+        baseTestForUser(teacherFromModel);
+        assertEquals("Ph.D", teacherFromModel.getAcademicDegree());
     }
 
     @Test
@@ -73,10 +96,20 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
         Teacher teacher = createTeacher();
         teacherRepository.save(teacher);
 
-        mvc.perform(get("/updateFormTeacher/1"))
+        MvcResult result = mvc.perform(get("/updateFormTeacher/1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-teacher"))
-                .andExpect(model().attributeExists("teacher"));
+                .andExpect(model().attributeExists("teacher"))
+                .andReturn();
+
+        Map<String, Object> model = result.getModelAndView().getModel();
+
+        assertTrue(model.containsKey("teacher"));
+
+        Teacher teacherFromModel = (Teacher) model.get("teacher");
+
+        baseTestForUser(teacherFromModel);
+        assertEquals("Ph.D", teacherFromModel.getAcademicDegree());
     }
 
     @Test

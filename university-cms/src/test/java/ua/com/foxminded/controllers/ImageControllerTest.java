@@ -8,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.utill.UtilController;
 
@@ -24,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ImageController.class)
 @ExtendWith(MockitoExtension.class)
 class ImageControllerTest {
-    private static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/avatar.png");
+    private static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/student_male.png");
     private static final byte[] TEST_IMAGE = getTestImage();
 
     @Autowired
@@ -43,14 +42,14 @@ class ImageControllerTest {
 
     @Test
     void testGetUserImage() throws Exception {
-        String imageName = "avatar.png";
+        String imageName = "student_male.png";
 
         String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
         MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
 
         when(imageService.readImageAsBytes(imageName)).thenReturn(TEST_IMAGE);
 
-        ResultActions resultActions = mockMvc.perform(get("/showImages/{imageName}", imageName))
+        mockMvc.perform(get("/showImages/{imageName}", imageName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(mediaType))
                 .andExpect(content().bytes(TEST_IMAGE));

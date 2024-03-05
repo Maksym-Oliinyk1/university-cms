@@ -17,9 +17,12 @@ import ua.com.foxminded.entity.*;
 import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.*;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
+import static org.junit.Assert.assertEquals;
 
 @Testcontainers
 @SpringBootTest
@@ -30,7 +33,10 @@ public abstract class BaseIntegrationTest {
 
     @Container
     protected static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
-    private static final Long DEFAULT_ID = 1L;
+    protected static final Long DEFAULT_ID = 1L;
+
+    protected static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/student_male.png");
+
     @Autowired
     protected GroupRepository groupRepository;
     @Autowired
@@ -57,6 +63,15 @@ public abstract class BaseIntegrationTest {
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.jpa.generate-ddl", () -> true);
     }
+
+    protected void baseTestForUser(User user) {
+        assertEquals("John", user.getFirstName());
+        assertEquals("Doe", user.getLastName());
+        assertEquals("john.doe@example.com", user.getEmail());
+        assertEquals(LocalDate.of(1995, 11, 6), user.getBirthDate());
+        assertEquals(Gender.MALE, user.getGender());
+    }
+
 
     protected User createUserCommonFields(User user) {
         user.setFirstName("John");
