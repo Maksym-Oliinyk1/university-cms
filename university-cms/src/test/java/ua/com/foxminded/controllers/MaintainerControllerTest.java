@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
+import ua.com.foxminded.controllers.maintainer.MaintainerController;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 import ua.com.foxminded.service.MaintainerService;

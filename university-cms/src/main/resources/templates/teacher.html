@@ -7,12 +7,46 @@
     <link rel="stylesheet" th:href="@{/css/app.css}"/>
     <th:block th:include="fragments/scripts-for-page"></th:block>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var updateButton = document.getElementById("updateButton");
+            var deleteButton = document.getElementById("deleteButton");
+
+            updateButton.addEventListener("click", function () {
+                var token = localStorage.getItem("token");
+                var url = "/general/teacher/updateFormTeacher?token=" + token;
+                window.location.href = url;
+            });
+
+            deleteButton.addEventListener("click", function () {
+                var token = localStorage.getItem("token");
+                var url = "/general/teacher/deleteTeacher?token=" + token;
+                if (confirm("Are you sure you want to delete this teacher?")) {
+                    fetch(url, {
+                        method: 'POST'
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Teacher deleted successfully.");
+                                window.location.href = "/auth";
+                            } else {
+                                alert("Failed to delete teacher.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
+            });
+        });
+    </script>
+
 </head>
 <body>
 <div class="container">
     <div class="row">
         <div class="col-md-4">
-            <img alt="Student Image" class="user-image"
+            <img alt="Teacher Image" class="user-image"
                  height="200px" th:if="${teacher.imageName}"
                  th:src="@{'/showImages/' + ${teacher.imageName}}" width="200px">
         </div>
@@ -23,11 +57,11 @@
                 <p><strong>Gender:</strong> <span th:text="${teacher.gender}">Male/Female</span></p>
                 <p><strong>Email:</strong> <span th:text="${teacher.email}">teacher@example.com</span></p>
             </div>
-            <a class="btn btn-primary" th:href="@{'/updateFormTeacher/' + ${teacher.id}}">Update</a>
+            <button class="btn btn-primary" id="updateButton">Update</button>
+            <button class="btn btn-danger" id="deleteButton">Delete</button>
             <a class="btn btn-primary" th:href="@{'/schedule'}">Schedule</a>
         </div>
     </div>
 </div>
-
 </body>
 </html>

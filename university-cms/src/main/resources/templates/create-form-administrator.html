@@ -11,7 +11,7 @@
 <body>
 <div class="container mt-5">
     <h2>Create Administrator</h2>
-    <form enctype="multipart/form-data" method="post" th:action="@{/createAdmin}">
+    <form enctype="multipart/form-data" method="post" th:action="@{/auth/admin/register}">
         <div class="form-group">
             <label for="firstName">First Name:</label>
             <input class="form-control" id="firstName" name="firstName" required type="text">
@@ -45,6 +45,11 @@
         </div>
 
         <div class="form-group">
+            <label for="password">Password:</label>
+            <input class="form-control" id="password" name="password" required type="password">
+        </div>
+
+        <div class="form-group">
             <label for="image">Image(JPEG or PNG):</label>
             <input accept="image/*" class="form-control-file" id="image" name="image" type="file">
         </div>
@@ -52,6 +57,33 @@
         <button class="btn btn-primary" type="submit">Submit</button>
     </form>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (event) {
+            event.preventDefault();
+
+            var formData = new FormData($(this)[0]);
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('action'),
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    localStorage.setItem('token', response.token);
+
+                    window.location.href = '/general/admin/showAdmin?token=' + token;
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
+</script>
+
 
 </body>
 </html>

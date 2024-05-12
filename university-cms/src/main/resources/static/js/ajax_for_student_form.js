@@ -1,7 +1,7 @@
 function loadGroups(link, containerId) {
     var pageNumber = link.getAttribute('data-page');
 
-    $.get('/getListGroups', {pageNumber: pageNumber}, function (groups) {
+    $.get('/getList/groups', {pageNumber: pageNumber}, function (groups) {
         console.log(groups);
 
         var selectContainer = $('#' + containerId);

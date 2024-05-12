@@ -1,28 +1,40 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "teachers")
 public class Teacher extends User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_id")
-    private Long id;
     @Column(name = "academic_degree")
     private String academicDegree;
     @OneToMany(mappedBy = "teacher")
     private List<Lecture> lectures;
 
-    public Teacher(Long id, String firstName, String lastName, Gender gender, String academicDegree, LocalDate birthDate, String email, String imageName) {
-        super(firstName, lastName, gender, birthDate, email, imageName);
+    public Teacher(Long id,
+                   String firstName,
+                   String lastName,
+                   Gender gender,
+                   String academicDegree,
+                   LocalDate birthDate,
+                   String email,
+                   String imageName,
+                   String password,
+                   Authorities authority) {
+        super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
         this.id = id;
         this.academicDegree = academicDegree;
         this.lectures = new ArrayList<>();

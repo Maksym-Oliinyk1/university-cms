@@ -1,8 +1,10 @@
 CREATE TABLE administrators
 (
     administrator_id BIGSERIAL PRIMARY KEY,
+    authority             VARCHAR(255),
     first_name       VARCHAR(255),
     last_name        VARCHAR(255),
+    password         VARCHAR(255),
     gender           VARCHAR(10),
     birth_date       DATE,
     email            VARCHAR(255),
@@ -12,8 +14,10 @@ CREATE TABLE administrators
 CREATE TABLE maintainers
 (
     maintainer_id BIGSERIAL PRIMARY KEY,
+    authority          VARCHAR(255),
     first_name    VARCHAR(255),
     last_name     VARCHAR(255),
+    password      VARCHAR(255),
     gender        VARCHAR(10),
     birth_date    DATE,
     email         VARCHAR(255),
@@ -23,8 +27,10 @@ CREATE TABLE maintainers
 CREATE TABLE teachers
 (
     teacher_id      BIGSERIAL PRIMARY KEY,
+    authority            VARCHAR(255),
     first_name      VARCHAR(255),
     last_name       VARCHAR(255),
+    password        VARCHAR(255),
     gender          VARCHAR(10),
     birth_date      DATE,
     email           VARCHAR(255),
@@ -56,9 +62,11 @@ CREATE TABLE groups
 CREATE TABLE students
 (
     student_id BIGSERIAL PRIMARY KEY,
+    authority       VARCHAR(255),
     group_id   BIGSERIAL,
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
+    password   VARCHAR(255),
     gender     VARCHAR(10),
 
     FOREIGN KEY (group_id) REFERENCES groups (group_id),
@@ -86,3 +94,4 @@ CREATE TABLE group_lecture
     FOREIGN KEY (group_id) REFERENCES groups (group_id),
     FOREIGN KEY (lecture_id) REFERENCES lectures (lecture_id)
 );
+

@@ -14,4 +14,11 @@ public class UtilController {
             default -> throw new RuntimeException("Unsupported file extension: " + fileExtension);
         };
     }
+
+    public static String extractToken(String authToken) {
+        if (authToken != null && authToken.startsWith("Bearer ")) {
+            return authToken.substring(7);
+        }
+        return authToken;
+    }
 }

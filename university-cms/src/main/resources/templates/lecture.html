@@ -17,9 +17,9 @@
         <h2>Lecture</h2>
         <div>
             <p><strong>Name:</strong> <span th:text="${lecture.name}"></span></p>
-            <p><strong>Course:</strong> <a th:href="'/showCourse?id=' + ${lecture.course.id}"
+            <p><strong>Course:</strong> <a th:href="'/general/lecture/showCourse?id=' + ${lecture.course.id}"
                                            th:text="${lecture.course.name}"></a></p>
-            <p><strong>Teacher:</strong> <a th:href="'/showTeacher?id=' + ${lecture.teacher.id}"
+            <p><strong>Teacher:</strong> <a th:href="'/general/lecture/showTeacher?id=' + ${lecture.teacher.id}"
                                             th:text="${lecture.teacher.firstName + ' ' + lecture.teacher.lastName}"></a>
             </p>
             <p><strong>Description:</strong> <span th:text="${lecture.description}"></span></p>
@@ -41,7 +41,7 @@
         <tr th:each="group : ${groups}">
             <td th:text="${group.id}"></td>
             <td>
-                <a th:href="@{/showGroup(id=${group.id})}" th:text="${group.name}"></a>
+                <a th:href="@{/general/group/showGroup(id=${group.id})}" th:text="${group.name}"></a>
             </td>
         </tr>
         </tbody>
@@ -52,14 +52,13 @@
             <li th:class="${pageNumber != null and i == pageNumber ? 'page-item active' : 'page-item'}"
                 th:each="i : ${#numbers.sequence(0, pageNumber != null ? totalPages - 1 : 0)}">
                 <a class="page-link"
-                   th:href="@{/listGroupsByLecture/{lectureId}(lectureId=${lecture.id}, pageNumber=${i})}"
+                   th:href="@{/general/lecture/listGroupsByLecture/{lectureId}(lectureId=${lecture.id}, pageNumber=${i})}"
                    th:text="${i + 1}"></a>
             </li>
         </ul>
     </nav>
 </div>
 </div>
-
 
 </body>
 </html>

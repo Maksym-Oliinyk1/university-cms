@@ -3,11 +3,11 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/university-cms
     username: postgres
-    password: Password
+    password: 987654321Lord
   flyway:
     url: jdbc:postgresql://localhost:5432/university-cms
     user: postgres
-    password: Password
+    password: 987654321Lord
     locations: db/migration
   jpa:
     show-sql: true
@@ -22,6 +22,8 @@ spring:
 server:
   port: 8081
 app:
+  jwt:
+    secret-key: e08cf49f00f5059dda0d81c7bf23dc5bbacadd3d87d583699e135afe79ea4572
   image:
     storage:
       userProfileDirectory: ./user-profile-images/

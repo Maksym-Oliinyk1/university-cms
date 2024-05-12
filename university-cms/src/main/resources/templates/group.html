@@ -35,7 +35,7 @@
         <tr th:each="student : ${students}">
             <td th:text="${student.id}"></td>
             <td>
-                <a th:href="@{/showStudent(id=${student.id})}"
+                <a th:href="@{/general/group/showStudent(id=${student.id})}"
                    th:text="${student.firstName + ' ' + student.lastName}"></a>
             </td>
             <td>
@@ -51,7 +51,7 @@
             <li th:class="${pageNumber != null and i == pageNumber ? 'page-item active' : 'page-item'}"
                 th:each="i : ${#numbers.sequence(0, pageNumber != null ? totalPages - 1 : 0)}">
                 <a class="page-link"
-                   th:href="@{/listStudentsByGroup/{groupId}(groupId=${group.id}, pageNumber=${i})}"
+                   th:href="@{/general/lecture/listStudentsByGroup/{groupId}(groupId=${group.id}, pageNumber=${i})}"
                    th:text="${i + 1}"></a>
             </li>
         </ul>
@@ -72,7 +72,7 @@
         <tr th:each="lecture : ${lectures}">
             <td th:text="${lecture.id}"></td>
             <td>
-                <a th:href="@{/showLecture(id=${lecture.id})}" th:text="${lecture.name}"></a>
+                <a th:href="@{/general/lecture/showLecture(id=${lecture.id})}" th:text="${lecture.name}"></a>
             </td>
         </tr>
         </tbody>
@@ -84,7 +84,7 @@
             <li th:class="${pageNumber != null and i == pageNumber ? 'page-item active' : 'page-item'}"
                 th:each="i : ${#numbers.sequence(0, pageNumber != null ? totalPages - 1 : 0)}">
                 <a class="page-link"
-                   th:href="@{/listLecturesByGroup/{groupId}(groupId=${group.id}, pageNumber=${i})}"
+                   th:href="@{/general/lecture/listLecturesByGroup/{groupId}(groupId=${group.id}, pageNumber=${i})}"
                    th:text="${i + 1}"></a>
             </li>
         </ul>

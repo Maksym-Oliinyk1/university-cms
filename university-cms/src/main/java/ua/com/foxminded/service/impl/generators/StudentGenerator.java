@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
+import ua.com.foxminded.enums.Authorities;
+import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.StudentService;
 
@@ -19,7 +21,8 @@ public class StudentGenerator extends DataGenerator {
     private final StudentService studentService;
     private final GroupService groupService;
 
-    public StudentGenerator(StudentService studentService, GroupService groupService) {
+    public StudentGenerator(StudentService studentService,
+                            GroupService groupService) {
         this.studentService = studentService;
         this.groupService = groupService;
     }
@@ -39,6 +42,7 @@ public class StudentGenerator extends DataGenerator {
         for (int i = 0; i < AMOUNT_OF_STUDENTS; i++) {
             StudentDTO studentDTO = new StudentDTO();
             fillUserFields(studentDTO);
+            studentDTO.setAuthority(Authorities.STUDENT);
             Group randomGroup = groupService.findById(Math.abs(random.nextLong() % AMOUNT_OF_GROUPS) + 1);
             studentDTO.setGroup(randomGroup);
             logger.info("Created student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());

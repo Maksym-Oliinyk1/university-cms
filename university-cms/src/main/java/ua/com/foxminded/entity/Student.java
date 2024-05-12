@@ -1,25 +1,39 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "students")
 public class Student extends User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "student_id")
-    private Long id;
     @ManyToOne
     @JoinColumn(name = "group_id")
     private Group group;
 
-    public Student(Long id, String firstName, String lastName, Gender gender, Group group, LocalDate birthDate, String email, String imageName) {
-        super(firstName, lastName, gender, birthDate, email, imageName);
+    public Student(Long id,
+                   String firstName,
+                   String lastName,
+                   Gender gender,
+                   Group group,
+                   LocalDate birthDate,
+                   String email,
+                   String imageName,
+                   String password,
+                   Authorities authority) {
+        super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
         this.group = group;
         this.id = id;
     }

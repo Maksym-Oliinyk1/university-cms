@@ -1,30 +1,36 @@
 CREATE TABLE administrators
 (
-    administrator_id BIGSERIAL PRIMARY KEY,
-    first_name       VARCHAR(255),
-    last_name        VARCHAR(255),
-    gender           VARCHAR(10),
-    birth_date       DATE,
-    email            VARCHAR(255),
-    image_name       VARCHAR(255)
+    user_id    BIGSERIAL PRIMARY KEY,
+    authority       VARCHAR(255),
+    first_name VARCHAR(255),
+    last_name  VARCHAR(255),
+    password   VARCHAR(255),
+    gender     VARCHAR(10),
+    birth_date DATE,
+    email      VARCHAR(255),
+    image_name VARCHAR(255)
 );
 
 CREATE TABLE maintainers
 (
-    maintainer_id BIGSERIAL PRIMARY KEY,
-    first_name    VARCHAR(255),
-    last_name     VARCHAR(255),
-    gender        VARCHAR(10),
-    birth_date    DATE,
-    email         VARCHAR(255),
-    image_name    VARCHAR(255)
+    user_id    BIGSERIAL PRIMARY KEY,
+    authority       VARCHAR(255),
+    first_name VARCHAR(255),
+    last_name  VARCHAR(255),
+    password   VARCHAR(255),
+    gender     VARCHAR(10),
+    birth_date DATE,
+    email      VARCHAR(255),
+    image_name VARCHAR(255)
 );
 
 CREATE TABLE teachers
 (
-    teacher_id      BIGSERIAL PRIMARY KEY,
+    user_id         BIGSERIAL PRIMARY KEY,
+    authority            VARCHAR(255),
     first_name      VARCHAR(255),
     last_name       VARCHAR(255),
+    password        VARCHAR(255),
     gender          VARCHAR(10),
     birth_date      DATE,
     email           VARCHAR(255),
@@ -55,10 +61,12 @@ CREATE TABLE groups
 
 CREATE TABLE students
 (
-    student_id BIGSERIAL PRIMARY KEY,
+    user_id    BIGSERIAL PRIMARY KEY,
+    authority       VARCHAR(255),
     group_id   BIGSERIAL,
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
+    password   VARCHAR(255),
     gender     VARCHAR(10),
 
     FOREIGN KEY (group_id) REFERENCES groups (group_id),
@@ -76,7 +84,7 @@ CREATE TABLE lectures
     description  VARCHAR(2000),
     lecture_date TIMESTAMP,
     FOREIGN KEY (course_id) REFERENCES courses (course_id),
-    FOREIGN KEY (teacher_id) REFERENCES teachers (teacher_id)
+    FOREIGN KEY (teacher_id) REFERENCES teachers (user_id)
 );
 
 CREATE TABLE group_lecture

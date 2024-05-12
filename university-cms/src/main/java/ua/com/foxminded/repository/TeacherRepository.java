@@ -5,11 +5,13 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TeacherRepository extends PagingAndSortingRepository<Teacher, Long>, CrudRepository<Teacher, Long> {
@@ -21,4 +23,6 @@ public interface TeacherRepository extends PagingAndSortingRepository<Teacher, L
 
     @Query("SELECT COUNT(l) FROM Lecture l JOIN l.teacher t WHERE t.id = :teacherId")
     Long countLecturesByTeacher(@Param("teacherId") Long teacherId);
+
+    Optional<Teacher> findByEmail(String email);
 }
