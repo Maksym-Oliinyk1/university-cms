@@ -5,9 +5,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
+import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.entity.Student;
+
+import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
     Page<Student> findByGroupId(Long groupId, Pageable pageable);
+    Optional<Student> findByEmail(String email);
 }

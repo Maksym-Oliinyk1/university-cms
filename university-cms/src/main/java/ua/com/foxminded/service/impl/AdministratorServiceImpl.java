@@ -4,12 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.repository.AdministratorRepository;
 import ua.com.foxminded.service.AdministratorService;
 import ua.com.foxminded.service.ImageService;
+import ua.com.foxminded.service.UserEmailService;
 import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
@@ -17,35 +20,56 @@ import java.util.Optional;
 @Service
 public class AdministratorServiceImpl implements AdministratorService {
     private static final Logger logger = LoggerFactory.getLogger(AdministratorServiceImpl.class);
-    private final String ADMIN_ROLE = "ADMINISTRATOR";
+    private final String ADMIN_ROLE = "ADMIN";
+    private final PasswordEncoder passwordEncoder;
     private final AdministratorRepository administratorRepository;
     private final ImageService imageService;
+    private final UserEmailService userEmailService;
     private final UserMapper userMapper;
 
-    public AdministratorServiceImpl(AdministratorRepository administratorRepository, ImageService imageService, UserMapper userMapper) {
+    public AdministratorServiceImpl(PasswordEncoder passwordEncoder,
+                                    AdministratorRepository administratorRepository,
+                                    ImageService imageService,
+                                    UserEmailService userEmailService,
+                                    UserMapper userMapper) {
+        this.passwordEncoder = passwordEncoder;
         this.administratorRepository = administratorRepository;
         this.imageService = imageService;
+        this.userEmailService = userEmailService;
         this.userMapper = userMapper;
     }
 
     @Override
-    public void save(AdministratorDTO administratorDTO) {
+    public Administrator save(AdministratorDTO administratorDTO) {
+        if (!isEmailFree(administratorDTO.getEmail()))
+        {
+            throw new RuntimeException();
+        }
+        administratorDTO.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
+        administratorDTO.setAuthority(Authorities.ADMINISTRATOR);
         if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
             Administrator administrator = userMapper.mapFromDto(administratorDTO);
             administrator.setImageName(imageService.getDefaultIUserImage(administrator.getGender(), ADMIN_ROLE));
-            administratorRepository.save(administrator);
+            logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
+            return administratorRepository.save(administrator);
         } else {
             Administrator administrator = userMapper.mapFromDto(administratorDTO);
             administrator = administratorRepository.save(administrator);
             String imageName = imageService.saveUserImage(ADMIN_ROLE, administrator.getId(), administratorDTO.getImage());
             administrator.setImageName(imageName);
-            administratorRepository.save(administrator);
+            logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
+            return administratorRepository.save(administrator);
         }
-        logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
     }
 
+
     @Override
-    public void update(Long id, AdministratorDTO administratorDTO) {
+    public Administrator update(Long id, AdministratorDTO administratorDTO) {
+        if (!isEmailFree(administratorDTO.getEmail())) {
+            throw new RuntimeException();
+        }
+        administratorDTO.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
+        administratorDTO.setAuthority(Authorities.ADMINISTRATOR);
         Administrator existingAdministrator = administratorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Administrator not found with id: " + id));
 
@@ -54,6 +78,7 @@ public class AdministratorServiceImpl implements AdministratorService {
         existingAdministrator.setGender(administratorDTO.getGender());
         existingAdministrator.setBirthDate(administratorDTO.getBirthDate());
         existingAdministrator.setEmail(administratorDTO.getEmail());
+        existingAdministrator.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
         if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingAdministrator.getImageName());
             existingAdministrator.setImageName(imageService.getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE));
@@ -62,8 +87,8 @@ public class AdministratorServiceImpl implements AdministratorService {
             String imageName = imageService.saveUserImage(ADMIN_ROLE, id, administratorDTO.getImage());
             existingAdministrator.setImageName(imageName);
         }
-        administratorRepository.save(existingAdministrator);
         logger.info("Administrator updated by id: {}", id);
+        return administratorRepository.save(existingAdministrator);
     }
 
     @Override
@@ -83,6 +108,11 @@ public class AdministratorServiceImpl implements AdministratorService {
         } else {
             throw new RuntimeException("There is no such administrator");
         }
+    }
+
+    @Override
+    public Optional<Administrator> findByEmail(String email) {
+        return administratorRepository.findByEmail(email);
     }
 
     @Override
@@ -109,5 +139,9 @@ public class AdministratorServiceImpl implements AdministratorService {
     @Override
     public Long count() {
         return administratorRepository.count();
+    }
+
+    private boolean isEmailFree(String email) {
+        return userEmailService.isUserExistByEmail(email);
     }
 }

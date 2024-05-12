@@ -24,7 +24,7 @@
         </div>
         <div class="container mt-4 border p-4">
             <div class="container">
-                <a class="btn btn-success" th:href="@{/createFormAdmin}">Create Admin</a>
+                <a class="btn btn-success" th:href="@{/maintainer/manage/admin/createFormAdmin}">Create Admin</a>
             </div>
             <h2>Administrator List</h2>
             <table class="table table-striped">
@@ -40,7 +40,7 @@
                 <tr th:each="administrator : ${administrators}">
                     <td th:text="${administrator.id}"></td>
                     <td>
-                        <a th:href="@{/showAdmin(id=${administrator.id})}"
+                        <a th:href="@{maintainer/manage/admin/showAdmin(id=${administrator.id})}"
                            th:text="${administrator.firstName + ' ' + administrator.lastName}"></a>
                     </td>
                     <td>
@@ -49,11 +49,12 @@
                     </td>
                     <td>
                         <form method="post" onsubmit="return confirm('Are you sure you want to delete?')"
-                              th:action="@{/deleteAdmin/{id}(id=${administrator.id})}">
+                              th:action="@{maintainer/manage/admin/deleteAdmin/{id}(id=${administrator.id})}">
                             <input name="_method" type="hidden" value="put"/>
                             <button class="btn btn-danger" type="submit">Delete</button>
                         </form>
-                        <a class="btn btn-success" th:href="@{/updateFormAdmin/{id}(id=${administrator.id})}">Update</a>
+                        <a class="btn btn-success"
+                           th:href="@{maintainer/manage/admin/updateFormAdmin/{id}(id=${administrator.id})}">Update</a>
                     </td>
                 </tr>
                 </tbody>

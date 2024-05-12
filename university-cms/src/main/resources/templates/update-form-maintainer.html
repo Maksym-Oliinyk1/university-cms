@@ -11,7 +11,8 @@
 <body>
 <div class="container mt-5">
     <h2>Update Maintainer</h2>
-    <form enctype="multipart/form-data" method="post" th:action="@{'/updateMaintainer/' + ${maintainer.id}}">
+    <form enctype="multipart/form-data" method="post"
+          th:action="@{'/general/maintainer/updateMaintainer/' + ${maintainer.id}}">
         <div class="form-group">
             <label for="firstName">First Name:</label>
             <input class="form-control" id="firstName" name="firstName" required
@@ -43,12 +44,17 @@
         <div class="form-group">
             <label for="birthDate">Birth Date:</label>
             <input class="form-control" id="birthDate" name="birthDate" required th:value="${maintainer.birthDate}"
-                   type="number">
+                   type="date">
         </div>
 
         <div class="form-group">
             <label for="email">Email:</label>
             <input class="form-control" id="email" name="email" required th:value="${maintainer.email}" type="email">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input class="form-control" id="password" name="password" required type="password">
         </div>
 
         <div class="form-group">

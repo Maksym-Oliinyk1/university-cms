@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.TeacherDTO;
+import ua.com.foxminded.enums.Authorities;
+import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.service.TeacherService;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class TeacherGenerator extends DataGenerator {
 
     private final TeacherService teacherService;
 
-    public TeacherGenerator(TeacherService teacherService) {
+    public TeacherGenerator(TeacherService teacherService ) {
         this.teacherService = teacherService;
     }
 
@@ -41,6 +43,7 @@ public class TeacherGenerator extends DataGenerator {
         for (int i = 0; i < AMOUNT_OF_TEACHERS; i++) {
             TeacherDTO teacherDTO = new TeacherDTO();
             fillUserFields(teacherDTO);
+            teacherDTO.setAuthority(Authorities.TEACHER);
             String academicDegree = ACADEMIC_DEGREES.get(random.nextInt(ACADEMIC_DEGREES.size()));
             teacherDTO.setAcademicDegree(academicDegree);
             teacherDTO.setLectures(new ArrayList<>());

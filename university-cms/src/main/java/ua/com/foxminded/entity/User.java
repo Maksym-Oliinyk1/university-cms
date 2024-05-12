@@ -1,17 +1,25 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 @MappedSuperclass
-public abstract class User {
+public abstract class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    protected Long id;
 
     @Column(name = "first_name")
     @Pattern(regexp = "[a-zA-Z]+", message = "First name should contain only letters")
@@ -32,25 +40,80 @@ public abstract class User {
     @NotNull
     protected LocalDate birthDate;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
     @NotNull
     protected String email;
 
+    @Column(name = "password")
+    @NotNull
+    protected String password;
+
     @Column(name = "image_name")
     protected String imageName;
 
-    protected User(String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName) {
+    @Column(name = "authority")
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    protected Authorities authority;
+
+    protected User(String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName, String password, Authorities authority) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.birthDate = birthDate;
         this.email = email;
         this.imageName = imageName;
+        this.password = password;
+        this.authority = authority;
     }
 
     protected User() {
 
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(authority.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Gender getGender() {
@@ -93,11 +156,23 @@ public abstract class User {
         this.email = email;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getImageName() {
         return imageName;
     }
 
     public void setImageName(String imageName) {
         this.imageName = imageName;
+    }
+
+    public Authorities getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(Authorities authority) {
+        this.authority = authority;
     }
 }

@@ -24,7 +24,7 @@
         </div>
         <div class="container mt-4 border p-4">
             <div class="container">
-                <a class="btn btn-success" th:href="@{/createFormTeacher}">Create Teacher</a>
+                <a class="btn btn-success" th:href="@{/manage/teacher/createFormTeacher}">Create Teacher</a>
             </div>
             <h2>Teacher List</h2>
             <table class="table table-striped">
@@ -40,7 +40,7 @@
                 <tr th:each="teacher : ${teachers}">
                     <td th:text="${teacher.id}"></td>
                     <td>
-                        <a th:href="@{/showTeacher(id=${teacher.id})}"
+                        <a th:href="@{manage/teacher/showTeacher(id=${teacher.id})}"
                            th:text="${teacher.firstName + ' ' + teacher.lastName}"></a>
                     </td>
                     <td>
@@ -49,11 +49,12 @@
                     </td>
                     <td>
                         <form method="post" onsubmit="return confirm('Are you sure you want to delete?')"
-                              th:action="@{/deleteTeacher/{id}(id=${teacher.id})}">
+                              th:action="@{/manage/teacher/deleteTeacher/{id}(id=${teacher.id})}">
                             <input name="_method" type="hidden" value="put"/>
                             <button class="btn btn-danger" type="submit">Delete</button>
                         </form>
-                        <a class="btn btn-success" th:href="@{/updateFormTeacher/{id}(id=${teacher.id})}">Update</a>
+                        <a class="btn btn-success"
+                           th:href="@{/manage/teacher/updateFormTeacher/{id}(id=${teacher.id})}">Update</a>
                     </td>
                 </tr>
                 </tbody>
@@ -64,7 +65,8 @@
                     <ul class="pagination justify-content-center">
                         <li th:class="${pageNumber != null and i == pageNumber ? 'page-item active' : 'page-item'}"
                             th:each="i : ${#numbers.sequence(0, pageNumber != null ? totalPages - 1 : 0)}">
-                            <a class="page-link" th:href="@{/listTeachers(pageNumber=${i})}" th:text="${i + 1}"></a>
+                            <a class="page-link" th:href="@{/manage/teacher/listTeachers(pageNumber=${i})}"
+                               th:text="${i + 1}"></a>
                         </li>
                     </ul>
                 </nav>
