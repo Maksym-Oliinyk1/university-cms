@@ -42,35 +42,40 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
+    public SecurityConfiguration(
+            JwtAuthenticationFilter jwtAuthFilter, AuthenticationProvider authenticationProvider) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.authenticationProvider = authenticationProvider;
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(req ->
-                        req.requestMatchers(WHITE_LIST_URL)
-                                .permitAll()
-                                .requestMatchers("/auth/successful").hasAnyAuthority("STUDENT", "ADMINISTRATOR", "TEACHER", "MAINTAINER")
-                                .requestMatchers("/general/**").hasAnyAuthority("STUDENT", "ADMINISTRATOR", "TEACHER", "MAINTAINER")
-                                .requestMatchers("/manage/**").hasAnyAuthority("MAINTAINER", "ADMINISTRATOR")
-                                .requestMatchers("/maintainer/**").hasRole("MAINTAINER")
-                                .anyRequest()
-                                .authenticated()
-                )
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(
+                        req ->
+                                req.requestMatchers(WHITE_LIST_URL)
+                                        .permitAll()
+                                        .requestMatchers("/auth/successful")
+                                        .hasAnyAuthority("STUDENT", "ADMINISTRATOR", "TEACHER", "MAINTAINER")
+                                        .requestMatchers("/general/**")
+                                        .hasAnyAuthority("STUDENT", "ADMINISTRATOR", "TEACHER", "MAINTAINER")
+                                        .requestMatchers("/manage/**")
+                                        .hasAnyAuthority("MAINTAINER", "ADMINISTRATOR")
+                                        .requestMatchers("/maintainer/**")
+                                        .hasRole("MAINTAINER")
+                                        .anyRequest()
+                                        .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
-                        .logoutSuccessHandler((req, res, authentication) -> res.setStatus(HttpServletResponse.SC_OK))
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID", "jwtToken")
-                );
+                .logout(
+                        logout ->
+                                logout
+                                        .logoutUrl("/auth/logout")
+                                        .logoutSuccessHandler(
+                                                (req, res, authentication) -> res.setStatus(HttpServletResponse.SC_OK))
+                                        .invalidateHttpSession(true)
+                                        .deleteCookies("JSESSIONID", "jwtToken"));
 
         return http.build();
     }

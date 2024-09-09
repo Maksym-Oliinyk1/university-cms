@@ -35,8 +35,7 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, User user) {
-        return Jwts
-                .builder()
+        return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -44,7 +43,6 @@ public class JwtService {
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -74,12 +72,7 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parserBuilder()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
     }
 
     private Key getSignKey() {

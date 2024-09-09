@@ -12,5 +12,4 @@ public interface LectureService extends EntityService<Lecture> {
     Page<Lecture> findAllByCourse(Long courseId, Pageable pageable);
 
     Page<Lecture> findAllByGroup(Long groupId, Pageable pageable);
-
 }

@@ -33,10 +33,10 @@ public abstract class UserDTO {
     @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
     @NotNull
     private String email;
+
     private MultipartFile image;
 
     UserDTO() {
-
     }
 
     public Long getId() {

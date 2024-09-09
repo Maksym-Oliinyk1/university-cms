@@ -49,10 +49,10 @@ class ImageControllerTest {
 
         when(imageService.readImageAsBytes(imageName)).thenReturn(TEST_IMAGE);
 
-        mockMvc.perform(get("/showImages/{imageName}", imageName))
+        mockMvc
+                .perform(get("/showImages/{imageName}", imageName))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(mediaType))
                 .andExpect(content().bytes(TEST_IMAGE));
-
     }
 }

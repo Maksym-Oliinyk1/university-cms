@@ -14,15 +14,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface GroupRepository extends PagingAndSortingRepository<Group, Long>, CrudRepository<Group, Long> {
-    @Query("SELECT l FROM Lecture l JOIN l.groups g WHERE g.id = :groupId AND l.date BETWEEN :startDateTime AND :endDateTime")
-    List<Lecture> findLecturesByDateBetween(@Param("groupId") Long groupId,
-                                            @Param("startDateTime") LocalDateTime startDateTime,
-                                            @Param("endDateTime") LocalDateTime endDateTime);
+public interface GroupRepository
+        extends PagingAndSortingRepository<Group, Long>, CrudRepository<Group, Long> {
+    @Query(
+            "SELECT l FROM Lecture l JOIN l.groups g WHERE g.id = :groupId AND l.date BETWEEN :startDateTime AND :endDateTime")
+    List<Lecture> findLecturesByDateBetween(
+            @Param("groupId") Long groupId,
+            @Param("startDateTime") LocalDateTime startDateTime,
+            @Param("endDateTime") LocalDateTime endDateTime);
 
     @Query("SELECT COUNT(l) FROM Lecture l JOIN l.groups g WHERE g.id = :groupId")
     Long countLecturesByGroup(@Param("groupId") Long groupId);
 
     Page<Group> findAllByLectures_Id(Long lectureId, Pageable pageable);
-
 }

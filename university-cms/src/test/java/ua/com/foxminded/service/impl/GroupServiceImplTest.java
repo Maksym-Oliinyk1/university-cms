@@ -85,7 +85,6 @@ class GroupServiceImplTest {
         verify(groupRepository, never()).save(any());
     }
 
-
     @Test
     void deleteGroup_Exists_Success() {
         Long id = 1L;
@@ -146,7 +145,16 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, LocalDate.of(2004, 12, 31), "astro@gmail.com", null);
+        Student student =
+                new Student(
+                        0L,
+                        "John",
+                        "Doe",
+                        Gender.MALE,
+                        group,
+                        LocalDate.of(2004, 12, 31),
+                        "astro@gmail.com",
+                        null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -162,7 +170,16 @@ class GroupServiceImplTest {
         Long studentId = 1L;
         Long groupId = 2L;
         Group group = new Group(0L, "AB-12");
-        Student student = new Student(0L, "John", "Doe", Gender.MALE, group, LocalDate.of(2004, 12, 31), "astro@gmail.com", null);
+        Student student =
+                new Student(
+                        0L,
+                        "John",
+                        "Doe",
+                        Gender.MALE,
+                        group,
+                        LocalDate.of(2004, 12, 31),
+                        "astro@gmail.com",
+                        null);
 
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
@@ -173,7 +190,6 @@ class GroupServiceImplTest {
         verify(studentRepository, times(1)).save(student);
     }
 
-
     @Test
     void showLecturesBetweenDates_ValidGroupIdAndDates_Success() {
         Long groupId = 1L;
@@ -182,7 +198,8 @@ class GroupServiceImplTest {
 
         when(groupRepository.existsById(groupId)).thenReturn(true);
         when(groupRepository.countLecturesByGroup(groupId)).thenReturn(5L);
-        when(groupRepository.findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(groupRepository.findLecturesByDateBetween(
+                eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Collections.emptyList());
 
         List<Lecture> result = groupService.showLecturesBetweenDates(groupId, firstDate, secondDate);
@@ -199,9 +216,12 @@ class GroupServiceImplTest {
 
         when(groupRepository.existsById(groupId)).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> groupService.showLecturesBetweenDates(groupId, firstDate, secondDate));
+        assertThrows(
+                RuntimeException.class,
+                () -> groupService.showLecturesBetweenDates(groupId, firstDate, secondDate));
 
         verify(groupRepository, never()).countLecturesByGroup(groupId);
-        verify(groupRepository, never()).findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(groupRepository, never())
+                .findLecturesByDateBetween(eq(groupId), any(LocalDateTime.class), any(LocalDateTime.class));
     }
 }

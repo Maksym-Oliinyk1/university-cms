@@ -22,7 +22,7 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    //General methods
+    // General methods
 
     @GetMapping("/showFaculty")
     public String showFaculty(@RequestParam("id") Long id, Model model) {
@@ -51,20 +51,23 @@ public class FacultyController {
 
     @GetMapping("/list/faculties")
     @ResponseBody
-    public ResponseEntity<List<Faculty>> getFaculties(@RequestParam(defaultValue = "0") int pageNumber) {
-        Page<Faculty> facultyPage = facultyService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    public ResponseEntity<List<Faculty>> getFaculties(
+            @RequestParam(defaultValue = "0") int pageNumber) {
+        Page<Faculty> facultyPage =
+                facultyService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         List<Faculty> faculties = facultyPage.getContent();
         return ResponseEntity.ok(faculties);
     }
 
     private void fillModelWithData(int pageNumber, Model model) {
-        Page<Faculty> pageFaculty = facultyService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Faculty> pageFaculty =
+                facultyService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("faculties", pageFaculty.getContent());
         model.addAttribute("pageNumber", pageFaculty.getNumber());
         model.addAttribute("totalPages", pageFaculty.getTotalPages());
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageFaculty() {

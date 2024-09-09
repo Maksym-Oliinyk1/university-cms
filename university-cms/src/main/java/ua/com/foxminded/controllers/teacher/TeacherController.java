@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.security.AuthenticationResponse;
-import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.security.JwtService;
 import ua.com.foxminded.service.TeacherService;
 
@@ -25,18 +24,16 @@ public class TeacherController {
     private final TeacherService teacherService;
     private final JwtService jwtService;
 
-    public TeacherController(TeacherService teacherService,
-                             JwtService jwtService) {
+    public TeacherController(TeacherService teacherService, JwtService jwtService) {
         this.teacherService = teacherService;
         this.jwtService = jwtService;
     }
 
-    //General methods
+    // General methods
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerTeacher(
-            @ModelAttribute @Valid TeacherDTO teacherDTO
-    ) {
+            @ModelAttribute @Valid TeacherDTO teacherDTO) {
         String token = jwtService.generateToken(teacherService.save(teacherDTO));
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
@@ -90,13 +87,15 @@ public class TeacherController {
 
     @GetMapping("/list/teachers")
     @ResponseBody
-    public ResponseEntity<List<Teacher>> getTeachers(@RequestParam(defaultValue = "0") int pageNumber) {
-        Page<Teacher> teachersPage = teacherService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    public ResponseEntity<List<Teacher>> getTeachers(
+            @RequestParam(defaultValue = "0") int pageNumber) {
+        Page<Teacher> teachersPage =
+                teacherService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         List<Teacher> teachers = teachersPage.getContent();
         return ResponseEntity.ok(teachers);
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageTeacher() {
@@ -125,7 +124,8 @@ public class TeacherController {
     }
 
     @PostMapping("/manage/updateTeacher/{id}")
-    public String updateTeacherManage(@PathVariable("id") Long id, @ModelAttribute @Valid TeacherDTO teacherDTO) {
+    public String updateTeacherManage(
+            @PathVariable("id") Long id, @ModelAttribute @Valid TeacherDTO teacherDTO) {
         teacherService.update(id, teacherDTO);
         return "update-form-teacher-successful";
     }
@@ -143,7 +143,8 @@ public class TeacherController {
     }
 
     private void fillModelWithDataTeachers(int pageNumber, Model model) {
-        Page<Teacher> pageTeachers = teacherService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Teacher> pageTeachers =
+                teacherService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("teachers", pageTeachers.getContent());
         model.addAttribute("pageNumber", pageTeachers.getNumber());
         model.addAttribute("totalPages", pageTeachers.getTotalPages());

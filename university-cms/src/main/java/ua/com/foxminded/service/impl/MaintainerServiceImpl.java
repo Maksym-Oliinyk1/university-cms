@@ -27,11 +27,12 @@ public class MaintainerServiceImpl implements MaintainerService {
     private final UserEmailService userEmailService;
     private final UserMapper userMapper;
 
-    public MaintainerServiceImpl(MaintainerRepository maintainerRepository,
-                                 PasswordEncoder passwordEncoder,
-                                 ImageService imageService,
-                                 UserEmailService userEmailService,
-                                 UserMapper userMapper) {
+    public MaintainerServiceImpl(
+            MaintainerRepository maintainerRepository,
+            PasswordEncoder passwordEncoder,
+            ImageService imageService,
+            UserEmailService userEmailService,
+            UserMapper userMapper) {
         this.maintainerRepository = maintainerRepository;
         this.passwordEncoder = passwordEncoder;
         this.imageService = imageService;
@@ -48,17 +49,21 @@ public class MaintainerServiceImpl implements MaintainerService {
         maintainerDTO.setAuthority(Authorities.MAINTAINER);
         if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
             Maintainer maintainer = userMapper.mapFromDto(maintainerDTO);
-            maintainer.setImageName(imageService.getDefaultIUserImage(maintainer.getGender(), MAINTAINER_ROLE));
-            logger.info("Saved maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
+            maintainer.setImageName(
+                    imageService.getDefaultIUserImage(maintainer.getGender(), MAINTAINER_ROLE));
+            logger.info(
+                    "Saved maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
             return maintainerRepository.save(maintainer);
         } else {
             Maintainer maintainer = userMapper.mapFromDto(maintainerDTO);
             maintainer = maintainerRepository.save(maintainer);
-            String imageName = imageService.saveUserImage(MAINTAINER_ROLE, maintainer.getId(), maintainerDTO.getImage());
-                maintainer.setImageName(imageName);
-                logger.info("Saved maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
-                return maintainerRepository.save(maintainer);
-            }
+            String imageName =
+                    imageService.saveUserImage(MAINTAINER_ROLE, maintainer.getId(), maintainerDTO.getImage());
+            maintainer.setImageName(imageName);
+            logger.info(
+                    "Saved maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
+            return maintainerRepository.save(maintainer);
+        }
     }
 
     @Override
@@ -68,8 +73,10 @@ public class MaintainerServiceImpl implements MaintainerService {
         }
         maintainerDTO.setPassword(passwordEncoder.encode(maintainerDTO.getPassword()));
         maintainerDTO.setAuthority(Authorities.MAINTAINER);
-        Maintainer existingMaintainer = maintainerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Maintainer not found with id: " + id));
+        Maintainer existingMaintainer =
+                maintainerRepository
+                        .findById(id)
+                        .orElseThrow(() -> new RuntimeException("Maintainer not found with id: " + id));
         existingMaintainer.setFirstName(maintainerDTO.getFirstName());
         existingMaintainer.setLastName(maintainerDTO.getLastName());
         existingMaintainer.setGender(maintainerDTO.getGender());
@@ -78,7 +85,8 @@ public class MaintainerServiceImpl implements MaintainerService {
         existingMaintainer.setPassword(passwordEncoder.encode(maintainerDTO.getPassword()));
         if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingMaintainer.getImageName());
-            existingMaintainer.setImageName(imageService.getDefaultIUserImage(maintainerDTO.getGender(), MAINTAINER_ROLE));
+            existingMaintainer.setImageName(
+                    imageService.getDefaultIUserImage(maintainerDTO.getGender(), MAINTAINER_ROLE));
         } else {
             imageService.deleteUserImage(existingMaintainer.getImageName());
             String imageName = imageService.saveUserImage(MAINTAINER_ROLE, id, maintainerDTO.getImage());

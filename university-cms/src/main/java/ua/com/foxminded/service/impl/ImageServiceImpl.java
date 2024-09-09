@@ -45,9 +45,12 @@ public class ImageServiceImpl implements ImageService {
         DEFAULT_IMAGES.put("STUDENT" + MALE_GENDER, DEFAULT_MALE_STUDENT_MALE_AVATAR);
     }
 
-    private final PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+    private final PathMatchingResourcePatternResolver resourcePatternResolver =
+            new PathMatchingResourcePatternResolver();
+
     @Value("${app.image.storage.userProfileDirectory}")
     private String userProfileDirPath;
+
     @Value("${app.image.storage.applicationImagesDirectory}")
     private String applicationImagesDirectory;
 
@@ -149,4 +152,3 @@ public class ImageServiceImpl implements ImageService {
         return imageName;
     }
 }
-

@@ -57,7 +57,15 @@ public abstract class User implements UserDetails {
     @NotNull
     protected Authorities authority;
 
-    protected User(String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName, String password, Authorities authority) {
+    protected User(
+            String firstName,
+            String lastName,
+            Gender gender,
+            LocalDate birthDate,
+            String email,
+            String imageName,
+            String password,
+            Authorities authority) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -69,7 +77,6 @@ public abstract class User implements UserDetails {
     }
 
     protected User() {
-
     }
 
     @Override
@@ -106,7 +113,6 @@ public abstract class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
     public Long getId() {
         return id;

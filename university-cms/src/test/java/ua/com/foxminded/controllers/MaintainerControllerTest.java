@@ -32,7 +32,8 @@ class MaintainerControllerTest {
 
     @Test
     void maintainerAuthorization_ShouldReturnMaintainerAuthorizationPage() throws Exception {
-        mockMvc.perform(get("/maintainerAuthorization"))
+        mockMvc
+                .perform(get("/maintainerAuthorization"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mock-maintainer-authorization"));
     }
@@ -43,8 +44,8 @@ class MaintainerControllerTest {
         Maintainer mockMaintainer = new Maintainer();
         when(maintainerService.findById(maintainerId)).thenReturn(mockMaintainer);
 
-        mockMvc.perform(get("/showMaintainer")
-                        .param("id", String.valueOf(maintainerId)))
+        mockMvc
+                .perform(get("/showMaintainer").param("id", String.valueOf(maintainerId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("maintainer"))
                 .andExpect(model().attributeExists("maintainer"))
@@ -59,7 +60,8 @@ class MaintainerControllerTest {
         when(mockMaintainerPage.getContent()).thenReturn(Collections.emptyList());
         when(maintainerService.findAll(any())).thenReturn(mockMaintainerPage);
 
-        mockMvc.perform(get("/listMaintainers"))
+        mockMvc
+                .perform(get("/listMaintainers"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-maintainer"))
                 .andExpect(model().attributeExists("maintainers"))
@@ -70,13 +72,16 @@ class MaintainerControllerTest {
     }
 
     @Test
-    void createMaintainer_ValidInput_ShouldReturnCreateFormMaintainerSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createMaintainer")
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+    void createMaintainer_ValidInput_ShouldReturnCreateFormMaintainerSuccessfulPage()
+            throws Exception {
+        mockMvc
+                .perform(
+                        post("/createMaintainer")
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-maintainer-successful"));
 
@@ -84,9 +89,9 @@ class MaintainerControllerTest {
     }
 
     @Test
-    void createMaintainer_InvalidInput_ShouldReturnCreateFormMaintainerPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createMaintainer"))
-                .andExpect(status().isBadRequest());
+    void createMaintainer_InvalidInput_ShouldReturnCreateFormMaintainerPageWithErrors()
+            throws Exception {
+        mockMvc.perform(post("/createMaintainer")).andExpect(status().isBadRequest());
 
         verify(maintainerService, never()).save(any());
     }
@@ -98,7 +103,8 @@ class MaintainerControllerTest {
 
         when(maintainerService.findByIdDTO(maintainerId)).thenReturn(mockMaintainerDTO);
 
-        mockMvc.perform(get("/updateFormMaintainer/{id}", maintainerId))
+        mockMvc
+                .perform(get("/updateFormMaintainer/{id}", maintainerId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-maintainer"))
                 .andExpect(model().attributeExists("maintainer"))
@@ -107,17 +113,19 @@ class MaintainerControllerTest {
         verify(maintainerService, times(1)).findByIdDTO(maintainerId);
     }
 
-
     @Test
-    void updateMaintainer_ValidInput_ShouldReturnUpdateFormMaintainerSuccessfulPage() throws Exception {
+    void updateMaintainer_ValidInput_ShouldReturnUpdateFormMaintainerSuccessfulPage()
+            throws Exception {
         Long maintainerId = 1L;
 
-        mockMvc.perform(post("/updateMaintainer/{id}", maintainerId)
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/updateMaintainer/{id}", maintainerId)
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-maintainer-successful"))
                 .andExpect(model().attributeExists("maintainerId"))
@@ -127,10 +135,12 @@ class MaintainerControllerTest {
     }
 
     @Test
-    void updateMaintainer_InvalidInput_ShouldReturnUpdateFormMaintainerPageWithErrors() throws Exception {
+    void updateMaintainer_InvalidInput_ShouldReturnUpdateFormMaintainerPageWithErrors()
+            throws Exception {
         Long maintainerId = 1L;
 
-        mockMvc.perform(post("/updateMaintainer/{id}", maintainerId))
+        mockMvc
+                .perform(post("/updateMaintainer/{id}", maintainerId))
                 .andExpect(status().isBadRequest());
 
         verify(maintainerService, never()).update(eq(maintainerId), any());
@@ -140,8 +150,8 @@ class MaintainerControllerTest {
     void deleteMaintainer_ValidId_ShouldReturnDeleteFormMaintainerSuccessfulPage() throws Exception {
         Long maintainerId = 1L;
 
-        mockMvc.perform(post("/deleteMaintainer")
-                        .param("id", String.valueOf(maintainerId)))
+        mockMvc
+                .perform(post("/deleteMaintainer").param("id", String.valueOf(maintainerId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-maintainer-successful"));
 

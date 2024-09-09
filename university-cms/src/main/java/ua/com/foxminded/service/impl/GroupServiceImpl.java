@@ -53,7 +53,6 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
-
     @Override
     public void delete(Long id) {
         if (groupRepository.existsById(id)) {
@@ -92,12 +91,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public void attachStudentToGroup(Long studentId, Long groupId) {
-        Group group = groupRepository
-                .findById(groupId)
-                .orElseThrow(EntityNotFoundException::new);
-        Student student = studentRepository
-                .findById(studentId)
-                .orElseThrow(EntityNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
+        Student student =
+                studentRepository.findById(studentId).orElseThrow(EntityNotFoundException::new);
 
         group.getStudents().add(student);
         student.setGroup(group);
@@ -109,12 +105,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional
     public void detachStudentFromGroup(Long studentId, Long groupId) {
-        Group group = groupRepository
-                .findById(groupId)
-                .orElseThrow(EntityNotFoundException::new);
-        Student student = studentRepository
-                .findById(studentId)
-                .orElseThrow(EntityNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
+        Student student =
+                studentRepository.findById(studentId).orElseThrow(EntityNotFoundException::new);
 
         group.getStudents().remove(student);
         student.setGroup(null);
@@ -124,7 +117,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Lecture> showLecturesBetweenDates(Long groupId, LocalDateTime firstDate, LocalDateTime secondDate) {
+    public List<Lecture> showLecturesBetweenDates(
+            Long groupId, LocalDateTime firstDate, LocalDateTime secondDate) {
         if (!groupRepository.existsById(groupId)) {
             throw new RuntimeException("The group was not found");
         }
@@ -141,4 +135,3 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.findAllByLectures_Id(lectureId, pageable);
     }
 }
-

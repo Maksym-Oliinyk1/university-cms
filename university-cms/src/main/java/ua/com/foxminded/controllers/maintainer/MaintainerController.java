@@ -23,18 +23,16 @@ public class MaintainerController {
     private final MaintainerService maintainerService;
     private final JwtService jwtService;
 
-    public MaintainerController(MaintainerService maintainerService,
-                                JwtService jwtService) {
+    public MaintainerController(MaintainerService maintainerService, JwtService jwtService) {
         this.maintainerService = maintainerService;
         this.jwtService = jwtService;
     }
 
-    //General methods
+    // General methods
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerMaintainer(
-            @ModelAttribute @Valid MaintainerDTO maintainerDTO
-    ) {
+            @ModelAttribute @Valid MaintainerDTO maintainerDTO) {
         String token = jwtService.generateToken(maintainerService.save(maintainerDTO));
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
@@ -59,7 +57,8 @@ public class MaintainerController {
     }
 
     @PostMapping("/updateMaintainer/{id}")
-    public String updateMaintainer(@PathVariable Long id, @ModelAttribute @Valid MaintainerDTO maintainerDTO, Model model) {
+    public String updateMaintainer(
+            @PathVariable Long id, @ModelAttribute @Valid MaintainerDTO maintainerDTO, Model model) {
         maintainerService.update(id, maintainerDTO);
         model.addAttribute("maintainerId", id);
         return "update-form-maintainer-successful";
@@ -71,7 +70,6 @@ public class MaintainerController {
         return "create-form-maintainer";
     }
 
-
     @PostMapping("/deleteMaintainer")
     public String deleteMaintainer(@RequestHeader("Authorization") String authToken) {
         String token = extractToken(authToken);
@@ -80,7 +78,7 @@ public class MaintainerController {
         return "delete-form-maintainer-successful";
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageMaintainer() {
@@ -116,7 +114,8 @@ public class MaintainerController {
 
     @GetMapping("/manage/listMaintainers")
     public String listMaintainers(@RequestParam(defaultValue = "0") int pageNumber, Model model) {
-        Page<Maintainer> maintainerPage = maintainerService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Maintainer> maintainerPage =
+                maintainerService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("maintainers", maintainerPage.getContent());
         model.addAttribute("pageNumber", maintainerPage.getNumber());
         model.addAttribute("totalPages", maintainerPage.getTotalPages());
@@ -128,5 +127,4 @@ public class MaintainerController {
         maintainerService.delete(id);
         return "delete-form-maintainer-successful";
     }
-
 }

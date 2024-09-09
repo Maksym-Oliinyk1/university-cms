@@ -64,8 +64,10 @@ class TeacherServiceImplTest {
         teacherDTO.setImage(imageFile);
         when(userMapper.mapFromDto(teacherDTO)).thenReturn(teacher);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-        when(teacherRepository.save(any(Teacher.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class)))
+                .thenReturn("32.png");
+        when(teacherRepository.save(any(Teacher.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         teacherService.save(teacherDTO);
 
@@ -79,7 +81,8 @@ class TeacherServiceImplTest {
         Teacher teacher = createTeacher();
         TeacherDTO teacherDTO = createTeacherDTO();
         when(userMapper.mapFromDto(teacherDTO)).thenReturn(teacher);
-        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString()))
+                .thenReturn("default.png");
 
         teacherService.save(teacherDTO);
 
@@ -111,7 +114,8 @@ class TeacherServiceImplTest {
         Teacher existingTeacher = createTeacher();
         when(teacherRepository.findById(id)).thenReturn(Optional.of(existingTeacher));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class)))
+                .thenReturn("32.png");
 
         teacherService.update(id, teacherDTO);
 
@@ -201,7 +205,9 @@ class TeacherServiceImplTest {
         Lecture lecture = createLecture();
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
-        assertThrows(EntityNotFoundException.class, () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
 
         verify(teacherRepository, never()).save(any(Teacher.class));
         verify(lectureRepository, never()).save(any(Lecture.class));
@@ -215,7 +221,9 @@ class TeacherServiceImplTest {
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> teacherService.attachLectureToTeacher(lectureId, teacherId));
 
         verify(teacherRepository, never()).save(any(Teacher.class));
         verify(lectureRepository, never()).save(any(Lecture.class));
@@ -248,7 +256,9 @@ class TeacherServiceImplTest {
         Lecture lecture = createLecture();
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
 
-        assertThrows(EntityNotFoundException.class, () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
 
         verify(teacherRepository, never()).save(any(Teacher.class));
         verify(lectureRepository, never()).save(any(Lecture.class));
@@ -262,7 +272,9 @@ class TeacherServiceImplTest {
         when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
+        assertThrows(
+                EntityNotFoundException.class,
+                () -> teacherService.detachLectureFromTeacher(lectureId, teacherId));
 
         verify(teacherRepository, never()).save(any(Teacher.class));
         verify(lectureRepository, never()).save(any(Lecture.class));
@@ -278,7 +290,8 @@ class TeacherServiceImplTest {
         when(teacherRepository.findLecturesByDateBetween(teacherId, firstDate, secondDate))
                 .thenReturn(Collections.singletonList(lecture));
 
-        List<Lecture> result = teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate);
+        List<Lecture> result =
+                teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate);
 
         assertEquals(Collections.singletonList(lecture), result);
     }
@@ -290,10 +303,12 @@ class TeacherServiceImplTest {
         LocalDateTime secondDate = firstDate.plusDays(7);
         when(teacherRepository.existsById(teacherId)).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () ->
-                teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
+        assertThrows(
+                RuntimeException.class,
+                () -> teacherService.showLecturesBetweenDates(teacherId, firstDate, secondDate));
         verify(teacherRepository, times(1)).existsById(teacherId);
-        verify(teacherRepository, never()).findLecturesByDateBetween(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(teacherRepository, never())
+                .findLecturesByDateBetween(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class));
     }
 
     @Test
@@ -318,7 +333,6 @@ class TeacherServiceImplTest {
 
         assertThrows(RuntimeException.class, () -> teacherService.findByIdDTO(id));
     }
-
 
     @Test
     void findById_ExistingTeacher_ReturnTeacher() {
@@ -380,6 +394,3 @@ class TeacherServiceImplTest {
         return lecture;
     }
 }
-
-
-

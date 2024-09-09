@@ -55,8 +55,10 @@ class AdministratorServiceImplTest {
         administratorDTO.setImage(imageFile);
         when(userMapper.mapFromDto(administratorDTO)).thenReturn(administrator);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-        when(administratorRepository.save(any(Administrator.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class)))
+                .thenReturn("32.png");
+        when(administratorRepository.save(any(Administrator.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         administratorService.save(administratorDTO);
 
@@ -70,7 +72,8 @@ class AdministratorServiceImplTest {
         Administrator administrator = createAdministrator();
         AdministratorDTO administratorDTO = createAdministratorDTO();
         when(userMapper.mapFromDto(administratorDTO)).thenReturn(administrator);
-        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString()))
+                .thenReturn("default.png");
 
         administratorService.save(administratorDTO);
 
@@ -102,7 +105,8 @@ class AdministratorServiceImplTest {
         Administrator existingAdministrator = createAdministrator();
         when(administratorRepository.findById(id)).thenReturn(Optional.of(existingAdministrator));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class)))
+                .thenReturn("32.png");
 
         administratorService.update(id, administratorDTO);
 
@@ -240,4 +244,3 @@ class AdministratorServiceImplTest {
         return administrator;
     }
 }
-

@@ -36,16 +36,15 @@ class TeacherRestControllerTest {
 
     @Test
     void getTeachers_ShouldReturnListOfTeachers() throws Exception {
-        List<Teacher> mockTeachers = Arrays.asList(
-                createTeacher(1L, "John"),
-                createTeacher(2L, "Robert")
-        );
+        List<Teacher> mockTeachers =
+                Arrays.asList(createTeacher(1L, "John"), createTeacher(2L, "Robert"));
 
         Page<Teacher> mockTeacherPage = new PageImpl<>(mockTeachers);
 
         when(teacherService.findAll(any(PageRequest.class))).thenReturn(mockTeacherPage);
 
-        mockMvc.perform(get("/getListTeachers"))
+        mockMvc
+                .perform(get("/getListTeachers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))

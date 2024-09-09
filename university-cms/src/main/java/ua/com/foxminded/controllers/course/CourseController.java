@@ -26,8 +26,7 @@ public class CourseController {
         this.facultyService = facultyService;
     }
 
-    //General methods
-
+    // General methods
 
     @GetMapping("/showCourse")
     public String showCourse(@RequestParam("id") Long id, Model model) {
@@ -43,13 +42,15 @@ public class CourseController {
     }
 
     @GetMapping("/listCoursesToLecture")
-    public String listCoursesToLecture(@RequestParam(defaultValue = "0") int pageNumber, Model model) {
+    public String listCoursesToLecture(
+            @RequestParam(defaultValue = "0") int pageNumber, Model model) {
         fillModelWithDataCourses(pageNumber, model);
         return "create-form-lecture";
     }
 
     private void fillModelWithDataCourses(int pageNumber, Model model) {
-        Page<Course> pageCourses = courseService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Course> pageCourses =
+                courseService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("courses", pageCourses.getContent());
         model.addAttribute("pageNumber", pageCourses.getNumber());
         model.addAttribute("totalPages", pageCourses.getTotalPages());
@@ -58,14 +59,18 @@ public class CourseController {
     @GetMapping("/courses")
     @ResponseBody
     public ResponseEntity<List<Course>> getCourses(@RequestParam(defaultValue = "0") int pageNumber) {
-        Page<Course> coursesPage = courseService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Course> coursesPage =
+                courseService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         List<Course> courses = coursesPage.getContent();
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/listCoursesByFaculty/{facultyId}")
-    public String listCoursesByFacultyId(@PathVariable Long facultyId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
-        Page<Course> pageCourse = courseService.findAllOfFaculty(facultyId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    public String listCoursesByFacultyId(
+            @PathVariable Long facultyId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
+        Page<Course> pageCourse =
+                courseService.findAllOfFaculty(
+                        facultyId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         Faculty faculty = facultyService.findById(facultyId);
         model.addAttribute("courses", pageCourse.getContent());
         model.addAttribute("pageNumber", pageCourse.getNumber());
@@ -74,7 +79,7 @@ public class CourseController {
         return "faculty";
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageCourse() {

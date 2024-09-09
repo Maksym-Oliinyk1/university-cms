@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 public class DataGeneratorServiceImpl implements DataGeneratorService {
 
@@ -18,9 +17,10 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
 
     @Autowired
     public DataGeneratorServiceImpl(List<DataGenerator> dataGenerators) {
-        this.dataGenerators = dataGenerators.stream()
-                .sorted(Comparator.comparingInt(DataGenerator::getOrder))
-                .collect(Collectors.toList());
+        this.dataGenerators =
+                dataGenerators.stream()
+                        .sorted(Comparator.comparingInt(DataGenerator::getOrder))
+                        .collect(Collectors.toList());
     }
 
     @Override
@@ -31,5 +31,3 @@ public class DataGeneratorServiceImpl implements DataGeneratorService {
         }
     }
 }
-
-

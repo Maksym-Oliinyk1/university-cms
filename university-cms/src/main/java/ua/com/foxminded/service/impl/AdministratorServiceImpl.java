@@ -27,11 +27,12 @@ public class AdministratorServiceImpl implements AdministratorService {
     private final UserEmailService userEmailService;
     private final UserMapper userMapper;
 
-    public AdministratorServiceImpl(PasswordEncoder passwordEncoder,
-                                    AdministratorRepository administratorRepository,
-                                    ImageService imageService,
-                                    UserEmailService userEmailService,
-                                    UserMapper userMapper) {
+    public AdministratorServiceImpl(
+            PasswordEncoder passwordEncoder,
+            AdministratorRepository administratorRepository,
+            ImageService imageService,
+            UserEmailService userEmailService,
+            UserMapper userMapper) {
         this.passwordEncoder = passwordEncoder;
         this.administratorRepository = administratorRepository;
         this.imageService = imageService;
@@ -41,27 +42,34 @@ public class AdministratorServiceImpl implements AdministratorService {
 
     @Override
     public Administrator save(AdministratorDTO administratorDTO) {
-        if (!isEmailFree(administratorDTO.getEmail()))
-        {
+        if (!isEmailFree(administratorDTO.getEmail())) {
             throw new RuntimeException();
         }
         administratorDTO.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
         administratorDTO.setAuthority(Authorities.ADMINISTRATOR);
         if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
             Administrator administrator = userMapper.mapFromDto(administratorDTO);
-            administrator.setImageName(imageService.getDefaultIUserImage(administrator.getGender(), ADMIN_ROLE));
-            logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
+            administrator.setImageName(
+                    imageService.getDefaultIUserImage(administrator.getGender(), ADMIN_ROLE));
+            logger.info(
+                    "Saved administrator: {} {}",
+                    administratorDTO.getFirstName(),
+                    administratorDTO.getLastName());
             return administratorRepository.save(administrator);
         } else {
             Administrator administrator = userMapper.mapFromDto(administratorDTO);
             administrator = administratorRepository.save(administrator);
-            String imageName = imageService.saveUserImage(ADMIN_ROLE, administrator.getId(), administratorDTO.getImage());
+            String imageName =
+                    imageService.saveUserImage(
+                            ADMIN_ROLE, administrator.getId(), administratorDTO.getImage());
             administrator.setImageName(imageName);
-            logger.info("Saved administrator: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
+            logger.info(
+                    "Saved administrator: {} {}",
+                    administratorDTO.getFirstName(),
+                    administratorDTO.getLastName());
             return administratorRepository.save(administrator);
         }
     }
-
 
     @Override
     public Administrator update(Long id, AdministratorDTO administratorDTO) {
@@ -70,8 +78,10 @@ public class AdministratorServiceImpl implements AdministratorService {
         }
         administratorDTO.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
         administratorDTO.setAuthority(Authorities.ADMINISTRATOR);
-        Administrator existingAdministrator = administratorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Administrator not found with id: " + id));
+        Administrator existingAdministrator =
+                administratorRepository
+                        .findById(id)
+                        .orElseThrow(() -> new RuntimeException("Administrator not found with id: " + id));
 
         existingAdministrator.setFirstName(administratorDTO.getFirstName());
         existingAdministrator.setLastName(administratorDTO.getLastName());
@@ -81,7 +91,8 @@ public class AdministratorServiceImpl implements AdministratorService {
         existingAdministrator.setPassword(passwordEncoder.encode(administratorDTO.getPassword()));
         if (administratorDTO.getImage() == null || administratorDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingAdministrator.getImageName());
-            existingAdministrator.setImageName(imageService.getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE));
+            existingAdministrator.setImageName(
+                    imageService.getDefaultIUserImage(administratorDTO.getGender(), ADMIN_ROLE));
         } else {
             imageService.deleteUserImage(existingAdministrator.getImageName());
             String imageName = imageService.saveUserImage(ADMIN_ROLE, id, administratorDTO.getImage());

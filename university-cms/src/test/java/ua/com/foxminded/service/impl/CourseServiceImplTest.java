@@ -129,4 +129,3 @@ class CourseServiceImplTest {
         verify(courseRepository, times(1)).findAll(eq(pageable));
     }
 }
-
