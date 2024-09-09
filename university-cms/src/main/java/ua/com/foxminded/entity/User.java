@@ -12,14 +12,15 @@ import ua.com.foxminded.enums.Gender;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @MappedSuperclass
 public abstract class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    protected Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    protected UUID id;
 
     @Column(name = "first_name")
     @Pattern(regexp = "[a-zA-Z]+", message = "First name should contain only letters")
@@ -57,7 +58,15 @@ public abstract class User implements UserDetails {
     @NotNull
     protected Authorities authority;
 
-    protected User(String firstName, String lastName, Gender gender, LocalDate birthDate, String email, String imageName, String password, Authorities authority) {
+    protected User(
+            String firstName,
+            String lastName,
+            Gender gender,
+            LocalDate birthDate,
+            String email,
+            String imageName,
+            String password,
+            Authorities authority) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -69,7 +78,6 @@ public abstract class User implements UserDetails {
     }
 
     protected User() {
-
     }
 
     @Override
@@ -107,12 +115,11 @@ public abstract class User implements UserDetails {
         return true;
     }
 
-
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

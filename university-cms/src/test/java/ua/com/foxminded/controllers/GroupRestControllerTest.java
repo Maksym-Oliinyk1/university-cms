@@ -24,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(GroupRestController.class)
 class GroupRestControllerTest {
@@ -35,19 +34,16 @@ class GroupRestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     void getGroups_ShouldReturnListOfGroups() throws Exception {
-        List<Group> mockGroups = Arrays.asList(
-                createGroup(1L, "AB-12"),
-                createGroup(2L, "CD-32")
-        );
+        List<Group> mockGroups = Arrays.asList(createGroup(1L, "AB-12"), createGroup(2L, "CD-32"));
 
         Page<Group> mockGroupPage = new PageImpl<>(mockGroups);
 
         when(groupService.findAll(any(PageRequest.class))).thenReturn(mockGroupPage);
 
-        mockMvc.perform(get("/getListGroups"))
+        mockMvc
+                .perform(get("/getListGroups"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))

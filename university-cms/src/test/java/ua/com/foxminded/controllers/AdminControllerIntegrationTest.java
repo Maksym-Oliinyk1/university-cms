@@ -1,6 +1,5 @@
 package ua.com.foxminded.controllers;
 
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
@@ -17,17 +16,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @Testcontainers
 @SpringBootTest
 class AdminControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listAdmins() throws Exception {
-        MvcResult result = mvc.perform(get("/listAdmins"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-administrator"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listAdmins"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-administrator"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -48,10 +47,11 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
-        MvcResult result = mvc.perform(get("/showAdmin?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("admin"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/showAdmin?id=1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("admin"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -61,7 +61,6 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
 
         baseTestForUser(adminFromModel);
     }
-
 
     @Test
     void adminAuthorization() throws Exception {
@@ -89,8 +88,7 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
     void createAdmin_successful() throws Exception {
         AdministratorDTO administratorDTO = createAdministratorDTO();
 
-        mvc.perform(post("/createAdmin")
-                        .flashAttr("administratorDTO", administratorDTO))
+        mvc.perform(post("/createAdmin").flashAttr("administratorDTO", administratorDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-administrator-successful"));
 
@@ -119,8 +117,7 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         AdministratorDTO administratorDTO = createAdministratorDTO();
         administratorDTO.setFirstName(firstNameUpdate);
 
-        mvc.perform(post("/updateAdmin/1")
-                        .flashAttr("administratorDTO", administratorDTO))
+        mvc.perform(post("/updateAdmin/1").flashAttr("administratorDTO", administratorDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-administrator-successful"))
                 .andExpect(model().attributeExists("adminId"));
@@ -142,5 +139,4 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
 
         assertFalse(administratorRepository.findById(DEFAULT_ID).isPresent());
     }
-
 }

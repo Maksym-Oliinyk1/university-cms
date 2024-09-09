@@ -16,17 +16,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @Testcontainers
 @SpringBootTest
 class CourseControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listCourses() throws Exception {
-        MvcResult result = mvc.perform(get("/listCourses"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-course"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listCourses"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-course"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -76,8 +76,7 @@ class CourseControllerIntegrationTest extends BaseIntegrationTest {
     void createCourse_successful() throws Exception {
         Course course = createCourse();
 
-        mvc.perform(post("/createCourse")
-                        .flashAttr("course", course))
+        mvc.perform(post("/createCourse").flashAttr("course", course))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-course-successful"));
 
@@ -106,8 +105,7 @@ class CourseControllerIntegrationTest extends BaseIntegrationTest {
         Course updatedCourse = new Course();
         updatedCourse.setName(updatedCourseName);
 
-        mvc.perform(post("/updateCourse/1")
-                        .flashAttr("course", updatedCourse))
+        mvc.perform(post("/updateCourse/1").flashAttr("course", updatedCourse))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-course-successful"));
 

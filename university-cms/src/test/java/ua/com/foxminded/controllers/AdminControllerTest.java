@@ -21,7 +21,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(AdminController.class)
 class AdminControllerTest {
@@ -34,14 +33,16 @@ class AdminControllerTest {
 
     @Test
     void adminAuthorization_ShouldReturnAdminAuthorizationPage() throws Exception {
-        mockMvc.perform(get("/adminAuthorization"))
+        mockMvc
+                .perform(get("/adminAuthorization"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mock-admin-authorization"));
     }
 
     @Test
     void manageAdmin_ShouldReturnManageAdministratorPage() throws Exception {
-        mockMvc.perform(get("/manageAdmin"))
+        mockMvc
+                .perform(get("/manageAdmin"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-administrator"));
     }
@@ -52,8 +53,8 @@ class AdminControllerTest {
         Administrator mockAdministrator = new Administrator();
         when(administratorService.findById(adminId)).thenReturn(mockAdministrator);
 
-        mockMvc.perform(get("/showAdmin")
-                        .param("id", String.valueOf(adminId)))
+        mockMvc
+                .perform(get("/showAdmin").param("id", String.valueOf(adminId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin"))
                 .andExpect(model().attributeExists("administrator"))
@@ -68,7 +69,8 @@ class AdminControllerTest {
         when(mockAdminPage.getContent()).thenReturn(Collections.emptyList());
         when(administratorService.findAll(any())).thenReturn(mockAdminPage);
 
-        mockMvc.perform(get("/listAdmins"))
+        mockMvc
+                .perform(get("/listAdmins"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-administrator"))
                 .andExpect(model().attributeExists("administrators"))
@@ -80,12 +82,14 @@ class AdminControllerTest {
 
     @Test
     void createAdmin_ValidInput_ShouldReturnCreateFormAdministratorSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createAdmin")
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/createAdmin")
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-administrator-successful"));
 
@@ -93,9 +97,9 @@ class AdminControllerTest {
     }
 
     @Test
-    void createAdmin_InvalidInput_ShouldReturnCreateFormAdministratorPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createAdmin"))
-                .andExpect(status().isBadRequest());
+    void createAdmin_InvalidInput_ShouldReturnCreateFormAdministratorPageWithErrors()
+            throws Exception {
+        mockMvc.perform(post("/createAdmin")).andExpect(status().isBadRequest());
 
         verify(administratorService, never()).save(any());
     }
@@ -107,7 +111,8 @@ class AdminControllerTest {
 
         when(administratorService.findByIdDTO(adminId)).thenReturn(mockAdministratorDTO);
 
-        mockMvc.perform(get("/updateFormAdmin/{id}", adminId))
+        mockMvc
+                .perform(get("/updateFormAdmin/{id}", adminId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-administrator"))
                 .andExpect(model().attributeExists("administrator"))
@@ -120,12 +125,14 @@ class AdminControllerTest {
     void updateAdmin_ValidInput_ShouldReturnUpdateFormAdministratorSuccessfulPage() throws Exception {
         Long adminId = 1L;
 
-        mockMvc.perform(post("/updateAdmin/{id}", adminId)
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/updateAdmin/{id}", adminId)
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-administrator-successful"))
                 .andExpect(model().attributeExists("adminId"))
@@ -135,11 +142,11 @@ class AdminControllerTest {
     }
 
     @Test
-    void updateAdmin_InvalidInput_ShouldReturnUpdateFormAdministratorPageWithErrors() throws Exception {
+    void updateAdmin_InvalidInput_ShouldReturnUpdateFormAdministratorPageWithErrors()
+            throws Exception {
         Long adminId = 1L;
 
-        mockMvc.perform(post("/updateAdmin/{id}", adminId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateAdmin/{id}", adminId)).andExpect(status().isBadRequest());
 
         verify(administratorService, never()).update(eq(adminId), any());
     }
@@ -148,7 +155,8 @@ class AdminControllerTest {
     void deleteAdmin_ValidId_ShouldReturnDeleteFormAdministratorSuccessfulPage() throws Exception {
         Long adminId = 1L;
 
-        mockMvc.perform(post("/deleteAdmin/{id}", adminId))
+        mockMvc
+                .perform(post("/deleteAdmin/{id}", adminId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-administrator-successful"));
 

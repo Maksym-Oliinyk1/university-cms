@@ -1,6 +1,5 @@
 package ua.com.foxminded.security;
 
-
 public class AuthenticationResponse {
 
     public AuthenticationResponse(String token) {
@@ -8,7 +7,6 @@ public class AuthenticationResponse {
     }
 
     public AuthenticationResponse() {
-
     }
 
     private String token;

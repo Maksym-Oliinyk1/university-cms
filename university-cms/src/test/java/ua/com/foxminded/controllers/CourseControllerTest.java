@@ -35,10 +35,10 @@ class CourseControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     void manageCourse_ShouldReturnManageCoursePage() throws Exception {
-        mockMvc.perform(get("/manageCourse"))
+        mockMvc
+                .perform(get("/manageCourse"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-course"));
     }
@@ -49,8 +49,8 @@ class CourseControllerTest {
         Course mockCourse = new Course();
         when(courseService.findById(courseId)).thenReturn(mockCourse);
 
-        mockMvc.perform(get("/showCourse")
-                        .param("id", String.valueOf(courseId)))
+        mockMvc
+                .perform(get("/showCourse").param("id", String.valueOf(courseId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("course"))
                 .andExpect(model().attributeExists("course"))
@@ -65,7 +65,8 @@ class CourseControllerTest {
         when(mockCoursePage.getContent()).thenReturn(Collections.emptyList());
         when(courseService.findAll(any())).thenReturn(mockCoursePage);
 
-        mockMvc.perform(get("/listCourses"))
+        mockMvc
+                .perform(get("/listCourses"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-course"))
                 .andExpect(model().attributeExists("courses"))
@@ -81,7 +82,8 @@ class CourseControllerTest {
         when(mockCoursePage.getContent()).thenReturn(Collections.emptyList());
         when(courseService.findAll(any())).thenReturn(mockCoursePage);
 
-        mockMvc.perform(get("/listCoursesToLecture"))
+        mockMvc
+                .perform(get("/listCoursesToLecture"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-lecture"))
                 .andExpect(model().attributeExists("courses"))
@@ -93,9 +95,11 @@ class CourseControllerTest {
 
     @Test
     void createCourse_ValidInput_ShouldReturnCreateFormCourseSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createCourse")
-                        .param("name", "Math 101")
-                        .param("description", "Introduction to Calculus"))
+        mockMvc
+                .perform(
+                        post("/createCourse")
+                                .param("name", "Math 101")
+                                .param("description", "Introduction to Calculus"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-course-successful"));
 
@@ -108,7 +112,8 @@ class CourseControllerTest {
         Course mockCourse = new Course();
         when(courseService.findById(courseId)).thenReturn(mockCourse);
 
-        mockMvc.perform(get("/updateFormCourse/{id}", courseId))
+        mockMvc
+                .perform(get("/updateFormCourse/{id}", courseId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-course"))
                 .andExpect(model().attributeExists("course"))
@@ -120,9 +125,11 @@ class CourseControllerTest {
     @Test
     void updateCourse_ValidInput_ShouldReturnUpdateFormCourseSuccessfulPage() throws Exception {
         Long courseId = 1L;
-        mockMvc.perform(post("/updateCourse/{id}", courseId)
-                        .param("name", "Math 102")
-                        .param("description", "Advanced Calculus"))
+        mockMvc
+                .perform(
+                        post("/updateCourse/{id}", courseId)
+                                .param("name", "Math 102")
+                                .param("description", "Advanced Calculus"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-course-successful"));
 
@@ -133,7 +140,8 @@ class CourseControllerTest {
     void deleteCourse_ValidId_ShouldReturnDeleteFormCourseSuccessfulPage() throws Exception {
         Long courseId = 1L;
 
-        mockMvc.perform(post("/deleteCourse/{id}", courseId))
+        mockMvc
+                .perform(post("/deleteCourse/{id}", courseId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-course-successful"));
 
@@ -146,10 +154,12 @@ class CourseControllerTest {
         Page<Course> mockCoursePage = mock(Page.class);
         Faculty mockFaculty = new Faculty();
         when(mockCoursePage.getContent()).thenReturn(Collections.emptyList());
-        when(courseService.findAllOfFaculty(facultyId, PageRequest.of(0, 10))).thenReturn(mockCoursePage);
+        when(courseService.findAllOfFaculty(facultyId, PageRequest.of(0, 10)))
+                .thenReturn(mockCoursePage);
         when(facultyService.findById(facultyId)).thenReturn(mockFaculty);
 
-        mockMvc.perform(get("/listCoursesByFaculty/{facultyId}", facultyId))
+        mockMvc
+                .perform(get("/listCoursesByFaculty/{facultyId}", facultyId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("faculty"))
                 .andExpect(model().attributeExists("courses"))

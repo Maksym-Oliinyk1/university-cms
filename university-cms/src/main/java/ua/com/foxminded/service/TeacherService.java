@@ -12,5 +12,6 @@ public interface TeacherService extends UserService<Teacher, TeacherDTO> {
 
     void detachLectureFromTeacher(Long lectureId, Long teacherId);
 
-    List<Lecture> showLecturesBetweenDates(Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
+    List<Lecture> showLecturesBetweenDates(
+            Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
 }

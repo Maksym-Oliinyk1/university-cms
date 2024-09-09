@@ -1,6 +1,5 @@
 package ua.com.foxminded.service;
 
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,5 +12,4 @@ public interface BaseService<E> {
     Page<E> findAll(Pageable pageable);
 
     Long count();
-
 }

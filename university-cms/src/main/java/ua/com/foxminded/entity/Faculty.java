@@ -14,8 +14,10 @@ public class Faculty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "faculty_id")
     private Long id;
+
     @Column(name = "faculty_name")
     private String name;
+
     @OneToMany(mappedBy = "faculty")
     @JsonManagedReference
     private List<Course> courses;
@@ -68,10 +70,6 @@ public class Faculty {
 
     @Override
     public String toString() {
-        return "Faculty{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return "Faculty{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 }
-

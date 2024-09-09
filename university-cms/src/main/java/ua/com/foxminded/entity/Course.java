@@ -14,12 +14,15 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
     private Long id;
+
     @Column(name = "course_name")
     private String name;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
+
     @OneToMany(mappedBy = "course")
     @JsonManagedReference
     private List<Lecture> lectures;
@@ -80,11 +83,16 @@ public class Course {
 
     @Override
     public String toString() {
-        return "Course{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", faculty=" + faculty +
-                ", lectures=" + lectures +
-                '}';
+        return "Course{"
+                + "id="
+                + id
+                + ", name='"
+                + name
+                + '\''
+                + ", faculty="
+                + faculty
+                + ", lectures="
+                + lectures
+                + '}';
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.enums.Authorities;
-import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.StudentService;
 
@@ -21,8 +20,7 @@ public class StudentGenerator extends DataGenerator {
     private final StudentService studentService;
     private final GroupService groupService;
 
-    public StudentGenerator(StudentService studentService,
-                            GroupService groupService) {
+    public StudentGenerator(StudentService studentService, GroupService groupService) {
         this.studentService = studentService;
         this.groupService = groupService;
     }

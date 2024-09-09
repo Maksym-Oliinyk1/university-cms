@@ -7,14 +7,9 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ua.com.foxminded.entity.*;
-import ua.com.foxminded.service.*;
-import ua.com.foxminded.service.impl.UserEmailServiceImpl;
-
-import java.util.Optional;
+import ua.com.foxminded.service.UserEmailService;
 
 @Configuration
 public class ApplicationConfig {
@@ -24,7 +19,6 @@ public class ApplicationConfig {
     public ApplicationConfig(UserEmailService userEmailService) {
         this.userEmailService = userEmailService;
     }
-
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -40,7 +34,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
         return config.getAuthenticationManager();
     }
 

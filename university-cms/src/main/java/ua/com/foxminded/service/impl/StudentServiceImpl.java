@@ -32,15 +32,16 @@ public class StudentServiceImpl implements StudentService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-
     @Autowired
-    public StudentServiceImpl(StudentRepository studentRepository,
-                              AdministratorRepository administratorRepository,
-                              MaintainerRepository maintainerRepository,
-                              TeacherRepository teacherRepository,
-                              ImageService imageService,
-                              UserEmailService userEmailService, PasswordEncoder passwordEncoder,
-                              UserMapper userMapper) {
+    public StudentServiceImpl(
+            StudentRepository studentRepository,
+            AdministratorRepository administratorRepository,
+            MaintainerRepository maintainerRepository,
+            TeacherRepository teacherRepository,
+            ImageService imageService,
+            UserEmailService userEmailService,
+            PasswordEncoder passwordEncoder,
+            UserMapper userMapper) {
         this.studentRepository = studentRepository;
         this.imageService = imageService;
         this.userEmailService = userEmailService;
@@ -63,13 +64,13 @@ public class StudentServiceImpl implements StudentService {
         } else {
             Student student = userMapper.mapFromDto(studentDTO);
             student = studentRepository.save(student);
-            String imageName = imageService.saveUserImage(STUDENT_ROLE, student.getId(), studentDTO.getImage());
-                student.setImageName(imageName);
-                logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
-                return studentRepository.save(student);
-            }
+            String imageName =
+                    imageService.saveUserImage(STUDENT_ROLE, student.getId(), studentDTO.getImage());
+            student.setImageName(imageName);
+            logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
+            return studentRepository.save(student);
+        }
     }
-
 
     @Override
     public Student update(Long id, StudentDTO studentDTO) {
@@ -78,8 +79,10 @@ public class StudentServiceImpl implements StudentService {
         }
         studentDTO.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
         studentDTO.setAuthority(Authorities.STUDENT);
-        Student existingStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+        Student existingStudent =
+                studentRepository
+                        .findById(id)
+                        .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
         existingStudent.setFirstName(studentDTO.getFirstName());
         existingStudent.setLastName(studentDTO.getLastName());
         existingStudent.setGender(studentDTO.getGender());
@@ -89,7 +92,8 @@ public class StudentServiceImpl implements StudentService {
         existingStudent.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
         if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingStudent.getImageName());
-            existingStudent.setImageName(imageService.getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE));
+            existingStudent.setImageName(
+                    imageService.getDefaultIUserImage(studentDTO.getGender(), STUDENT_ROLE));
         } else {
             imageService.deleteUserImage(existingStudent.getImageName());
             String imageName = imageService.saveUserImage(STUDENT_ROLE, id, studentDTO.getImage());
@@ -114,7 +118,6 @@ public class StudentServiceImpl implements StudentService {
     public Optional<Student> findByEmail(String email) {
         return studentRepository.findByEmail(email);
     }
-
 
     @Override
     public void delete(Long id) {
@@ -163,5 +166,4 @@ public class StudentServiceImpl implements StudentService {
     private boolean isEmailFree(String email) {
         return userEmailService.isUserExistByEmail(email);
     }
-
 }

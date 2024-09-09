@@ -11,14 +11,12 @@ import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.security.AuthenticationResponse;
-import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.security.JwtService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.StudentService;
 
 import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
 import static ua.com.foxminded.utill.UtilController.extractToken;
-
 
 @Controller
 @RequestMapping("/student")
@@ -28,20 +26,18 @@ public class StudentController {
     private final JwtService jwtService;
     private final GroupService groupService;
 
-    public StudentController(StudentService studentService,
-                             JwtService jwtService,
-                             GroupService groupService) {
+    public StudentController(
+            StudentService studentService, JwtService jwtService, GroupService groupService) {
         this.studentService = studentService;
         this.jwtService = jwtService;
         this.groupService = groupService;
     }
 
-    //General methods
+    // General methods
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> registerStudent(
-            @ModelAttribute @Valid StudentDTO studentDTO
-    ) {
+            @ModelAttribute @Valid StudentDTO studentDTO) {
         String token = jwtService.generateToken(studentService.save(studentDTO));
         return ResponseEntity.ok(new AuthenticationResponse(token));
     }
@@ -74,7 +70,8 @@ public class StudentController {
     }
 
     @PostMapping("/updateStudent/{id}")
-    public String updateStudent(@PathVariable("id") Long id, @ModelAttribute @Valid StudentDTO studentDTO) {
+    public String updateStudent(
+            @PathVariable("id") Long id, @ModelAttribute @Valid StudentDTO studentDTO) {
         studentService.update(id, studentDTO);
         return "update-form-student-successful";
     }
@@ -89,8 +86,11 @@ public class StudentController {
     }
 
     @GetMapping("/listStudentsByGroup/{groupId}")
-    public String listStudentsByGroup(@PathVariable Long groupId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
-        Page<Student> pageStudent = studentService.findAllStudentByGroup(groupId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    public String listStudentsByGroup(
+            @PathVariable Long groupId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
+        Page<Student> pageStudent =
+                studentService.findAllStudentByGroup(
+                        groupId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         Group group = groupService.findById(groupId);
         model.addAttribute("group", group);
         model.addAttribute("students", pageStudent.getContent());
@@ -106,7 +106,7 @@ public class StudentController {
         return "group";
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageStudent() {
@@ -135,14 +135,16 @@ public class StudentController {
     }
 
     @PostMapping("/manage/updateStudent/{id}")
-    public String updateStudentManage(@PathVariable("id") Long id, @ModelAttribute @Valid StudentDTO studentDTO) {
+    public String updateStudentManage(
+            @PathVariable("id") Long id, @ModelAttribute @Valid StudentDTO studentDTO) {
         studentService.update(id, studentDTO);
         return "update-form-student-successful";
     }
 
     @GetMapping("/manage/listStudents")
     public String listStudents(@RequestParam(defaultValue = "0") int pageNumber, Model model) {
-        Page<Student> pageStudent = studentService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Student> pageStudent =
+                studentService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("students", pageStudent.getContent());
         model.addAttribute("pageNumber", pageStudent.getNumber());
         model.addAttribute("totalPages", pageStudent.getTotalPages());

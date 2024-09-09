@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ua.com.foxminded.dto.AdministratorDTO;
-import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.dto.TeacherDTO;
 
@@ -33,13 +31,11 @@ public class AuthenticationController {
         return "successful";
     }
 
-
     @GetMapping("/createFormStudent")
     public String showCreateFormStudent(Model model) {
         model.addAttribute("student", new StudentDTO());
         return "create-form-student";
     }
-
 
     @GetMapping("/createFormTeacher")
     public String showCreateFormTeacher(Model model) {
@@ -49,8 +45,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(
-            @ModelAttribute @Valid AuthenticationRequest authenticationRequest
-    ) {
+            @ModelAttribute @Valid AuthenticationRequest authenticationRequest) {
         return ResponseEntity.ok(authenticationService.signIn(authenticationRequest));
     }
 }

@@ -36,16 +36,15 @@ class LectureRestControllerTest {
 
     @Test
     void getLectures_ShouldReturnListOfLectures() throws Exception {
-        List<Lecture> mockLectures = Arrays.asList(
-                createLecture(1L, "Lecture 1"),
-                createLecture(2L, "Lecture 2")
-        );
+        List<Lecture> mockLectures =
+                Arrays.asList(createLecture(1L, "Lecture 1"), createLecture(2L, "Lecture 2"));
 
         Page<Lecture> mockLecturePage = new PageImpl<>(mockLectures);
 
         when(lectureService.findAll(any(PageRequest.class))).thenReturn(mockLecturePage);
 
-        mockMvc.perform(get("/getListLectures"))
+        mockMvc
+                .perform(get("/getListLectures"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))

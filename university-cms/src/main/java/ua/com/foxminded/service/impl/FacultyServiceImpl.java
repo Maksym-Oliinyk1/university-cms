@@ -16,7 +16,6 @@ import ua.com.foxminded.service.FacultyService;
 
 import java.util.Optional;
 
-
 @Service
 public class FacultyServiceImpl implements FacultyService {
     private static final Logger logger = LoggerFactory.getLogger(FacultyServiceImpl.class);
@@ -24,7 +23,8 @@ public class FacultyServiceImpl implements FacultyService {
     private final CourseRepository courseRepository;
 
     @Autowired
-    public FacultyServiceImpl(FacultyRepository facultyRepository, CourseRepository courseRepository) {
+    public FacultyServiceImpl(
+            FacultyRepository facultyRepository, CourseRepository courseRepository) {
         this.facultyRepository = facultyRepository;
         this.courseRepository = courseRepository;
     }
@@ -33,7 +33,6 @@ public class FacultyServiceImpl implements FacultyService {
     public void save(Faculty faculty) {
         facultyRepository.save(faculty);
         logger.info("Saved faculty {}", faculty.getName());
-
     }
 
     @Override
@@ -49,7 +48,6 @@ public class FacultyServiceImpl implements FacultyService {
             throw new RuntimeException("There is no such faculty");
         }
     }
-
 
     @Override
     public void delete(Long id) {
@@ -90,12 +88,9 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     @Transactional
     public void attachCourseToFaculty(Long courseId, Long facultyId) {
-        Faculty faculty = facultyRepository
-                .findById(facultyId)
-                .orElseThrow(EntityNotFoundException::new);
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(EntityNotFoundException::new);
+        Faculty faculty =
+                facultyRepository.findById(facultyId).orElseThrow(EntityNotFoundException::new);
+        Course course = courseRepository.findById(courseId).orElseThrow(EntityNotFoundException::new);
 
         course.setFaculty(faculty);
         faculty.getCourses().add(course);
@@ -107,12 +102,9 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     @Transactional
     public void detachCourseFromFaculty(Long courseId, Long facultyId) {
-        Faculty faculty = facultyRepository
-                .findById(facultyId)
-                .orElseThrow(EntityNotFoundException::new);
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(EntityNotFoundException::new);
+        Faculty faculty =
+                facultyRepository.findById(facultyId).orElseThrow(EntityNotFoundException::new);
+        Course course = courseRepository.findById(courseId).orElseThrow(EntityNotFoundException::new);
 
         course.setFaculty(null);
         faculty.getCourses().remove(course);
