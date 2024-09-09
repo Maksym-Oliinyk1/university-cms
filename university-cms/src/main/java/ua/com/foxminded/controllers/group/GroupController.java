@@ -9,15 +9,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
-import ua.com.foxminded.entity.Student;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
-import ua.com.foxminded.service.StudentService;
 
 import java.util.List;
 
 import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
-
 
 @Controller
 @RequestMapping("/group")
@@ -30,7 +27,7 @@ public class GroupController {
         this.lectureService = lectureService;
     }
 
-    //General methods
+    // General methods
 
     @GetMapping("/showGroup")
     public String showGroup(@RequestParam Long id, Model model) {
@@ -52,8 +49,11 @@ public class GroupController {
     }
 
     @GetMapping("/listGroupsByLecture/{lectureId}")
-    public String listGroupsToLecture(@PathVariable Long lectureId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
-        Page<Group> pageGroups = groupService.findAllByLecture(lectureId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    public String listGroupsToLecture(
+            @PathVariable Long lectureId, @RequestParam(defaultValue = "0") int pageNumber, Model model) {
+        Page<Group> pageGroups =
+                groupService.findAllByLecture(
+                        lectureId, PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         Lecture lecture = lectureService.findById(lectureId);
         model.addAttribute("lecture", lecture);
         model.addAttribute("groups", pageGroups.getContent());
@@ -65,19 +65,21 @@ public class GroupController {
     @GetMapping("/list/groups")
     @ResponseBody
     public ResponseEntity<List<Group>> getGroups(@RequestParam(defaultValue = "0") int pageNumber) {
-        Page<Group> groupsPage = groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Group> groupsPage =
+                groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         List<Group> groups = groupsPage.getContent();
         return ResponseEntity.ok(groups);
     }
 
     private void fillModelWithDataGroups(int pageNumber, Model model) {
-        Page<Group> pageGroups = groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+        Page<Group> pageGroups =
+                groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
         model.addAttribute("groups", pageGroups.getContent());
         model.addAttribute("pageNumber", pageGroups.getNumber());
         model.addAttribute("totalPages", pageGroups.getTotalPages());
     }
 
-    //Manage methods
+    // Manage methods
 
     @GetMapping("/manage")
     public String manageGroup() {
@@ -104,7 +106,8 @@ public class GroupController {
     }
 
     @PostMapping("/manage/updateGroup/{id}")
-    public String updateGroup(@PathVariable Long id, @ModelAttribute @Valid Group group, Model model) {
+    public String updateGroup(
+            @PathVariable Long id, @ModelAttribute @Valid Group group, Model model) {
         groupService.update(id, group);
         model.addAttribute("groupId", id);
         return "update-form-group-successful";
@@ -117,19 +120,14 @@ public class GroupController {
     }
 
     @PostMapping("/manage/attachStudentToGroup")
-    public String attachStudentToGroup(
-            @RequestParam Long studentId,
-            @RequestParam Long groupId) {
+    public String attachStudentToGroup(@RequestParam Long studentId, @RequestParam Long groupId) {
         groupService.attachStudentToGroup(studentId, groupId);
         return "manage-student";
     }
 
     @PostMapping("/manage/detachStudentFromGroup")
-    public String detachStudentFromGroup(
-            @RequestParam Long studentId,
-            @RequestParam Long groupId) {
+    public String detachStudentFromGroup(@RequestParam Long studentId, @RequestParam Long groupId) {
         groupService.detachStudentFromGroup(studentId, groupId);
         return "manage-group";
     }
-
 }

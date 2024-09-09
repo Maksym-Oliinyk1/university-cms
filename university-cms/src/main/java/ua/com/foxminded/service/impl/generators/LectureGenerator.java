@@ -1,5 +1,9 @@
 package ua.com.foxminded.service.impl.generators;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -12,11 +16,6 @@ import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
 import ua.com.foxminded.service.TeacherService;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class LectureGenerator extends DataGenerator {
 
@@ -24,7 +23,8 @@ public class LectureGenerator extends DataGenerator {
     private static final String LECTURE_NAMES_DIRECTORY = "/populate/lectures_names";
     private static final String LECTURE_DESCRIPTION_DIRECTORY = "/populate/lectures_descriptions";
     private static final List<String> LECTURE_NAMES = readFilePerOneLine(LECTURE_NAMES_DIRECTORY);
-    private static final List<String> LECTURE_DESCRIPTIONS = readFilePerOneLine(LECTURE_DESCRIPTION_DIRECTORY);
+    private static final List<String> LECTURE_DESCRIPTIONS =
+            readFilePerOneLine(LECTURE_DESCRIPTION_DIRECTORY);
     private static final int AMOUNT_OF_LECTURES = 40;
     private static final int AMOUNT_OF_RANDOM_GROUPS = 5;
     private static final int AMOUNT_OF_TEACHERS = 30;
@@ -36,8 +36,11 @@ public class LectureGenerator extends DataGenerator {
     private final TeacherService teacherService;
     private final GroupService groupService;
 
-    public LectureGenerator(LectureService lectureService, CourseService courseService,
-                            TeacherService teacherService, GroupService groupService) {
+    public LectureGenerator(
+            LectureService lectureService,
+            CourseService courseService,
+            TeacherService teacherService,
+            GroupService groupService) {
         this.lectureService = lectureService;
         this.courseService = courseService;
         this.teacherService = teacherService;
@@ -60,11 +63,14 @@ public class LectureGenerator extends DataGenerator {
             String name = LECTURE_NAMES.get(i % LECTURE_NAMES.size());
             String description = LECTURE_DESCRIPTIONS.get(i % LECTURE_DESCRIPTIONS.size());
             LocalDateTime randomDate = generateRandomDate();
-            Course randomCourse = courseService.findById(Math.abs(random.nextLong() % AMOUNT_OF_COURSES) + 1);
-            Teacher randomTeacher = teacherService.findById(Math.abs(random.nextLong() % AMOUNT_OF_TEACHERS) + 1);
+            Course randomCourse =
+                    courseService.findById(Math.abs(random.nextLong() % AMOUNT_OF_COURSES) + 1);
+            Teacher randomTeacher =
+                    teacherService.findById(Math.abs(random.nextLong() % AMOUNT_OF_TEACHERS) + 1);
             List<Group> groups = getRandomGroups();
 
-            Lecture lecture = new Lecture(null, randomCourse, randomTeacher, name, description, randomDate);
+            Lecture lecture =
+                    new Lecture(null, randomCourse, randomTeacher, name, description, randomDate);
             lecture.setGroups(groups);
             logger.info("Created lecture: {}", lecture.getName());
             lectureService.save(lecture);
@@ -73,7 +79,7 @@ public class LectureGenerator extends DataGenerator {
 
     private LocalDateTime generateRandomDate() {
         LocalDateTime startDate = LocalDateTime.now();
-        LocalDateTime randomDate = startDate.plus(random.nextInt(365), ChronoUnit.DAYS);
+        LocalDateTime randomDate = startDate.plusDays(random.nextInt(365));
         int[] fixedHours = {8, 10, 12, 14, 16, 18};
         randomDate = randomDate.withHour(fixedHours[random.nextInt(fixedHours.length)]);
         return randomDate;

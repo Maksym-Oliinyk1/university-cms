@@ -32,14 +32,16 @@ class TeacherControllerTest {
 
     @Test
     void teacherAuthorization_ShouldReturnTeacherAuthorizationPage() throws Exception {
-        mockMvc.perform(get("/teacherAuthorization"))
+        mockMvc
+                .perform(get("/teacherAuthorization"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mock-teacher-authorization"));
     }
 
     @Test
     void manageTeacher_ShouldReturnManageTeacherPage() throws Exception {
-        mockMvc.perform(get("/manageTeacher"))
+        mockMvc
+                .perform(get("/manageTeacher"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-teacher"));
     }
@@ -50,8 +52,8 @@ class TeacherControllerTest {
         Teacher mockTeacher = new Teacher();
         when(teacherService.findById(teacherId)).thenReturn(mockTeacher);
 
-        mockMvc.perform(get("/showTeacher")
-                        .param("id", String.valueOf(teacherId)))
+        mockMvc
+                .perform(get("/showTeacher").param("id", String.valueOf(teacherId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("teacher"))
                 .andExpect(model().attributeExists("teacher"))
@@ -66,7 +68,8 @@ class TeacherControllerTest {
         when(mockTeacherPage.getContent()).thenReturn(Collections.emptyList());
         when(teacherService.findAll(any())).thenReturn(mockTeacherPage);
 
-        mockMvc.perform(get("/listTeachers"))
+        mockMvc
+                .perform(get("/listTeachers"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-teacher"))
                 .andExpect(model().attributeExists("teachers"))
@@ -78,12 +81,14 @@ class TeacherControllerTest {
 
     @Test
     void createTeacher_ValidInput_ShouldReturnCreateFormTeacherSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createTeacher")
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/createTeacher")
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-teacher-successful"));
 
@@ -92,8 +97,7 @@ class TeacherControllerTest {
 
     @Test
     void createTeacher_InvalidInput_ShouldReturnCreateFormTeacherPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createTeacher"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/createTeacher")).andExpect(status().isBadRequest());
 
         verify(teacherService, never()).save(any());
     }
@@ -104,7 +108,8 @@ class TeacherControllerTest {
         TeacherDTO mockTeacherDTO = new TeacherDTO();
         when(teacherService.findByIdDTO(teacherId)).thenReturn(mockTeacherDTO);
 
-        mockMvc.perform(get("/updateFormTeacher/{id}", teacherId))
+        mockMvc
+                .perform(get("/updateFormTeacher/{id}", teacherId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-teacher"))
                 .andExpect(model().attributeExists("teacher"))
@@ -117,12 +122,14 @@ class TeacherControllerTest {
     void updateTeacher_ValidInput_ShouldReturnUpdateFormTeacherSuccessfulPage() throws Exception {
         Long teacherId = 1L;
 
-        mockMvc.perform(post("/updateTeacher/{id}", teacherId)
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/updateTeacher/{id}", teacherId)
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-teacher-successful"));
 
@@ -133,8 +140,7 @@ class TeacherControllerTest {
     void updateTeacher_InvalidInput_ShouldReturnUpdateFormTeacherPageWithErrors() throws Exception {
         Long teacherId = 1L;
 
-        mockMvc.perform(post("/updateTeacher/{id}", teacherId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateTeacher/{id}", teacherId)).andExpect(status().isBadRequest());
 
         verify(teacherService, never()).update(eq(teacherId), any());
     }
@@ -143,7 +149,8 @@ class TeacherControllerTest {
     void deleteTeacher_ValidId_ShouldReturnDeleteFormTeacherSuccessfulPage() throws Exception {
         Long teacherId = 1L;
 
-        mockMvc.perform(post("/deleteTeacher/{id}", teacherId))
+        mockMvc
+                .perform(post("/deleteTeacher/{id}", teacherId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-teacher-successful"));
 

@@ -1,17 +1,17 @@
 package ua.com.foxminded.service;
 
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BaseService<E> {
+import java.util.UUID;
 
-    void delete(Long id);
+public interface BaseService<D> {
 
-    E findById(Long id);
+  void delete(UUID id);
 
-    Page<E> findAll(Pageable pageable);
+  D findById(UUID id);
 
-    Long count();
+  Page<D> findAll(Pageable pageable);
 
+  Long count();
 }

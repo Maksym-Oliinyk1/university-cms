@@ -19,18 +19,20 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_id")
     private Long id;
+
     @Column(name = "group_name")
     @Pattern(regexp = "^[A-Z]{2}-\\d{2}$")
     @NotNull
     private String name;
+
     @OneToMany(mappedBy = "group")
     private List<Student> students;
+
     @ManyToMany
     @JoinTable(
             name = "group_lecture",
             joinColumns = @JoinColumn(name = "group_id"),
-            inverseJoinColumns = @JoinColumn(name = "lecture_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "lecture_id"))
     private List<Lecture> lectures;
 
     public Group(Long id, String name) {
@@ -90,9 +92,6 @@ public class Group {
 
     @Override
     public String toString() {
-        return "Group{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return "Group{" + "id=" + id + ", name='" + name + '\'' + '}';
     }
 }

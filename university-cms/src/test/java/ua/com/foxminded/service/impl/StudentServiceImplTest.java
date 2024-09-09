@@ -55,8 +55,10 @@ class StudentServiceImplTest {
         studentDTO.setImage(imageFile);
         when(userMapper.mapFromDto(studentDTO)).thenReturn(student);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-        when(studentRepository.save(any(Student.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class)))
+                .thenReturn("32.png");
+        when(studentRepository.save(any(Student.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         studentService.save(studentDTO);
 
@@ -70,7 +72,8 @@ class StudentServiceImplTest {
         Student student = createStudent();
         StudentDTO studentDTO = createStudentDTO();
         when(userMapper.mapFromDto(studentDTO)).thenReturn(student);
-        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString()))
+                .thenReturn("default.png");
 
         studentService.save(studentDTO);
 
@@ -102,7 +105,8 @@ class StudentServiceImplTest {
         Student existingStudent = createStudent();
         when(studentRepository.findById(id)).thenReturn(Optional.of(existingStudent));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class)))
+                .thenReturn("32.png");
 
         studentService.update(id, studentDTO);
 
@@ -190,7 +194,6 @@ class StudentServiceImplTest {
         assertThrows(RuntimeException.class, () -> studentService.findByIdDTO(id));
     }
 
-
     @Test
     void findById_ExistingStudent_ReturnStudent() {
         Long id = 1L;
@@ -254,4 +257,3 @@ class StudentServiceImplTest {
         return student;
     }
 }
-

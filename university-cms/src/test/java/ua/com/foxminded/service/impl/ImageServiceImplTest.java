@@ -1,5 +1,14 @@
 package ua.com.foxminded.service.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,16 +18,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.enums.Gender;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.stream.Stream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ImageServiceImplTest {
 
@@ -32,7 +31,8 @@ class ImageServiceImplTest {
         MockitoAnnotations.openMocks(this);
 
         ReflectionTestUtils.setField(imageService, "userProfileDirPath", USER_PROFILE_DIR);
-        ReflectionTestUtils.setField(imageService, "applicationImagesDirectory", APPLICATION_IMAGE_DIRECTORY);
+        ReflectionTestUtils.setField(
+                imageService, "applicationImagesDirectory", APPLICATION_IMAGE_DIRECTORY);
 
         try {
             Files.createDirectories(Paths.get(USER_PROFILE_DIR));
@@ -51,10 +51,7 @@ class ImageServiceImplTest {
     private void deleteDirectory(String directoryPath) throws IOException {
         Path path = Paths.get(directoryPath);
         try (Stream<Path> pathStream = Files.walk(path)) {
-            pathStream
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+            pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         }
     }
 
@@ -62,7 +59,8 @@ class ImageServiceImplTest {
     void saveUserImage_Success() {
         String userRole = "STUDENT";
         Long userId = 1L;
-        MultipartFile imageFile = new MockMultipartFile("test-image.png", "image.png", "image/png", new byte[10]);
+        MultipartFile imageFile =
+                new MockMultipartFile("test-image.png", "image.png", "image/png", new byte[10]);
 
         String imageName = imageService.saveUserImage(userRole, userId, imageFile);
 
@@ -118,7 +116,6 @@ class ImageServiceImplTest {
         assertThrows(RuntimeException.class, () -> imageService.saveUserImage(userRole, userId, null));
     }
 
-
     @Test
     void getDefaultUserImage_ExceptionThrown() {
         String userRole = "USER_ROLE";
@@ -131,4 +128,3 @@ class ImageServiceImplTest {
         assertThrows(RuntimeException.class, () -> imageService.readImageAsBytes(imageName));
     }
 }
-

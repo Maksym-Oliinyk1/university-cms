@@ -1,7 +1,9 @@
 package ua.com.foxminded.service;
 
-public interface EntityService<E> extends BaseService<E> {
-    void save(E e);
+import java.util.UUID;
 
-    void update(Long id, E e);
+public interface EntityService<D> extends BaseService<D> {
+  void save(D e);
+
+  void update(UUID id, D e);
 }

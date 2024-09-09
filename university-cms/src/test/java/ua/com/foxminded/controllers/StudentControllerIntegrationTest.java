@@ -40,11 +40,12 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
         Student student = createStudent();
         studentRepository.save(student);
 
-        MvcResult result = mvc.perform(get("/showStudent?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("student"))
-                .andExpect(model().attributeExists("student"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/showStudent?id=1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("student"))
+                        .andExpect(model().attributeExists("student"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -57,10 +58,11 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listStudents() throws Exception {
-        MvcResult result = mvc.perform(get("/listStudents"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-student"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listStudents"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-student"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -99,8 +101,7 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
     void createStudent_successful() throws Exception {
         StudentDTO studentDTO = createStudentDTO();
 
-        mvc.perform(post("/createStudent")
-                        .flashAttr("studentDTO", studentDTO))
+        mvc.perform(post("/createStudent").flashAttr("studentDTO", studentDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-student-successful"));
 
@@ -130,8 +131,7 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
         StudentDTO studentDTO = createStudentDTO();
         studentDTO.setFirstName(updatedStudentName);
 
-        mvc.perform(post("/updateStudent/1")
-                        .flashAttr("studentDTO", studentDTO))
+        mvc.perform(post("/updateStudent/1").flashAttr("studentDTO", studentDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-student-successful"));
 

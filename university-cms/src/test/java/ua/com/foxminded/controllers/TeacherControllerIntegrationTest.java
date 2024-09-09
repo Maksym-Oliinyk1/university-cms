@@ -20,7 +20,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class TeacherControllerIntegrationTest extends BaseIntegrationTest {
 
-
     @Test
     void teacherAuthorization() throws Exception {
         mvc.perform(get("/teacherAuthorization"))
@@ -48,10 +47,11 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listTeachers() throws Exception {
-        MvcResult result = mvc.perform(get("/listTeachers"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-teacher"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listTeachers"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-teacher"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -79,8 +79,7 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
     void createTeacher_successful() throws Exception {
         TeacherDTO teacherDTO = createTeacherDTO();
 
-        mvc.perform(post("/createTeacher")
-                        .flashAttr("teacherDTO", teacherDTO))
+        mvc.perform(post("/createTeacher").flashAttr("teacherDTO", teacherDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-teacher-successful"));
 
@@ -96,11 +95,12 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
         Teacher teacher = createTeacher();
         teacherRepository.save(teacher);
 
-        MvcResult result = mvc.perform(get("/updateFormTeacher/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-teacher"))
-                .andExpect(model().attributeExists("teacher"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/updateFormTeacher/1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("update-form-teacher"))
+                        .andExpect(model().attributeExists("teacher"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -121,8 +121,7 @@ class TeacherControllerIntegrationTest extends BaseIntegrationTest {
         TeacherDTO teacherDTO = createTeacherDTO();
         teacherDTO.setFirstName(updatedTeacherName);
 
-        mvc.perform(post("/updateTeacher/1")
-                        .flashAttr("teacherDTO", teacherDTO))
+        mvc.perform(post("/updateTeacher/1").flashAttr("teacherDTO", teacherDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-teacher-successful"));
 

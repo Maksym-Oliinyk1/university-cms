@@ -32,10 +32,13 @@ import static org.junit.Assert.assertEquals;
 public abstract class BaseIntegrationTest {
 
     @Container
-    protected static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    protected static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+
     protected static final Long DEFAULT_ID = 1L;
 
-    protected static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/student_male.png");
+    protected static final Path TEST_IMAGE_PATH =
+            Path.of("src/test/resources/images/student_male.png");
 
     @Autowired
     protected GroupRepository groupRepository;
@@ -71,7 +74,6 @@ public abstract class BaseIntegrationTest {
         assertEquals(LocalDate.of(1995, 11, 6), user.getBirthDate());
         assertEquals(Gender.MALE, user.getGender());
     }
-
 
     protected User createUserCommonFields(User user) {
         user.setFirstName("John");
@@ -178,7 +180,8 @@ public abstract class BaseIntegrationTest {
         Lecture lecture = new Lecture();
         lecture.setId(DEFAULT_ID);
         lecture.setName("Introduction to Programming");
-        lecture.setDescription("Test.Introduction to Programming.Test.Test.Introduction to Programming.Test.");
+        lecture.setDescription(
+                "Test.Introduction to Programming.Test.Test.Introduction to Programming.Test.");
         lecture.setCourse(savedCourse());
         lecture.setTeacher(savedTeacher());
         lecture.setDate(LocalDateTime.of(2025, 4, 23, 8, 30, 0));
@@ -214,5 +217,4 @@ public abstract class BaseIntegrationTest {
         faculty.setName("Testfaculty");
         return facultyRepository.save(faculty);
     }
-
 }

@@ -16,17 +16,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @Testcontainers
 @SpringBootTest
 class GroupControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listGroups() throws Exception {
-        MvcResult result = mvc.perform(get("/listGroups"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-group"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listGroups"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-group"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -76,8 +76,7 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
     void createGroup_successful() throws Exception {
         Group group = createGroup();
 
-        mvc.perform(post("/createGroup")
-                        .flashAttr("group", group))
+        mvc.perform(post("/createGroup").flashAttr("group", group))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-group-successful"));
 
@@ -106,8 +105,7 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
         Group updatedGroup = new Group();
         updatedGroup.setName(updatedGroupName);
 
-        mvc.perform(post("/updateGroup/1")
-                        .flashAttr("group", updatedGroup))
+        mvc.perform(post("/updateGroup/1").flashAttr("group", updatedGroup))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-group-successful"));
 
@@ -127,5 +125,4 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
 
         assertFalse(groupRepository.findById(1L).isPresent());
     }
-
 }

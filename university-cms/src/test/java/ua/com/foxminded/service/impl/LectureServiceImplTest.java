@@ -45,8 +45,14 @@ class LectureServiceImplTest {
     void saveLecture_ValidNameAndDescription_Success() {
         Course testCourse = new Course();
         Teacher testTeacher = new Teacher();
-        Lecture lecture = new Lecture(1L, testCourse, testTeacher, "Math101",
-                "Mathematics is the universal language of patterns.", LocalDateTime.now());
+        Lecture lecture =
+                new Lecture(
+                        1L,
+                        testCourse,
+                        testTeacher,
+                        "Math101",
+                        "Mathematics is the universal language of patterns.",
+                        LocalDateTime.now());
         when(lectureRepository.save(any(Lecture.class))).thenReturn(lecture);
 
         lectureService.save(lecture);
@@ -61,8 +67,22 @@ class LectureServiceImplTest {
         Course course = new Course();
         LocalDateTime specificDate = LocalDateTime.of(2023, 1, 1, 12, 0);
 
-        Lecture existingLecture = new Lecture(id, course, teacher, "Lecture A", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do", specificDate);
-        Lecture updatedLecture = new Lecture(null, null, null, "Lecture B", "Ut enim ad minim veniam, quis nostrud exercitation ullamco", specificDate);
+        Lecture existingLecture =
+                new Lecture(
+                        id,
+                        course,
+                        teacher,
+                        "Lecture A",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
+                        specificDate);
+        Lecture updatedLecture =
+                new Lecture(
+                        null,
+                        null,
+                        null,
+                        "Lecture B",
+                        "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+                        specificDate);
 
         when(lectureRepository.findById(id)).thenReturn(Optional.of(existingLecture));
 
@@ -70,12 +90,21 @@ class LectureServiceImplTest {
 
         verify(lectureRepository, times(1)).save(existingLecture);
         assertEquals("Lecture B", existingLecture.getName());
-        assertEquals("Ut enim ad minim veniam, quis nostrud exercitation ullamco", existingLecture.getDescription());
+        assertEquals(
+                "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+                existingLecture.getDescription());
     }
 
     @Test
     void updateLecture_NullId_ThrowsException() {
-        Lecture updatedLecture = new Lecture(null, null, null, "Lecture B", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do", LocalDateTime.now());
+        Lecture updatedLecture =
+                new Lecture(
+                        null,
+                        null,
+                        null,
+                        "Lecture B",
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
+                        LocalDateTime.now());
 
         assertThrows(RuntimeException.class, () -> lectureService.update(null, updatedLecture));
 
@@ -94,7 +123,14 @@ class LectureServiceImplTest {
     @Test
     void deleteLecture_Exists_Success() {
         Long id = 1L;
-        Lecture lecture = new Lecture(id, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
+        Lecture lecture =
+                new Lecture(
+                        id,
+                        null,
+                        null,
+                        "Introduction to Java",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now());
         when(lectureRepository.existsById(id)).thenReturn(true);
         when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
 
@@ -118,7 +154,14 @@ class LectureServiceImplTest {
     @Test
     void findByIdLecture_Exists_Success() {
         Long id = 1L;
-        Lecture lecture = new Lecture(id, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
+        Lecture lecture =
+                new Lecture(
+                        id,
+                        null,
+                        null,
+                        "Introduction to Java",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now());
         when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
 
         Lecture result = lectureService.findById(id);
@@ -138,8 +181,22 @@ class LectureServiceImplTest {
     @Test
     void findAllLecturesToPage_Success() {
         List<Lecture> lectures = new ArrayList<>();
-        lectures.add(new Lecture(1L, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now()));
-        lectures.add(new Lecture(2L, null, null, "Advanced Java Concepts", "This is a valid description about Java course for beginners", LocalDateTime.now()));
+        lectures.add(
+                new Lecture(
+                        1L,
+                        null,
+                        null,
+                        "Introduction to Java",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now()));
+        lectures.add(
+                new Lecture(
+                        2L,
+                        null,
+                        null,
+                        "Advanced Java Concepts",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now()));
         when(lectureRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(lectures));
 
         Pageable pageable = PageRequest.of(0, 10);
@@ -153,7 +210,14 @@ class LectureServiceImplTest {
         Long groupId = 1L;
         Long lectureId = 2L;
         Group group = new Group(groupId, "AB-12");
-        Lecture lecture = new Lecture(lectureId, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
+        Lecture lecture =
+                new Lecture(
+                        lectureId,
+                        null,
+                        null,
+                        "Introduction to Java",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now());
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
 
@@ -170,7 +234,14 @@ class LectureServiceImplTest {
         Long groupId = 1L;
         Long lectureId = 2L;
         Group group = new Group(groupId, "AB-12");
-        Lecture lecture = new Lecture(lectureId, null, null, "Introduction to Java", "This is a valid description about Java course for beginners", LocalDateTime.now());
+        Lecture lecture =
+                new Lecture(
+                        lectureId,
+                        null,
+                        null,
+                        "Introduction to Java",
+                        "This is a valid description about Java course for beginners",
+                        LocalDateTime.now());
         lecture.getGroups().add(group);
         group.getLectures().add(lecture);
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
@@ -184,4 +255,3 @@ class LectureServiceImplTest {
         verify(groupRepository, times(1)).save(group);
     }
 }
-

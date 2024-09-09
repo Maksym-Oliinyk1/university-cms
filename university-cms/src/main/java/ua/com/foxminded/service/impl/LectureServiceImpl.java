@@ -32,7 +32,6 @@ public class LectureServiceImpl implements LectureService {
         this.groupRepository = groupRepository;
     }
 
-
     @Override
     @Transactional
     public void save(Lecture lecture) {
@@ -84,7 +83,6 @@ public class LectureServiceImpl implements LectureService {
         }
     }
 
-
     @Override
     @Transactional
     public void delete(Long id) {
@@ -128,12 +126,9 @@ public class LectureServiceImpl implements LectureService {
     @Override
     @Transactional
     public void attachGroupToLecture(Long groupId, Long lectureId) {
-        Lecture lecture = lectureRepository
-                .findById(lectureId)
-                .orElseThrow(EntityNotFoundException::new);
-        Group group = groupRepository
-                .findById(groupId)
-                .orElseThrow(EntityNotFoundException::new);
+        Lecture lecture =
+                lectureRepository.findById(lectureId).orElseThrow(EntityNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
 
         lecture.getGroups().add(group);
         group.getLectures().add(lecture);
@@ -145,12 +140,9 @@ public class LectureServiceImpl implements LectureService {
     @Override
     @Transactional
     public void detachGroupFromLecture(Long groupId, Long lectureId) {
-        Lecture lecture = lectureRepository
-                .findById(lectureId)
-                .orElseThrow(EntityNotFoundException::new);
-        Group group = groupRepository
-                .findById(groupId)
-                .orElseThrow(EntityNotFoundException::new);
+        Lecture lecture =
+                lectureRepository.findById(lectureId).orElseThrow(EntityNotFoundException::new);
+        Group group = groupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
 
         lecture.getGroups().remove(group);
         group.getLectures().remove(lecture);

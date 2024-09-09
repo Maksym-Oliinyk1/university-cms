@@ -26,7 +26,6 @@ public class CourseServiceImpl implements CourseService {
     public void save(Course course) {
         courseRepository.save(course);
         logger.info("Saved course: {}", course.getName());
-
     }
 
     @Override
