@@ -1,6 +1,7 @@
 package ua.com.foxminded.controllers.admin;
 
 
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,6 @@ import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.security.AuthenticationResponse;
 import ua.com.foxminded.security.JwtService;
 import ua.com.foxminded.service.AdministratorService;
-
-import javax.validation.Valid;
 
 import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
 import static ua.com.foxminded.utill.UtilController.extractToken;
