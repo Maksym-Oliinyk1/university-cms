@@ -3,6 +3,7 @@ package ua.com.foxminded.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.AdministratorDTO;
@@ -13,8 +14,10 @@ import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.UserEmailService;
 import ua.com.foxminded.service.UserMapper;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AdministratorServiceImpl implements AdministratorService {
@@ -93,7 +96,8 @@ public class AdministratorServiceImpl implements AdministratorService {
 
   @Override
   public void delete(UUID id) {
-    Administrator administrator = findById(id);
+    AdministratorDTO administratorDto = findById(id);
+    Administrator administrator = userMapper.mapFromDto(administratorDto);
     imageService.deleteUserImage(administrator.getImageName());
     administratorRepository.deleteById(id);
     logger.info("Admin was deleted by id: {}", id);
@@ -120,25 +124,32 @@ public class AdministratorServiceImpl implements AdministratorService {
   }
 
   @Override
-  public Administrator findById(UUID id) {
+  public AdministratorDTO findById(UUID id) {
     Optional<Administrator> optionalAdministrator = administratorRepository.findById(id);
     if (optionalAdministrator.isPresent()) {
       logger.info("The administrator was found by id: {}", id);
-      return optionalAdministrator.get();
+      return userMapper.mapToDto(optionalAdministrator.get());
     } else {
       throw new RuntimeException("There is no such administrator");
     }
   }
 
   @Override
-  public Page<Administrator> findAll(Pageable pageable) {
+  public Page<AdministratorDTO> findAll(Pageable pageable) {
     int pageNumber = pageable.getPageNumber();
     int pageSize = pageable.getPageSize();
     int from = pageNumber * pageSize;
     int to = from + pageSize;
     logger.info("Find administrators from {} to {}", from, to);
-    return administratorRepository.findAll(pageable);
+
+    Page<Administrator> administratorsPage = administratorRepository.findAll(pageable);
+    List<AdministratorDTO> administratorDtoList = administratorsPage.stream()
+            .map(userMapper::mapToDto)
+            .collect(Collectors.toList());
+
+    return new PageImpl<>(administratorDtoList, pageable, administratorsPage.getTotalElements());
   }
+
 
   @Override
   public Long count() {

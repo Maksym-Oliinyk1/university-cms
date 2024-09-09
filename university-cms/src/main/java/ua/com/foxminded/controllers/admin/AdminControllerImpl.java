@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.com.foxminded.controllers.AdminController;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.service.AdministratorService;
 
@@ -11,11 +12,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin")
-public class AdminController {
+public class AdminControllerImpl implements AdminController {
 
   private final AdministratorService administratorService;
 
-  public AdminController(AdministratorService administratorService) {
+  public AdminControllerImpl(AdministratorService administratorService) {
     this.administratorService = administratorService;
   }
 

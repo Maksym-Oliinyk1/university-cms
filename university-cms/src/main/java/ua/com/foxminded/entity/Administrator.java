@@ -7,13 +7,14 @@ import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "administrators")
 public class Administrator extends User {
 
   public Administrator(
-          Long id,
+          UUID id,
           String firstName,
           String lastName,
           Gender gender,
