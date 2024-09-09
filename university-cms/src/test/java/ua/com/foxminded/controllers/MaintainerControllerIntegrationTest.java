@@ -32,11 +32,12 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         Maintainer maintainer = createMaintainer();
         maintainerRepository.save(maintainer);
 
-        MvcResult result = mvc.perform(get("/showMaintainer?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("maintainer"))
-                .andExpect(model().attributeExists("maintainer"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/showMaintainer?id=1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("maintainer"))
+                        .andExpect(model().attributeExists("maintainer"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -49,10 +50,11 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listMaintainers() throws Exception {
-        MvcResult result = mvc.perform(get("/listMaintainers"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-maintainer"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listMaintainers"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-maintainer"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -80,8 +82,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
     void createMaintainer_successful() throws Exception {
         MaintainerDTO maintainerDTO = createMaintainerDTO();
 
-        mvc.perform(post("/createMaintainer")
-                        .flashAttr("maintainerDTO", maintainerDTO))
+        mvc.perform(post("/createMaintainer").flashAttr("maintainerDTO", maintainerDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-maintainer-successful"));
 
@@ -111,8 +112,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         maintainerDTO.setFirstName(updatedMaintainerName);
 
-        mvc.perform(post("/updateMaintainer/1")
-                        .flashAttr("maintainerDTO", maintainerDTO))
+        mvc.perform(post("/updateMaintainer/1").flashAttr("maintainerDTO", maintainerDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-maintainer-successful"))
                 .andExpect(model().attributeExists("maintainerId"));
@@ -128,8 +128,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         Maintainer maintainer = createMaintainer();
         maintainerRepository.save(maintainer);
 
-        mvc.perform(post("/deleteMaintainer")
-                        .param("id", "1"))
+        mvc.perform(post("/deleteMaintainer").param("id", "1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("delete-form-maintainer-successful"));
 

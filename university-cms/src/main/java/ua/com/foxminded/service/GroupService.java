@@ -13,7 +13,8 @@ public interface GroupService extends EntityService<Group> {
 
     void detachStudentFromGroup(Long studentId, Long groupId);
 
-    List<Lecture> showLecturesBetweenDates(Long groupId, LocalDateTime firstDate, LocalDateTime secondDate);
+    List<Lecture> showLecturesBetweenDates(
+            Long groupId, LocalDateTime firstDate, LocalDateTime secondDate);
 
     Page<Group> findAllByLecture(Long lectureId, Pageable pageable);
 }

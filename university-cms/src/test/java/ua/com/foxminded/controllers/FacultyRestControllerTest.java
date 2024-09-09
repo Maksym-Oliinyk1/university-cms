@@ -34,19 +34,17 @@ class FacultyRestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-
     @Test
     void getFaculties_ShouldReturnListOfFaculties() throws Exception {
-        List<Faculty> mockFaculties = Arrays.asList(
-                createFaculty(1L, "Engineering"),
-                createFaculty(2L, "Science")
-        );
+        List<Faculty> mockFaculties =
+                Arrays.asList(createFaculty(1L, "Engineering"), createFaculty(2L, "Science"));
 
         Page<Faculty> mockFacultyPage = new PageImpl<>(mockFaculties);
 
         when(facultyService.findAll(any(PageRequest.class))).thenReturn(mockFacultyPage);
 
-        mockMvc.perform(get("/getListFaculties"))
+        mockMvc
+                .perform(get("/getListFaculties"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id", is(1)))

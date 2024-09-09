@@ -16,10 +16,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-
-@DataJpaTest(includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
-        GroupRepository.class
-}))
+@DataJpaTest(
+        includeFilters =
+        @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = {GroupRepository.class}))
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @Testcontainers
@@ -33,7 +34,8 @@ class GroupRepositoryTest extends BaseTest {
         LocalDateTime startDateTime = LocalDateTime.of(2023, 12, 1, 13, 0);
         LocalDateTime endDateTime = LocalDateTime.of(2023, 12, 4, 15, 0);
 
-        List<Lecture> actualLectures = groupRepository.findLecturesByDateBetween(3L, startDateTime, endDateTime);
+        List<Lecture> actualLectures =
+                groupRepository.findLecturesByDateBetween(3L, startDateTime, endDateTime);
 
         assertNotNull(actualLectures);
         assertEquals(1, actualLectures.size());

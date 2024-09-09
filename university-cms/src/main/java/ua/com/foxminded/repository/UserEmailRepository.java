@@ -10,21 +10,20 @@ import java.util.Optional;
 @Repository
 public interface UserEmailRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT DISTINCT " +
-            "CASE " +
-            "WHEN s.email = :searchEmail THEN s " +
-            "WHEN t.email = :searchEmail THEN t " +
-            "WHEN a.email = :searchEmail THEN a " +
-            "WHEN m.email = :searchEmail THEN m " +
-            "END " +
-            "FROM " +
-            "Student s " +
-            "LEFT JOIN Teacher t ON s.email = t.email " +
-            "LEFT JOIN Administrator a ON s.email = a.email " +
-            "LEFT JOIN Maintainer m ON s.email = m.email " +
-            "WHERE " +
-            "s.email = :searchEmail OR t.email = :searchEmail OR a.email = :searchEmail OR m.email = :searchEmail")
+    @Query(
+            "SELECT DISTINCT "
+                    + "CASE "
+                    + "WHEN s.email = :searchEmail THEN s "
+                    + "WHEN t.email = :searchEmail THEN t "
+                    + "WHEN a.email = :searchEmail THEN a "
+                    + "WHEN m.email = :searchEmail THEN m "
+                    + "END "
+                    + "FROM "
+                    + "Student s "
+                    + "LEFT JOIN Teacher t ON s.email = t.email "
+                    + "LEFT JOIN Administrator a ON s.email = a.email "
+                    + "LEFT JOIN Maintainer m ON s.email = m.email "
+                    + "WHERE "
+                    + "s.email = :searchEmail OR t.email = :searchEmail OR a.email = :searchEmail OR m.email = :searchEmail")
     Optional<User> findByEmail(String searchEmail);
-
-
 }

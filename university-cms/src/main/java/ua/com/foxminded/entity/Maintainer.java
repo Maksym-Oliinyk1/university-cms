@@ -4,7 +4,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
@@ -52,21 +51,21 @@ public class Maintainer extends User {
         return true;
     }
 
-    public Maintainer(Long id,
-                      String firstName,
-                      String lastName,
-                      Gender gender,
-                      LocalDate birthDate,
-                      String email,
-                      String imageName,
-                      String password,
-                      Authorities authority) {
+    public Maintainer(
+            Long id,
+            String firstName,
+            String lastName,
+            Gender gender,
+            LocalDate birthDate,
+            String email,
+            String imageName,
+            String password,
+            Authorities authority) {
         super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
         this.id = id;
     }
 
     public Maintainer() {
-
     }
 
     public Long getId() {
@@ -90,13 +89,17 @@ public class Maintainer extends User {
         return Objects.hash(id, firstName, lastName);
     }
 
-
     @Override
     public String toString() {
-        return "Maintainer{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
+        return "Maintainer{"
+                + "id="
+                + id
+                + ", firstName='"
+                + firstName
+                + '\''
+                + ", lastName='"
+                + lastName
+                + '\''
+                + '}';
     }
 }

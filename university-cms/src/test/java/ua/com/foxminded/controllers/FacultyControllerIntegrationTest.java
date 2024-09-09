@@ -21,11 +21,12 @@ class FacultyControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listFaculties() throws Exception {
-        MvcResult result = mvc.perform(get("/listFaculties?pageNumber=0"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-faculty"))
-                .andExpect(model().attributeExists("faculties", "pageNumber", "totalPages"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listFaculties?pageNumber=0"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-faculty"))
+                        .andExpect(model().attributeExists("faculties", "pageNumber", "totalPages"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -64,8 +65,7 @@ class FacultyControllerIntegrationTest extends BaseIntegrationTest {
     void createFaculty_successful() throws Exception {
         Faculty faculty = createFaculty();
 
-        mvc.perform(post("/createFaculty")
-                        .flashAttr("faculty", faculty))
+        mvc.perform(post("/createFaculty").flashAttr("faculty", faculty))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-faculty-successful"));
 
@@ -94,8 +94,7 @@ class FacultyControllerIntegrationTest extends BaseIntegrationTest {
         Faculty updatedFaculty = new Faculty();
         updatedFaculty.setName(updatedFacultyName);
 
-        mvc.perform(post("/updateFaculty/1")
-                        .flashAttr("faculty", updatedFaculty))
+        mvc.perform(post("/updateFaculty/1").flashAttr("faculty", updatedFaculty))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-faculty-successful"));
 

@@ -36,8 +36,8 @@ class GroupControllerTest {
 
     @Test
     void createGroup_ValidInput_ShouldReturnCreateFormGroupSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createGroup")
-                        .param("name", "AB-12"))
+        mockMvc
+                .perform(post("/createGroup").param("name", "AB-12"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-group-successful"));
 
@@ -46,8 +46,7 @@ class GroupControllerTest {
 
     @Test
     void createGroup_InvalidInput_ShouldReturnCreateFormGroupPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createGroup"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/createGroup")).andExpect(status().isBadRequest());
 
         verify(groupService, never()).save(any());
     }
@@ -56,8 +55,8 @@ class GroupControllerTest {
     void updateGroup_ValidInput_ShouldReturnUpdateFormGroupSuccessfulPage() throws Exception {
         Long groupId = 1L;
 
-        mockMvc.perform(post("/updateGroup/{id}", groupId)
-                        .param("name", "BC-23"))
+        mockMvc
+                .perform(post("/updateGroup/{id}", groupId).param("name", "BC-23"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-group-successful"))
                 .andExpect(model().attributeExists("groupId"))
@@ -70,15 +69,15 @@ class GroupControllerTest {
     void updateGroup_InvalidInput_ShouldReturnUpdateFormGroupPageWithErrors() throws Exception {
         Long groupId = 1L;
 
-        mockMvc.perform(post("/updateGroup/{id}", groupId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateGroup/{id}", groupId)).andExpect(status().isBadRequest());
 
         verify(groupService, never()).update(eq(groupId), any());
     }
 
     @Test
     void manageGroup_ShouldReturnManageGroupPage() throws Exception {
-        mockMvc.perform(get("/manageGroup"))
+        mockMvc
+                .perform(get("/manageGroup"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-group"));
     }
@@ -89,8 +88,8 @@ class GroupControllerTest {
         Group mockGroup = new Group();
         when(groupService.findById(groupId)).thenReturn(mockGroup);
 
-        mockMvc.perform(get("/showGroup")
-                        .param("id", String.valueOf(groupId)))
+        mockMvc
+                .perform(get("/showGroup").param("id", String.valueOf(groupId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("group"))
                 .andExpect(model().attributeExists("group"))
@@ -105,7 +104,8 @@ class GroupControllerTest {
         when(mockGroupPage.getContent()).thenReturn(Collections.emptyList());
         when(groupService.findAll(any())).thenReturn(mockGroupPage);
 
-        mockMvc.perform(get("/listGroups"))
+        mockMvc
+                .perform(get("/listGroups"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-group"))
                 .andExpect(model().attributeExists("groups"))
@@ -119,7 +119,8 @@ class GroupControllerTest {
     void deleteGroup_ValidId_ShouldReturnDeleteFormGroupSuccessfulPage() throws Exception {
         Long groupId = 1L;
 
-        mockMvc.perform(post("/deleteGroup/{id}", groupId))
+        mockMvc
+                .perform(post("/deleteGroup/{id}", groupId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-group-successful"));
 
@@ -131,9 +132,11 @@ class GroupControllerTest {
         Long studentId = 1L;
         Long groupId = 1L;
 
-        mockMvc.perform(post("/attachStudentToGroup")
-                        .param("studentId", String.valueOf(studentId))
-                        .param("groupId", String.valueOf(groupId)))
+        mockMvc
+                .perform(
+                        post("/attachStudentToGroup")
+                                .param("studentId", String.valueOf(studentId))
+                                .param("groupId", String.valueOf(groupId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-student"));
 
@@ -145,9 +148,11 @@ class GroupControllerTest {
         Long studentId = 1L;
         Long groupId = 1L;
 
-        mockMvc.perform(post("/detachStudentFromGroup")
-                        .param("studentId", String.valueOf(studentId))
-                        .param("groupId", String.valueOf(groupId)))
+        mockMvc
+                .perform(
+                        post("/detachStudentFromGroup")
+                                .param("studentId", String.valueOf(studentId))
+                                .param("groupId", String.valueOf(groupId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-group"));
 

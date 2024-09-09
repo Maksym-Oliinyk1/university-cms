@@ -6,8 +6,10 @@ import org.springframework.stereotype.Repository;
 import ua.com.foxminded.entity.Administrator;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface AdministratorRepository extends PagingAndSortingRepository<Administrator, Long>, CrudRepository<Administrator, Long> {
-    Optional<Administrator> findByEmail(String email);
+public interface AdministratorRepository
+        extends PagingAndSortingRepository<Administrator, UUID>, CrudRepository<Administrator, UUID> {
+  Optional<Administrator> findByEmail(String email);
 }

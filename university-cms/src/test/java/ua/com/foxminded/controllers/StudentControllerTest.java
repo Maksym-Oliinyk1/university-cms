@@ -38,14 +38,16 @@ class StudentControllerTest {
 
     @Test
     void studentAuthorization_ShouldReturnStudentAuthorizationPage() throws Exception {
-        mockMvc.perform(get("/studentAuthorization"))
+        mockMvc
+                .perform(get("/studentAuthorization"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("mock-student-authorization"));
     }
 
     @Test
     void manageStudent_ShouldReturnManageStudentPage() throws Exception {
-        mockMvc.perform(get("/manageStudent"))
+        mockMvc
+                .perform(get("/manageStudent"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-student"));
     }
@@ -56,8 +58,8 @@ class StudentControllerTest {
         Student mockStudent = createMockStudentWithGroup();
         when(studentService.findById(studentId)).thenReturn(mockStudent);
 
-        mockMvc.perform(get("/showStudent")
-                        .param("id", String.valueOf(studentId)))
+        mockMvc
+                .perform(get("/showStudent").param("id", String.valueOf(studentId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("student"))
                 .andExpect(model().attributeExists("student"))
@@ -72,7 +74,8 @@ class StudentControllerTest {
         when(mockStudentPage.getContent()).thenReturn(Collections.emptyList());
         when(studentService.findAll(any())).thenReturn(mockStudentPage);
 
-        mockMvc.perform(get("/listStudents"))
+        mockMvc
+                .perform(get("/listStudents"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-student"))
                 .andExpect(model().attributeExists("students"))
@@ -89,9 +92,11 @@ class StudentControllerTest {
         Page<Student> mockStudentPage = mock(Page.class);
         when(mockStudentPage.getContent()).thenReturn(Collections.emptyList());
         when(groupService.findById(groupId)).thenReturn(mockGroup);
-        when(studentService.findAllStudentByGroup(groupId, PageRequest.of(0, 10))).thenReturn(mockStudentPage);
+        when(studentService.findAllStudentByGroup(groupId, PageRequest.of(0, 10)))
+                .thenReturn(mockStudentPage);
 
-        mockMvc.perform(get("/listStudentsByGroup/{groupId}", groupId))
+        mockMvc
+                .perform(get("/listStudentsByGroup/{groupId}", groupId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("group"))
                 .andExpect(model().attributeExists("group"))
@@ -105,12 +110,14 @@ class StudentControllerTest {
 
     @Test
     void createStudent_ValidInput_ShouldReturnCreateFormStudentSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createStudent")
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/createStudent")
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-student-successful"));
 
@@ -119,8 +126,7 @@ class StudentControllerTest {
 
     @Test
     void createStudent_InvalidInput_ShouldReturnCreateFormStudentPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createStudent"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/createStudent")).andExpect(status().isBadRequest());
 
         verify(studentService, never()).save(any());
     }
@@ -132,7 +138,8 @@ class StudentControllerTest {
 
         when(studentService.findByIdDTO(studentId)).thenReturn(mockStudentDTO);
 
-        mockMvc.perform(get("/updateFormStudent/{id}", studentId))
+        mockMvc
+                .perform(get("/updateFormStudent/{id}", studentId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-student"))
                 .andExpect(model().attributeExists("student"))
@@ -145,12 +152,14 @@ class StudentControllerTest {
     void updateStudent_ValidInput_ShouldReturnUpdateFormStudentSuccessfulPage() throws Exception {
         Long studentId = 1L;
 
-        mockMvc.perform(post("/updateStudent/{id}", studentId)
-                        .param("firstName", "John")
-                        .param("lastName", "Doe")
-                        .param("gender", "MALE")
-                        .param("birthDate", "1990-01-01")
-                        .param("email", "john.doe@example.com"))
+        mockMvc
+                .perform(
+                        post("/updateStudent/{id}", studentId)
+                                .param("firstName", "John")
+                                .param("lastName", "Doe")
+                                .param("gender", "MALE")
+                                .param("birthDate", "1990-01-01")
+                                .param("email", "john.doe@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-student-successful"));
 
@@ -161,8 +170,7 @@ class StudentControllerTest {
     void updateStudent_InvalidInput_ShouldReturnUpdateFormStudentPageWithErrors() throws Exception {
         Long studentId = 1L;
 
-        mockMvc.perform(post("/updateStudent/{id}", studentId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateStudent/{id}", studentId)).andExpect(status().isBadRequest());
 
         verify(studentService, never()).update(eq(studentId), any());
     }
@@ -171,7 +179,8 @@ class StudentControllerTest {
     void deleteStudent_ValidId_ShouldReturnDeleteFormStudentSuccessfulPage() throws Exception {
         Long studentId = 1L;
 
-        mockMvc.perform(post("/deleteStudent/{id}", studentId))
+        mockMvc
+                .perform(post("/deleteStudent/{id}", studentId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-student-successful"));
 

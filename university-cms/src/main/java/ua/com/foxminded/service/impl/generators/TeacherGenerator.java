@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.enums.Authorities;
-import ua.com.foxminded.security.AuthenticationService;
 import ua.com.foxminded.service.TeacherService;
 
 import java.util.ArrayList;
@@ -17,14 +16,14 @@ public class TeacherGenerator extends DataGenerator {
     private static final Logger logger = LoggerFactory.getLogger(TeacherGenerator.class);
     private static final String ACADEMIC_DEGREES_DIRECTORY = "/populate/education_degrees";
 
-    private static final List<String> ACADEMIC_DEGREES = readFilePerOneLine(ACADEMIC_DEGREES_DIRECTORY);
-
+    private static final List<String> ACADEMIC_DEGREES =
+            readFilePerOneLine(ACADEMIC_DEGREES_DIRECTORY);
 
     private static final int AMOUNT_OF_TEACHERS = 30;
 
     private final TeacherService teacherService;
 
-    public TeacherGenerator(TeacherService teacherService ) {
+    public TeacherGenerator(TeacherService teacherService) {
         this.teacherService = teacherService;
     }
 

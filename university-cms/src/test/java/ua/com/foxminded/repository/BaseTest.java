@@ -23,7 +23,8 @@ import javax.sql.DataSource;
 @ComponentScan("ua.com.foxminded.repository")
 public abstract class BaseTest {
     @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
+    private static final PostgreSQLContainer<?> postgreSQLContainer =
+            new PostgreSQLContainer<>("postgres:16");
 
     @Autowired
     protected DataSource dataSource;
@@ -42,7 +43,8 @@ public abstract class BaseTest {
     protected void initStartScript() {
         Resource scriptDataSchema = new ClassPathResource("/schema.sql");
         Resource scriptTestData = new ClassPathResource("/generate_data_for_tests.sql");
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(scriptDataSchema, scriptTestData);
+        ResourceDatabasePopulator populator =
+                new ResourceDatabasePopulator(scriptDataSchema, scriptTestData);
         populator.execute(dataSource);
     }
 

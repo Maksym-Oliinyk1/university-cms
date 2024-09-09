@@ -40,7 +40,8 @@ public class CourseGenerator extends DataGenerator {
     private void generateCourses() {
         for (int i = 0; i < AMOUNT_OF_COURSES; i++) {
             String courseName = COURSE_NAMES.get(random.nextInt(COURSE_NAMES.size()));
-            Faculty randomFaculty = facultyService.findById(Math.abs(random.nextLong() % AMOUNT_OF_FACULTIES) + 1);
+            Faculty randomFaculty =
+                    facultyService.findById(Math.abs(random.nextLong() % AMOUNT_OF_FACULTIES) + 1);
 
             Course course = new Course(null, courseName, randomFaculty);
             logger.info("Created course: {}", course.getName());

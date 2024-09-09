@@ -3,8 +3,6 @@ package ua.com.foxminded.service.impl.generators;
 import org.hibernate.engine.jdbc.ReaderInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.UserDTO;
 import ua.com.foxminded.enums.Gender;
@@ -18,7 +16,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-
 @Service
 public abstract class DataGenerator {
     private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
@@ -26,20 +23,26 @@ public abstract class DataGenerator {
     private static final String EMAIL_DOMAIN = "@example.com";
     private static final String FIRST_NAMES_FOR_USERS_DIRECTORY = "/populate/first_names";
     private static final String LAST_NAMES_FOR_USER_DIRECTORY = "/populate/last_names";
-    private static final List<String> FIRST_NAMES = readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
+    private static final List<String> FIRST_NAMES =
+            readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
     private static final List<String> LAST_NAMES = readFilePerOneLine(LAST_NAMES_FOR_USER_DIRECTORY);
     private static final String DEFAULT_PASSWORD = "111111111";
     protected final Random random = new Random();
 
-
     private static String generateRandomEmail(String firstName, String lastName) {
         String randomString = String.valueOf(System.currentTimeMillis());
-        return firstName.toLowerCase() + "." + lastName.toLowerCase() + "." + randomString + EMAIL_DOMAIN;
+        return firstName.toLowerCase()
+                + "."
+                + lastName.toLowerCase()
+                + "."
+                + randomString
+                + EMAIL_DOMAIN;
     }
 
     protected static List<String> readFilePerOneLine(String filePath) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                (ReaderInputStream.class.getResourceAsStream(filePath))))) {
+        try (BufferedReader br =
+                     new BufferedReader(
+                             new InputStreamReader((ReaderInputStream.class.getResourceAsStream(filePath))))) {
 
             return br.lines().collect(Collectors.toList());
 

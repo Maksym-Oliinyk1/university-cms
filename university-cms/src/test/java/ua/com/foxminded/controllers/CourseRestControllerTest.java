@@ -23,7 +23,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(CourseRestController.class)
 class CourseRestControllerTest {
@@ -36,15 +35,14 @@ class CourseRestControllerTest {
 
     @Test
     void getCourses_ShouldReturnListOfCourses() throws Exception {
-        List<Course> mockCourses = Arrays.asList(
-                createCourse(1L, "Course One"),
-                createCourse(2L, "Course Two")
-        );
+        List<Course> mockCourses =
+                Arrays.asList(createCourse(1L, "Course One"), createCourse(2L, "Course Two"));
 
         Page<Course> mockCoursePage = new PageImpl<>(mockCourses);
         when(courseService.findAll(any(PageRequest.class))).thenReturn(mockCoursePage);
 
-        mockMvc.perform(get("/getListCourses"))
+        mockMvc
+                .perform(get("/getListCourses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1))

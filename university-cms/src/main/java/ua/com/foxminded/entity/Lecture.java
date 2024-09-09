@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +19,22 @@ public class Lecture {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lecture_id")
     private Long id;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "course_id")
     @NotNull
     private Course course;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "teacher_id")
     @NotNull
     private Teacher teacher;
+
     @ManyToMany(mappedBy = "lectures")
     private List<Group> groups;
+
     @Column(name = "lecture_name")
     @NotNull
     private String name;
@@ -40,11 +43,18 @@ public class Lecture {
     @NotNull
     @Pattern(regexp = "^.{50,2000}$")
     private String description;
+
     @Column(name = "lecture_date")
     @NotNull
     private LocalDateTime date;
 
-    public Lecture(Long id, Course course, Teacher teacher, String name, String description, LocalDateTime date) {
+    public Lecture(
+            Long id,
+            Course course,
+            Teacher teacher,
+            String name,
+            String description,
+            LocalDateTime date) {
         this.id = id;
         this.course = course;
         this.teacher = teacher;
@@ -118,7 +128,9 @@ public class Lecture {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Lecture lecture = (Lecture) o;
-        return id.equals(lecture.id) && name.equals(lecture.name) && description.equals(lecture.description);
+        return id.equals(lecture.id)
+                && name.equals(lecture.name)
+                && description.equals(lecture.description);
     }
 
     @Override
@@ -126,14 +138,19 @@ public class Lecture {
         return Objects.hash(id, name, description);
     }
 
-
     @Override
     public String toString() {
-        return "Lecture{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", date=" + date +
-                '}';
+        return "Lecture{"
+                + "id="
+                + id
+                + ", name='"
+                + name
+                + '\''
+                + ", description='"
+                + description
+                + '\''
+                + ", date="
+                + date
+                + '}';
     }
 }

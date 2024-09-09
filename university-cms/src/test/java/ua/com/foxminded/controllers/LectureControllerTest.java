@@ -1,5 +1,12 @@
 package ua.com.foxminded.controllers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,14 +24,6 @@ import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.service.CourseService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
-
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(LectureController.class)
@@ -44,12 +43,14 @@ class LectureControllerTest {
 
     @Test
     void createLecture_ValidInput_ShouldReturnCreateFormLectureSuccessfulPage() throws Exception {
-        mockMvc.perform(post("/createLecture")
-                        .param("course.id", "1")
-                        .param("teacher.id", "1")
-                        .param("name", "LectureName")
-                        .param("description", "Valid Lecture Description.Valid Lecture Description")
-                        .param("date", "2024-02-24T12:00"))
+        mockMvc
+                .perform(
+                        post("/createLecture")
+                                .param("course.id", "1")
+                                .param("teacher.id", "1")
+                                .param("name", "LectureName")
+                                .param("description", "Valid Lecture Description.Valid Lecture Description")
+                                .param("date", "2024-02-24T12:00"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("create-form-lecture-successful"));
 
@@ -58,8 +59,7 @@ class LectureControllerTest {
 
     @Test
     void createLecture_InvalidInput_ShouldReturnCreateFormLecturePageWithErrors() throws Exception {
-        mockMvc.perform(post("/createLecture"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/createLecture")).andExpect(status().isBadRequest());
 
         verify(lectureService, never()).save(any());
     }
@@ -67,12 +67,14 @@ class LectureControllerTest {
     @Test
     void updateLecture_ValidInput_ShouldReturnUpdateFormLectureSuccessfulPage() throws Exception {
         Long lectureId = 1L;
-        mockMvc.perform(post("/updateLecture/{id}", lectureId)
-                        .param("course.id", "1")
-                        .param("teacher.id", "1")
-                        .param("name", "UpdatedLecture")
-                        .param("description", "Updated description between 50 and 2000 characters.")
-                        .param("date", "2023-01-01T11:00:00"))
+        mockMvc
+                .perform(
+                        post("/updateLecture/{id}", lectureId)
+                                .param("course.id", "1")
+                                .param("teacher.id", "1")
+                                .param("name", "UpdatedLecture")
+                                .param("description", "Updated description between 50 and 2000 characters.")
+                                .param("date", "2023-01-01T11:00:00"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("update-form-lecture-successful"))
                 .andExpect(model().attributeExists("lectureId"))
@@ -85,8 +87,7 @@ class LectureControllerTest {
     void updateLecture_InvalidInput_ShouldReturnUpdateFormLecturePageWithErrors() throws Exception {
         Long lectureId = 1L;
 
-        mockMvc.perform(post("/updateLecture/{id}", lectureId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateLecture/{id}", lectureId)).andExpect(status().isBadRequest());
 
         verify(lectureService, never()).update(eq(lectureId), any());
     }
@@ -97,8 +98,8 @@ class LectureControllerTest {
         Lecture mockLecture = createMockLecture();
         when(lectureService.findById(lectureId)).thenReturn(mockLecture);
 
-        mockMvc.perform(get("/showLecture")
-                        .param("id", String.valueOf(lectureId)))
+        mockMvc
+                .perform(get("/showLecture").param("id", String.valueOf(lectureId)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("lecture"))
                 .andExpect(model().attributeExists("lecture"))
@@ -113,7 +114,8 @@ class LectureControllerTest {
         when(mockLecturePage.getContent()).thenReturn(Collections.emptyList());
         when(lectureService.findAll(any())).thenReturn(mockLecturePage);
 
-        mockMvc.perform(get("/listLectures"))
+        mockMvc
+                .perform(get("/listLectures"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("manage-lecture"))
                 .andExpect(model().attributeExists("lectures"))
@@ -129,10 +131,12 @@ class LectureControllerTest {
         Page<Lecture> mockLecturePage = mock(Page.class);
         Course mockCourse = new Course();
         when(mockLecturePage.getContent()).thenReturn(Collections.emptyList());
-        when(lectureService.findAllByCourse(courseId, PageRequest.of(0, 10))).thenReturn(mockLecturePage);
+        when(lectureService.findAllByCourse(courseId, PageRequest.of(0, 10)))
+                .thenReturn(mockLecturePage);
         when(courseService.findById(courseId)).thenReturn(mockCourse);
 
-        mockMvc.perform(get("/listLecturesByCourse/{courseId}", courseId))
+        mockMvc
+                .perform(get("/listLecturesByCourse/{courseId}", courseId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("course"))
                 .andExpect(model().attributeExists("lectures"))
@@ -154,7 +158,8 @@ class LectureControllerTest {
         when(lectureService.findAllByGroup(groupId, PageRequest.of(0, 10))).thenReturn(mockLecturePage);
         when(groupService.findById(groupId)).thenReturn(mockGroup);
 
-        mockMvc.perform(get("/listLecturesByGroup/{groupId}", groupId))
+        mockMvc
+                .perform(get("/listLecturesByGroup/{groupId}", groupId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("group"))
                 .andExpect(model().attributeExists("lectures"))
@@ -172,9 +177,11 @@ class LectureControllerTest {
         Long groupId = 1L;
         Long lectureId = 1L;
 
-        mockMvc.perform(post("/attachGroupToLecture")
-                        .param("groupId", String.valueOf(groupId))
-                        .param("lectureId", String.valueOf(lectureId)))
+        mockMvc
+                .perform(
+                        post("/attachGroupToLecture")
+                                .param("groupId", String.valueOf(groupId))
+                                .param("lectureId", String.valueOf(lectureId)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Group attached to lecture successfully"));
 
@@ -186,9 +193,11 @@ class LectureControllerTest {
         Long groupId = 1L;
         Long lectureId = 1L;
 
-        mockMvc.perform(post("/detachGroupFromLecture")
-                        .param("groupId", String.valueOf(groupId))
-                        .param("lectureId", String.valueOf(lectureId)))
+        mockMvc
+                .perform(
+                        post("/detachGroupFromLecture")
+                                .param("groupId", String.valueOf(groupId))
+                                .param("lectureId", String.valueOf(lectureId)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Group detached from lecture successfully"));
 
@@ -197,8 +206,7 @@ class LectureControllerTest {
 
     @Test
     void createLecture_InvalidInput_ShouldReturnBadRequest() throws Exception {
-        mockMvc.perform(post("/createLecture"))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/createLecture")).andExpect(status().isBadRequest());
 
         verify(lectureService, never()).save(any());
     }
@@ -207,8 +215,7 @@ class LectureControllerTest {
     void updateLecture_InvalidInput_ShouldReturnBadRequest() throws Exception {
         Long lectureId = 1L;
 
-        mockMvc.perform(post("/updateLecture/{id}", lectureId))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/updateLecture/{id}", lectureId)).andExpect(status().isBadRequest());
 
         verify(lectureService, never()).update(eq(lectureId), any());
     }
@@ -217,7 +224,8 @@ class LectureControllerTest {
     void deleteLecture_ValidId_ShouldReturnDeleteFormLectureSuccessfulPage() throws Exception {
         Long lectureId = 1L;
 
-        mockMvc.perform(post("/deleteLecture/{id}", lectureId))
+        mockMvc
+                .perform(post("/deleteLecture/{id}", lectureId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("delete-form-lecture-successful"));
 
@@ -235,7 +243,3 @@ class LectureControllerTest {
         return mockLecture;
     }
 }
-
-
-
-

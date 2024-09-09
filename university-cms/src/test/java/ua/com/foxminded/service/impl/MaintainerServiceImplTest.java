@@ -55,8 +55,10 @@ class MaintainerServiceImplTest {
         maintainerDTO.setImage(imageFile);
         when(userMapper.mapFromDto(maintainerDTO)).thenReturn(maintainer);
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class))).thenReturn("32.png");
-        when(maintainerRepository.save(any(Maintainer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(imageService.saveUserImage(anyString(), anyLong(), any(MultipartFile.class)))
+                .thenReturn("32.png");
+        when(maintainerRepository.save(any(Maintainer.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         maintainerService.save(maintainerDTO);
 
@@ -70,7 +72,8 @@ class MaintainerServiceImplTest {
         Maintainer maintainer = createMaintainer();
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         when(userMapper.mapFromDto(maintainerDTO)).thenReturn(createMaintainer());
-        when(imageService.getDefaultIUserImage(any(Gender.class), anyString())).thenReturn("default.png");
+        when(imageService.getDefaultIUserImage(any(Gender.class), anyString()))
+                .thenReturn("default.png");
 
         maintainerService.save(maintainerDTO);
 
@@ -102,7 +105,8 @@ class MaintainerServiceImplTest {
         Maintainer existingMaintainer = createMaintainer();
         when(maintainerRepository.findById(id)).thenReturn(Optional.of(existingMaintainer));
         when(imageFile.isEmpty()).thenReturn(false);
-        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class))).thenReturn("32.png");
+        when(imageService.saveUserImage(anyString(), eq(id), any(MultipartFile.class)))
+                .thenReturn("32.png");
 
         maintainerService.update(id, maintainerDTO);
 
@@ -240,7 +244,3 @@ class MaintainerServiceImplTest {
         return maintainer;
     }
 }
-
-
-
-

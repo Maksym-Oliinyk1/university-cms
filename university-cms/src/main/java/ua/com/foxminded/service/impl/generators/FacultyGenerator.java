@@ -14,7 +14,6 @@ public class FacultyGenerator extends DataGenerator {
     private static final String FACULTY_NAMES_DIRECTORY = "/populate/faculties_names";
     private static final List<String> FACULTIES_NAMES = readFilePerOneLine(FACULTY_NAMES_DIRECTORY);
 
-
     private final FacultyService facultyService;
 
     public FacultyGenerator(FacultyService facultyService) {

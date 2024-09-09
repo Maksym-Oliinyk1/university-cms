@@ -13,7 +13,8 @@ import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.enums.Authorities;
-import ua.com.foxminded.repository.*;
+import ua.com.foxminded.repository.LectureRepository;
+import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.TeacherService;
 import ua.com.foxminded.service.UserEmailService;
@@ -36,11 +37,13 @@ public class TeacherServiceImpl implements TeacherService {
     private final UserMapper userMapper;
 
     @Autowired
-    public TeacherServiceImpl(TeacherRepository teacherRepository,
-                              LectureRepository lectureRepository,
-                              ImageService imageService,
-                              UserEmailService userEmailService, PasswordEncoder passwordEncoder,
-                              UserMapper userMapper) {
+    public TeacherServiceImpl(
+            TeacherRepository teacherRepository,
+            LectureRepository lectureRepository,
+            ImageService imageService,
+            UserEmailService userEmailService,
+            PasswordEncoder passwordEncoder,
+            UserMapper userMapper) {
         this.teacherRepository = teacherRepository;
         this.lectureRepository = lectureRepository;
         this.imageService = imageService;
@@ -64,7 +67,8 @@ public class TeacherServiceImpl implements TeacherService {
         } else {
             Teacher teacher = userMapper.mapFromDto(teacherDTO);
             teacher = teacherRepository.save(teacher);
-            String imageName = imageService.saveUserImage(TEACHER_ROLE, teacher.getId(), teacherDTO.getImage());
+            String imageName =
+                    imageService.saveUserImage(TEACHER_ROLE, teacher.getId(), teacherDTO.getImage());
             teacher.setImageName(imageName);
             logger.info("Saved teacher: {} {}", teacherDTO.getFirstName(), teacherDTO.getLastName());
             return teacherRepository.save(teacher);
@@ -79,8 +83,10 @@ public class TeacherServiceImpl implements TeacherService {
         }
         teacherDTO.setAuthority(Authorities.TEACHER);
         teacherDTO.setPassword(passwordEncoder.encode(teacherDTO.getPassword()));
-        Teacher existingTeacher = teacherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
+        Teacher existingTeacher =
+                teacherRepository
+                        .findById(id)
+                        .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
         existingTeacher.setFirstName(teacherDTO.getFirstName());
         existingTeacher.setLastName(teacherDTO.getLastName());
         existingTeacher.setAcademicDegree(teacherDTO.getAcademicDegree());
@@ -91,7 +97,8 @@ public class TeacherServiceImpl implements TeacherService {
 
         if (teacherDTO.getImage() == null || teacherDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingTeacher.getImageName());
-            existingTeacher.setImageName(imageService.getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE));
+            existingTeacher.setImageName(
+                    imageService.getDefaultIUserImage(teacherDTO.getGender(), TEACHER_ROLE));
         } else {
             imageService.deleteUserImage(existingTeacher.getImageName());
             String imageName = imageService.saveUserImage(TEACHER_ROLE, id, teacherDTO.getImage());
@@ -116,7 +123,6 @@ public class TeacherServiceImpl implements TeacherService {
     public Optional<Teacher> findByEmail(String email) {
         return teacherRepository.findByEmail(email);
     }
-
 
     @Override
     public void delete(Long id) {
@@ -155,12 +161,10 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public void attachLectureToTeacher(Long lectureId, Long teacherId) {
-        Teacher teacher = teacherRepository
-                .findById(teacherId)
-                .orElseThrow(EntityNotFoundException::new);
-        Lecture lecture = lectureRepository
-                .findById(lectureId)
-                .orElseThrow(EntityNotFoundException::new);
+        Teacher teacher =
+                teacherRepository.findById(teacherId).orElseThrow(EntityNotFoundException::new);
+        Lecture lecture =
+                lectureRepository.findById(lectureId).orElseThrow(EntityNotFoundException::new);
 
         teacher.getLectures().add(lecture);
         lecture.setTeacher(teacher);
@@ -172,12 +176,10 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public void detachLectureFromTeacher(Long lectureId, Long teacherId) {
-        Teacher teacher = teacherRepository
-                .findById(teacherId)
-                .orElseThrow(EntityNotFoundException::new);
-        Lecture lecture = lectureRepository
-                .findById(lectureId)
-                .orElseThrow(EntityNotFoundException::new);
+        Teacher teacher =
+                teacherRepository.findById(teacherId).orElseThrow(EntityNotFoundException::new);
+        Lecture lecture =
+                lectureRepository.findById(lectureId).orElseThrow(EntityNotFoundException::new);
 
         teacher.getLectures().remove(lecture);
         lecture.setTeacher(null);
@@ -186,9 +188,9 @@ public class TeacherServiceImpl implements TeacherService {
         logger.info("The lecture was removed from the teacher");
     }
 
-
     @Override
-    public List<Lecture> showLecturesBetweenDates(Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate) {
+    public List<Lecture> showLecturesBetweenDates(
+            Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate) {
         if (!teacherRepository.existsById(teacherId)) {
             throw new RuntimeException("The teacher was not found");
         }

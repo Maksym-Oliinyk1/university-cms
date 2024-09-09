@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import ua.com.foxminded.entity.Faculty;
 
 @Repository
-public interface FacultyRepository extends PagingAndSortingRepository<Faculty, Long>, CrudRepository<Faculty, Long> {
-
+public interface FacultyRepository
+        extends PagingAndSortingRepository<Faculty, Long>, CrudRepository<Faculty, Long> {
 }
