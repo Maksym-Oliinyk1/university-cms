@@ -1,5 +1,9 @@
 package ua.com.foxminded.service.impl.generators;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,10 +15,6 @@ import ua.com.foxminded.service.CourseService;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
 import ua.com.foxminded.service.TeacherService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class LectureGenerator extends DataGenerator {
