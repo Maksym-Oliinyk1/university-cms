@@ -8,11 +8,12 @@ import org.springframework.stereotype.Repository;
 import ua.com.foxminded.entity.Student;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface StudentRepository
-        extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
-    Page<Student> findByGroupId(Long groupId, Pageable pageable);
+        extends PagingAndSortingRepository<Student, UUID>, CrudRepository<Student, UUID> {
+  Page<Student> findByGroupId(UUID groupId, Pageable pageable);
 
-    Optional<Student> findByEmail(String email);
+  Optional<Student> findByEmail(String email);
 }

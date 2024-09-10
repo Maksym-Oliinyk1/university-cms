@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.com.foxminded.controllers.student.StudentController;
+import ua.com.foxminded.controllers.student.StudentControllerImpl;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
@@ -24,8 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(StudentController.class)
-class StudentControllerTest {
+@WebMvcTest(StudentControllerImpl.class)
+class StudentControllerImplTest {
 
     @MockBean
     private StudentService studentService;

@@ -1,6 +1,14 @@
 package ua.com.foxminded.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.enums.Gender;
+import ua.com.foxminded.service.ImageService;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -10,14 +18,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import ua.com.foxminded.enums.Gender;
-import ua.com.foxminded.service.ImageService;
 
 @Service
 public class ImageServiceImpl implements ImageService {

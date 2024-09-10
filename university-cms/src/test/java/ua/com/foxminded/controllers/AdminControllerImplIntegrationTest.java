@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Testcontainers
 @SpringBootTest
-class AdminControllerIntegrationTest extends BaseIntegrationTest {
+class AdminControllerImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listAdmins() throws Exception {

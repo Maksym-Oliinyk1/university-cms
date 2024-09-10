@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.com.foxminded.controllers.admin.AdminController;
+import ua.com.foxminded.controllers.admin.AdminControllerImpl;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
 import ua.com.foxminded.service.AdministratorService;
@@ -22,8 +22,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(AdminController.class)
-class AdminControllerTest {
+@WebMvcTest(AdminControllerImpl.class)
+class AdminControllerImplTest {
 
     @MockBean
     private AdministratorService administratorService;

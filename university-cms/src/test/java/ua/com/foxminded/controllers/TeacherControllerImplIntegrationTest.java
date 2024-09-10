@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Testcontainers
 @SpringBootTest
-class TeacherControllerIntegrationTest extends BaseIntegrationTest {
+class TeacherControllerImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void teacherAuthorization() throws Exception {

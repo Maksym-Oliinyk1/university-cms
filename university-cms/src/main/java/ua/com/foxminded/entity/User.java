@@ -3,7 +3,6 @@ package ua.com.foxminded.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
@@ -48,28 +47,19 @@ public abstract class User {
   @Column(name = "image_name")
   protected String imageName;
 
-  @Column(name = "authority")
-  @Enumerated(EnumType.STRING)
-  @NotNull
-  protected Authorities authority;
-
   protected User(
           String firstName,
           String lastName,
           Gender gender,
           LocalDate birthDate,
           String email,
-          String imageName,
-          String password,
-          Authorities authority) {
+          String imageName) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.gender = gender;
     this.birthDate = birthDate;
     this.email = email;
     this.imageName = imageName;
-    this.password = password;
-    this.authority = authority;
   }
 
   protected User() {
@@ -129,13 +119,5 @@ public abstract class User {
 
   public void setImageName(String imageName) {
     this.imageName = imageName;
-  }
-
-  public Authorities getAuthority() {
-    return authority;
-  }
-
-  public void setAuthority(Authorities authority) {
-    this.authority = authority;
   }
 }
