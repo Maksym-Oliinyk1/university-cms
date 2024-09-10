@@ -47,15 +47,13 @@ public abstract class User {
   @Column(name = "image_name")
   protected String imageName;
 
-
   protected User(
           String firstName,
           String lastName,
           Gender gender,
           LocalDate birthDate,
           String email,
-          String imageName
-  ) {
+          String imageName) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.gender = gender;

@@ -11,20 +11,21 @@ import ua.com.foxminded.entity.Teacher;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface TeacherRepository
-        extends PagingAndSortingRepository<Teacher, Long>, CrudRepository<Teacher, Long> {
+        extends PagingAndSortingRepository<Teacher, UUID>, CrudRepository<Teacher, UUID> {
 
     @Query(
             "SELECT l FROM Lecture l JOIN l.teacher t WHERE t.id = :teacherId AND l.date BETWEEN :startDateTime AND :endDateTime")
     List<Lecture> findLecturesByDateBetween(
-            @Param("teacherId") Long teacherId,
+            @Param("teacherId") UUID teacherId,
             @Param("startDateTime") LocalDateTime startDateTime,
             @Param("endDateTime") LocalDateTime endDateTime);
 
     @Query("SELECT COUNT(l) FROM Lecture l JOIN l.teacher t WHERE t.id = :teacherId")
-    Long countLecturesByTeacher(@Param("teacherId") Long teacherId);
+    Long countLecturesByTeacher(@Param("teacherId") UUID teacherId);
 
     Optional<Teacher> findByEmail(String email);
 }

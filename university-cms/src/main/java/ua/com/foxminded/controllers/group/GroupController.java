@@ -1,6 +1,10 @@
 package ua.com.foxminded.controllers.group;
 
+import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
+
 import jakarta.validation.Valid;
+
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +15,6 @@ import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
-
-import java.util.List;
-
-import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
 
 @Controller
 @RequestMapping("/group")

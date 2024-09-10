@@ -5,12 +5,13 @@ import ua.com.foxminded.entity.Lecture;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public interface TeacherService extends UserService<TeacherDTO> {
-  void attachLectureToTeacher(Long lectureId, Long teacherId);
+    void attachLectureToTeacher(UUID lectureId, UUID teacherId);
 
-  void detachLectureFromTeacher(Long lectureId, Long teacherId);
+    void detachLectureFromTeacher(UUID lectureId, UUID teacherId);
 
   List<Lecture> showLecturesBetweenDates(
-          Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
+          UUID teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
 }

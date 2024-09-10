@@ -27,8 +27,8 @@ public class Administrator extends User {
     this.id = id;
   }
 
-  public Administrator() {
-  }
+    public Administrator() {
+    }
 
   @Override
   public String toString() {

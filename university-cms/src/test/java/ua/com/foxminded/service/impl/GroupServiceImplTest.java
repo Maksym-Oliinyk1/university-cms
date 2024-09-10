@@ -1,14 +1,5 @@
 package ua.com.foxminded.service.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,17 +16,27 @@ import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.repository.GroupRepository;
 import ua.com.foxminded.repository.StudentRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @SpringBootTest(classes = {GroupServiceImpl.class})
 class GroupServiceImplTest {
 
-  @MockBean
-  private GroupRepository groupRepository;
+    @MockBean
+    private GroupRepository groupRepository;
 
-  @MockBean
-  private StudentRepository studentRepository;
+    @MockBean
+    private StudentRepository studentRepository;
 
-  @Autowired
-  private GroupServiceImpl groupService;
+    @Autowired
+    private GroupServiceImpl groupService;
 
   @BeforeEach
   void setUp() {

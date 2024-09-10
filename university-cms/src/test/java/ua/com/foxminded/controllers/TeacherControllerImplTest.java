@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.com.foxminded.controllers.teacher.TeacherController;
+import ua.com.foxminded.controllers.teacher.TeacherControllerImpl;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Teacher;
 import ua.com.foxminded.service.TeacherService;
@@ -21,8 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(TeacherController.class)
-class TeacherControllerTest {
+@WebMvcTest(TeacherControllerImpl.class)
+class TeacherControllerImplTest {
 
     @MockBean
     private TeacherService teacherService;

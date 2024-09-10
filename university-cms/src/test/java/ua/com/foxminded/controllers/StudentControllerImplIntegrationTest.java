@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Testcontainers
 @SpringBootTest
-class StudentControllerIntegrationTest extends BaseIntegrationTest {
+class StudentControllerImplIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void studentAuthorization() throws Exception {

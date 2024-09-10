@@ -143,13 +143,11 @@ public class AdministratorServiceImpl implements AdministratorService {
     logger.info("Find administrators from {} to {}", from, to);
 
     Page<Administrator> administratorsPage = administratorRepository.findAll(pageable);
-    List<AdministratorDTO> administratorDtoList = administratorsPage.stream()
-            .map(userMapper::mapToDto)
-            .collect(Collectors.toList());
+      List<AdministratorDTO> administratorDtoList =
+              administratorsPage.stream().map(userMapper::mapToDto).collect(Collectors.toList());
 
     return new PageImpl<>(administratorDtoList, pageable, administratorsPage.getTotalElements());
   }
-
 
   @Override
   public Long count() {
