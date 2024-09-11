@@ -1,10 +1,6 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import ua.com.foxminded.enums.Authorities;
+import jakarta.persistence.*;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
@@ -13,6 +9,11 @@ import java.util.Objects;
 @Entity
 @Table(name = "students")
 public class Student extends User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -26,10 +27,8 @@ public class Student extends User {
             Group group,
             LocalDate birthDate,
             String email,
-            String imageName,
-            String password,
-            Authorities authority) {
-        super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
+            String imageName) {
+        super(firstName, lastName, gender, birthDate, email, imageName);
         this.group = group;
         this.id = id;
     }

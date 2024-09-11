@@ -1,10 +1,6 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import ua.com.foxminded.enums.Authorities;
+import jakarta.persistence.*;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
@@ -15,6 +11,12 @@ import java.util.Objects;
 @Entity
 @Table(name = "teachers")
 public class Teacher extends User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "teacher_id")
+    private Long id;
+
     @Column(name = "academic_degree")
     private String academicDegree;
 
@@ -29,10 +31,8 @@ public class Teacher extends User {
             String academicDegree,
             LocalDate birthDate,
             String email,
-            String imageName,
-            String password,
-            Authorities authority) {
-        super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
+            String imageName) {
+        super(firstName, lastName, gender, birthDate, email, imageName);
         this.id = id;
         this.academicDegree = academicDegree;
         this.lectures = new ArrayList<>();

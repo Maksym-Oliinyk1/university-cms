@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.AdministratorDTO;
-import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.service.AdministratorService;
 
 @Service
@@ -35,7 +34,6 @@ public class AdminGenerator extends DataGenerator {
         for (int i = 0; i < AMOUNT_OF_ADMINS; i++) {
             AdministratorDTO administratorDTO = new AdministratorDTO();
             fillUserFields(administratorDTO);
-            administratorDTO.setAuthority(Authorities.ADMINISTRATOR);
             logger.info(
                     "Created admin: {} {}", administratorDTO.getFirstName(), administratorDTO.getLastName());
             adminService.save(administratorDTO);

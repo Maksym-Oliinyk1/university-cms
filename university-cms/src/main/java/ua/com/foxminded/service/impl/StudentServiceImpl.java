@@ -5,18 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Student;
-import ua.com.foxminded.enums.Authorities;
-import ua.com.foxminded.repository.AdministratorRepository;
-import ua.com.foxminded.repository.MaintainerRepository;
 import ua.com.foxminded.repository.StudentRepository;
-import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.service.StudentService;
-import ua.com.foxminded.service.UserEmailService;
 import ua.com.foxminded.service.UserMapper;
 
 import java.util.Optional;
@@ -28,57 +22,35 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
     private final ImageService imageService;
-    private final UserEmailService userEmailService;
-    private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
     @Autowired
     public StudentServiceImpl(
-            StudentRepository studentRepository,
-            AdministratorRepository administratorRepository,
-            MaintainerRepository maintainerRepository,
-            TeacherRepository teacherRepository,
-            ImageService imageService,
-            UserEmailService userEmailService,
-            PasswordEncoder passwordEncoder,
-            UserMapper userMapper) {
+            StudentRepository studentRepository, ImageService imageService, UserMapper userMapper) {
         this.studentRepository = studentRepository;
         this.imageService = imageService;
-        this.userEmailService = userEmailService;
-        this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
     }
 
     @Override
-    public Student save(StudentDTO studentDTO) {
-        if (!isEmailFree(studentDTO.getEmail())) {
-            throw new RuntimeException();
-        }
-        studentDTO.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
-        studentDTO.setAuthority(Authorities.STUDENT);
+    public void save(StudentDTO studentDTO) {
         if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
             Student student = userMapper.mapFromDto(studentDTO);
             student.setImageName(imageService.getDefaultIUserImage(student.getGender(), STUDENT_ROLE));
-            logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
-            return studentRepository.save(student);
+            studentRepository.save(student);
         } else {
             Student student = userMapper.mapFromDto(studentDTO);
             student = studentRepository.save(student);
             String imageName =
                     imageService.saveUserImage(STUDENT_ROLE, student.getId(), studentDTO.getImage());
             student.setImageName(imageName);
-            logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
-            return studentRepository.save(student);
+            studentRepository.save(student);
         }
+        logger.info("Saved student: {} {}", studentDTO.getFirstName(), studentDTO.getLastName());
     }
 
     @Override
-    public Student update(Long id, StudentDTO studentDTO) {
-        if (!isEmailFree(studentDTO.getEmail())) {
-            throw new RuntimeException();
-        }
-        studentDTO.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
-        studentDTO.setAuthority(Authorities.STUDENT);
+    public void update(Long id, StudentDTO studentDTO) {
         Student existingStudent =
                 studentRepository
                         .findById(id)
@@ -88,8 +60,7 @@ public class StudentServiceImpl implements StudentService {
         existingStudent.setGender(studentDTO.getGender());
         existingStudent.setBirthDate(studentDTO.getBirthDate());
         existingStudent.setEmail(studentDTO.getEmail());
-        existingStudent.setGroup(studentDTO.getGroup());
-        existingStudent.setPassword(passwordEncoder.encode(studentDTO.getPassword()));
+
         if (studentDTO.getImage() == null || studentDTO.getImage().isEmpty()) {
             imageService.deleteUserImage(existingStudent.getImageName());
             existingStudent.setImageName(
@@ -99,8 +70,8 @@ public class StudentServiceImpl implements StudentService {
             String imageName = imageService.saveUserImage(STUDENT_ROLE, id, studentDTO.getImage());
             existingStudent.setImageName(imageName);
         }
+        studentRepository.save(existingStudent);
         logger.info("Student updated by id: {}", id);
-        return studentRepository.save(existingStudent);
     }
 
     @Override
@@ -112,11 +83,6 @@ public class StudentServiceImpl implements StudentService {
         } else {
             throw new RuntimeException("There is no such student");
         }
-    }
-
-    @Override
-    public Optional<Student> findByEmail(String email) {
-        return studentRepository.findByEmail(email);
     }
 
     @Override
@@ -161,9 +127,5 @@ public class StudentServiceImpl implements StudentService {
         int to = from + pageSize;
         logger.info("Find students if group: {} from {} to {}", groupId, from, to);
         return studentRepository.findByGroupId(groupId, pageable);
-    }
-
-    private boolean isEmailFree(String email) {
-        return userEmailService.isUserExistByEmail(email);
     }
 }

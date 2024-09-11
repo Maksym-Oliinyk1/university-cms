@@ -6,10 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public abstract class UserDTO {
-  private UUID id;
+  private Long id;
 
   @Pattern(regexp = "[a-zA-Z]+", message = "First name should contain only letters")
   @NotNull
@@ -34,11 +33,11 @@ public abstract class UserDTO {
   UserDTO() {
   }
 
-  public UUID getId() {
+  public Long getId() {
     return id;
   }
 
-  public void setId(UUID id) {
+  public void setId(Long id) {
     this.id = id;
   }
 

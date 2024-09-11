@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ua.com.foxminded.dto.MaintainerDTO;
-import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.service.MaintainerService;
 
 @Service
@@ -35,7 +34,6 @@ public class MaintainerGenerator extends DataGenerator {
         for (int i = 0; i < AMOUNT_OF_MAINTAINERS; i++) {
             MaintainerDTO maintainerDTO = new MaintainerDTO();
             fillUserFields(maintainerDTO);
-            maintainerDTO.setAuthority(Authorities.MAINTAINER);
             logger.info(
                     "Created maintainer: {} {}", maintainerDTO.getFirstName(), maintainerDTO.getLastName());
             maintainerService.save(maintainerDTO);

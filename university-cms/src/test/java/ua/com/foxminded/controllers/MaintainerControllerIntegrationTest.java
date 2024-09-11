@@ -2,8 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 
@@ -20,118 +25,130 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
 
-    @Test
-    void maintainerAuthorization() throws Exception {
-        mvc.perform(get("/maintainerAuthorization"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("mock-maintainer-authorization"));
-    }
+  @Container
+  protected static final PostgreSQLContainer<?> postgres =
+          new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
 
-    @Test
-    void showMaintainer() throws Exception {
-        Maintainer maintainer = createMaintainer();
-        maintainerRepository.save(maintainer);
+  @DynamicPropertySource
+  static void configureProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    registry.add("spring.datasource.username", postgres::getUsername);
+    registry.add("spring.datasource.password", postgres::getPassword);
+    registry.add("spring.jpa.generate-ddl", () -> true);
+  }
 
-        MvcResult result =
-                mvc.perform(get("/showMaintainer?id=1"))
-                        .andExpect(status().is2xxSuccessful())
-                        .andExpect(view().name("maintainer"))
-                        .andExpect(model().attributeExists("maintainer"))
-                        .andReturn();
+  @Test
+  void maintainerAuthorization() throws Exception {
+    mvc.perform(get("/maintainerAuthorization"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("mock-maintainer-authorization"));
+  }
 
-        Map<String, Object> model = result.getModelAndView().getModel();
+  @Test
+  void showMaintainer() throws Exception {
+    Maintainer maintainer = createMaintainer();
+    maintainerRepository.save(maintainer);
 
-        assertTrue(model.containsKey("maintainer"));
+    MvcResult result =
+            mvc.perform(get("/showMaintainer?id=1"))
+                    .andExpect(status().is2xxSuccessful())
+                    .andExpect(view().name("maintainer"))
+                    .andExpect(model().attributeExists("maintainer"))
+                    .andReturn();
 
-        Maintainer maintainerFromModel = (Maintainer) model.get("maintainer");
+    Map<String, Object> model = result.getModelAndView().getModel();
 
-        baseTestForUser(maintainerFromModel);
-    }
+    assertTrue(model.containsKey("maintainer"));
 
-    @Test
-    void listMaintainers() throws Exception {
-        MvcResult result =
-                mvc.perform(get("/listMaintainers"))
-                        .andExpect(status().is2xxSuccessful())
-                        .andExpect(view().name("manage-maintainer"))
-                        .andReturn();
+    Maintainer maintainerFromModel = (Maintainer) model.get("maintainer");
 
-        Map<String, Object> model = result.getModelAndView().getModel();
+    baseTestForUser(maintainerFromModel);
+  }
 
-        assertTrue(model.containsKey("maintainers"));
-        assertTrue(model.containsKey("pageNumber"));
-        assertTrue(model.containsKey("totalPages"));
+  @Test
+  void listMaintainers() throws Exception {
+    MvcResult result =
+            mvc.perform(get("/listMaintainers"))
+                    .andExpect(status().is2xxSuccessful())
+                    .andExpect(view().name("manage-maintainer"))
+                    .andReturn();
 
-        List<Maintainer> maintainers = (List<Maintainer>) model.get("maintainers");
-        int pageNumber = (int) model.get("pageNumber");
-        int totalPages = (int) model.get("totalPages");
-        assertFalse(maintainers.isEmpty());
-        assertEquals(0, pageNumber);
-        assertEquals(1, totalPages);
-    }
+    Map<String, Object> model = result.getModelAndView().getModel();
 
-    @Test
-    void createFormMaintainer() throws Exception {
-        mvc.perform(get("/createFormMaintainer"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("create-form-maintainer"))
-                .andExpect(model().attributeExists("maintainer"));
-    }
+    assertTrue(model.containsKey("maintainers"));
+    assertTrue(model.containsKey("pageNumber"));
+    assertTrue(model.containsKey("totalPages"));
 
-    @Test
-    void createMaintainer_successful() throws Exception {
-        MaintainerDTO maintainerDTO = createMaintainerDTO();
+    List<Maintainer> maintainers = (List<Maintainer>) model.get("maintainers");
+    int pageNumber = (int) model.get("pageNumber");
+    int totalPages = (int) model.get("totalPages");
+    assertFalse(maintainers.isEmpty());
+    assertEquals(0, pageNumber);
+    assertEquals(2, totalPages);
+  }
 
-        mvc.perform(post("/createMaintainer").flashAttr("maintainerDTO", maintainerDTO))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("create-form-maintainer-successful"));
+  @Test
+  void createFormMaintainer() throws Exception {
+    mvc.perform(get("/createFormMaintainer"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("create-form-maintainer"))
+            .andExpect(model().attributeExists("maintainer"));
+  }
 
-        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
-        assertTrue(optionalMaintainer.isPresent());
-        Maintainer maintainerFromModel = optionalMaintainer.get();
-        baseTestForUser(maintainerFromModel);
-    }
+  @Test
+  void createMaintainer_successful() throws Exception {
+    MaintainerDTO maintainerDTO = createMaintainerDTO();
 
-    @Test
-    void showUpdateForm() throws Exception {
-        Maintainer maintainer = createMaintainer();
-        maintainerRepository.save(maintainer);
+    mvc.perform(post("/createMaintainer").flashAttr("maintainerDTO", maintainerDTO))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("create-form-maintainer-successful"));
 
-        mvc.perform(get("/updateFormMaintainer/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-maintainer"))
-                .andExpect(model().attributeExists("maintainer"));
-    }
+    Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
+    assertTrue(optionalMaintainer.isPresent());
+    Maintainer maintainerFromModel = optionalMaintainer.get();
+    baseTestForUser(maintainerFromModel);
+  }
 
-    @Test
-    void updateMaintainer_successful() throws Exception {
-        String updatedMaintainerName = "Updatedmaintainer";
-        Maintainer maintainer = createMaintainer();
-        maintainerRepository.save(maintainer);
+  @Test
+  void showUpdateForm() throws Exception {
+    Maintainer maintainer = createMaintainer();
+    maintainerRepository.save(maintainer);
 
-        MaintainerDTO maintainerDTO = createMaintainerDTO();
-        maintainerDTO.setFirstName(updatedMaintainerName);
+    mvc.perform(get("/updateFormMaintainer/1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("update-form-maintainer"))
+            .andExpect(model().attributeExists("maintainer"));
+  }
 
-        mvc.perform(post("/updateMaintainer/1").flashAttr("maintainerDTO", maintainerDTO))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-maintainer-successful"))
-                .andExpect(model().attributeExists("maintainerId"));
+  @Test
+  void updateMaintainer_successful() throws Exception {
+    String updatedMaintainerName = "Updatedmaintainer";
+    Maintainer maintainer = createMaintainer();
+    maintainerRepository.save(maintainer);
 
-        Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
-        assertTrue(optionalMaintainer.isPresent());
-        Maintainer updatedMaintainer = optionalMaintainer.get();
-        assertEquals(updatedMaintainer.getFirstName(), updatedMaintainerName);
-    }
+    MaintainerDTO maintainerDTO = createMaintainerDTO();
+    maintainerDTO.setFirstName(updatedMaintainerName);
 
-    @Test
-    void deleteMaintainer_successful() throws Exception {
-        Maintainer maintainer = createMaintainer();
-        maintainerRepository.save(maintainer);
+    mvc.perform(post("/updateMaintainer/1").flashAttr("maintainerDTO", maintainerDTO))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("update-form-maintainer-successful"))
+            .andExpect(model().attributeExists("maintainerId"));
 
-        mvc.perform(post("/deleteMaintainer").param("id", "1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("delete-form-maintainer-successful"));
+    Optional<Maintainer> optionalMaintainer = maintainerRepository.findById(DEFAULT_ID);
+    assertTrue(optionalMaintainer.isPresent());
+    Maintainer updatedMaintainer = optionalMaintainer.get();
+    assertEquals(updatedMaintainer.getFirstName(), updatedMaintainerName);
+  }
 
-        assertFalse(maintainerRepository.findById(DEFAULT_ID).isPresent());
-    }
+  @Test
+  void deleteMaintainer_successful() throws Exception {
+    Maintainer maintainer = createMaintainer();
+    maintainerRepository.save(maintainer);
+
+    mvc.perform(post("/deleteMaintainer").param("id", "1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("delete-form-maintainer-successful"));
+
+    assertFalse(maintainerRepository.findById(DEFAULT_ID).isPresent());
+  }
 }

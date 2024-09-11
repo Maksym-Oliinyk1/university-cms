@@ -2,8 +2,13 @@ package ua.com.foxminded.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 
@@ -20,109 +25,121 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 class GroupControllerIntegrationTest extends BaseIntegrationTest {
 
-    @Test
-    void listGroups() throws Exception {
-        MvcResult result =
-                mvc.perform(get("/listGroups"))
-                        .andExpect(status().is2xxSuccessful())
-                        .andExpect(view().name("manage-group"))
-                        .andReturn();
+  @Container
+  protected static final PostgreSQLContainer<?> postgres =
+          new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
 
-        Map<String, Object> model = result.getModelAndView().getModel();
+  @DynamicPropertySource
+  static void configureProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.datasource.url", postgres::getJdbcUrl);
+    registry.add("spring.datasource.username", postgres::getUsername);
+    registry.add("spring.datasource.password", postgres::getPassword);
+    registry.add("spring.jpa.generate-ddl", () -> true);
+  }
 
-        assertTrue(model.containsKey("groups"));
-        assertTrue(model.containsKey("pageNumber"));
-        assertTrue(model.containsKey("totalPages"));
+  @Test
+  void listGroups() throws Exception {
+    MvcResult result =
+            mvc.perform(get("/listGroups"))
+                    .andExpect(status().is2xxSuccessful())
+                    .andExpect(view().name("manage-group"))
+                    .andReturn();
 
-        List<Group> groups = (List<Group>) model.get("groups");
-        int pageNumber = (int) model.get("pageNumber");
-        int totalPages = (int) model.get("totalPages");
-        assertFalse(groups.isEmpty());
-        assertEquals(0, pageNumber);
-        assertEquals(2, totalPages);
-    }
+    Map<String, Object> model = result.getModelAndView().getModel();
 
-    @Test
-    void showGroup() throws Exception {
-        Group group = createGroup();
-        groupRepository.save(group);
+    assertTrue(model.containsKey("groups"));
+    assertTrue(model.containsKey("pageNumber"));
+    assertTrue(model.containsKey("totalPages"));
 
-        mvc.perform(get("/showGroup?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("group"))
-                .andExpect(model().attributeExists("group"));
-    }
+    List<Group> groups = (List<Group>) model.get("groups");
+    int pageNumber = (int) model.get("pageNumber");
+    int totalPages = (int) model.get("totalPages");
+    assertFalse(groups.isEmpty());
+    assertEquals(0, pageNumber);
+    assertEquals(2, totalPages);
+  }
 
-    @Test
-    void listGroupsByLectureId() throws Exception {
-        Lecture lecture = createLecture();
-        lectureRepository.save(lecture);
+  @Test
+  void showGroup() throws Exception {
+    Group group = createGroup();
+    groupRepository.save(group);
 
-        mvc.perform(get("/listGroupsByLecture/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("lecture"))
-                .andExpect(model().attributeExists("lecture", "groups", "pageNumber", "totalPages"));
-    }
+    mvc.perform(get("/showGroup?id=1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("group"))
+            .andExpect(model().attributeExists("group"));
+  }
 
-    @Test
-    void createFormGroup() throws Exception {
-        mvc.perform(get("/createFormGroup"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("create-form-group"))
-                .andExpect(model().attributeExists("group"));
-    }
+  @Test
+  void listGroupsByLectureId() throws Exception {
+    Lecture lecture = createLecture();
+    lectureRepository.save(lecture);
 
-    @Test
-    void createGroup_successful() throws Exception {
-        Group group = createGroup();
+    mvc.perform(get("/listGroupsByLecture/1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("lecture"))
+            .andExpect(model().attributeExists("lecture", "groups", "pageNumber", "totalPages"));
+  }
 
-        mvc.perform(post("/createGroup").flashAttr("group", group))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("create-form-group-successful"));
+  @Test
+  void createFormGroup() throws Exception {
+    mvc.perform(get("/createFormGroup"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("create-form-group"))
+            .andExpect(model().attributeExists("group"));
+  }
 
-        Optional<Group> optionalSavedGroup = groupRepository.findById(1L);
-        assertTrue(optionalSavedGroup.isPresent());
-        assertEquals("AB-12", optionalSavedGroup.get().getName());
-    }
+  @Test
+  void createGroup_successful() throws Exception {
+    Group group = createGroup();
 
-    @Test
-    void showUpdateForm() throws Exception {
-        Group group = createGroup();
-        groupRepository.save(group);
+    mvc.perform(post("/createGroup").flashAttr("group", group))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("create-form-group-successful"));
 
-        mvc.perform(get("/updateFormGroup/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-group"))
-                .andExpect(model().attributeExists("group"));
-    }
+    Optional<Group> optionalSavedGroup = groupRepository.findById(1L);
+    assertTrue(optionalSavedGroup.isPresent());
+    assertEquals("AB-12", optionalSavedGroup.get().getName());
+  }
 
-    @Test
-    void updateGroup_successful() throws Exception {
-        String updatedGroupName = "CD-32";
-        Group group = createGroup();
-        groupRepository.save(group);
+  @Test
+  void showUpdateForm() throws Exception {
+    Group group = createGroup();
+    groupRepository.save(group);
 
-        Group updatedGroup = new Group();
-        updatedGroup.setName(updatedGroupName);
+    mvc.perform(get("/updateFormGroup/1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("update-form-group"))
+            .andExpect(model().attributeExists("group"));
+  }
 
-        mvc.perform(post("/updateGroup/1").flashAttr("group", updatedGroup))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-group-successful"));
+  @Test
+  void updateGroup_successful() throws Exception {
+    String updatedGroupName = "CD-32";
+    Group group = createGroup();
+    groupRepository.save(group);
 
-        Optional<Group> optionalGroup = groupRepository.findById(1L);
-        assertTrue(optionalGroup.isPresent());
-        assertEquals(optionalGroup.get().getName(), updatedGroupName);
-    }
+    Group updatedGroup = new Group();
+    updatedGroup.setName(updatedGroupName);
 
-    @Test
-    void deleteGroup_successful() throws Exception {
-        Group group = createGroup();
-        groupRepository.save(group);
+    mvc.perform(post("/updateGroup/1").flashAttr("group", updatedGroup))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("update-form-group-successful"));
 
-        mvc.perform(post("/deleteGroup/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("delete-form-group-successful"));
+    Optional<Group> optionalGroup = groupRepository.findById(1L);
+    assertTrue(optionalGroup.isPresent());
+    assertEquals(optionalGroup.get().getName(), updatedGroupName);
+  }
 
-        assertFalse(groupRepository.findById(1L).isPresent());
-    }
+  @Test
+  void deleteGroup_successful() throws Exception {
+    Group group = createGroup();
+    groupRepository.save(group);
+
+    mvc.perform(post("/deleteGroup/1"))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(view().name("delete-form-group-successful"));
+
+    assertFalse(groupRepository.findById(1L).isPresent());
+  }
 }

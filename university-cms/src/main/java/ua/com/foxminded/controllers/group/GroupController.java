@@ -1,9 +1,8 @@
-package ua.com.foxminded.controllers.group;
+package ua.com.foxminded.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,12 +11,9 @@ import ua.com.foxminded.entity.Lecture;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
 
-import java.util.List;
-
 import static ua.com.foxminded.utill.UtilController.DEFAULT_AMOUNT_TO_VIEW_ENTITY;
 
 @Controller
-@RequestMapping("/group")
 public class GroupController {
     private final GroupService groupService;
     private final LectureService lectureService;
@@ -27,7 +23,10 @@ public class GroupController {
         this.lectureService = lectureService;
     }
 
-    // General methods
+    @GetMapping("/manageGroup")
+    public String manageGroup() {
+        return "manage-group";
+    }
 
     @GetMapping("/showGroup")
     public String showGroup(@RequestParam Long id, Model model) {
@@ -62,15 +61,6 @@ public class GroupController {
         return "lecture";
     }
 
-    @GetMapping("/list/groups")
-    @ResponseBody
-    public ResponseEntity<List<Group>> getGroups(@RequestParam(defaultValue = "0") int pageNumber) {
-        Page<Group> groupsPage =
-                groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
-        List<Group> groups = groupsPage.getContent();
-        return ResponseEntity.ok(groups);
-    }
-
     private void fillModelWithDataGroups(int pageNumber, Model model) {
         Page<Group> pageGroups =
                 groupService.findAll(PageRequest.of(pageNumber, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
@@ -79,33 +69,26 @@ public class GroupController {
         model.addAttribute("totalPages", pageGroups.getTotalPages());
     }
 
-    // Manage methods
-
-    @GetMapping("/manage")
-    public String manageGroup() {
-        return "manage-group";
-    }
-
-    @GetMapping("/manage/createFormGroup")
+    @GetMapping("/createFormGroup")
     public String showCreateForm(Model model) {
         model.addAttribute("group", new Group());
         return "create-form-group";
     }
 
-    @PostMapping("/manage/createGroup")
+    @PostMapping("/createGroup")
     public String createGroup(@ModelAttribute @Valid Group group) {
         groupService.save(group);
         return "create-form-group-successful";
     }
 
-    @GetMapping("/manage/updateFormGroup/{id}")
+    @GetMapping("/updateFormGroup/{id}")
     public String showUpdateForm(@PathVariable Long id, Model model) {
         Group group = groupService.findById(id);
         model.addAttribute("group", group);
         return "update-form-group";
     }
 
-    @PostMapping("/manage/updateGroup/{id}")
+    @PostMapping("/updateGroup/{id}")
     public String updateGroup(
             @PathVariable Long id, @ModelAttribute @Valid Group group, Model model) {
         groupService.update(id, group);
@@ -113,19 +96,19 @@ public class GroupController {
         return "update-form-group-successful";
     }
 
-    @PostMapping("/manage/deleteGroup/{id}")
+    @PostMapping("/deleteGroup/{id}")
     public String deleteGroup(@PathVariable Long id) {
         groupService.delete(id);
         return "delete-form-group-successful";
     }
 
-    @PostMapping("/manage/attachStudentToGroup")
+    @PostMapping("/attachStudentToGroup")
     public String attachStudentToGroup(@RequestParam Long studentId, @RequestParam Long groupId) {
         groupService.attachStudentToGroup(studentId, groupId);
         return "manage-student";
     }
 
-    @PostMapping("/manage/detachStudentFromGroup")
+    @PostMapping("/detachStudentFromGroup")
     public String detachStudentFromGroup(@RequestParam Long studentId, @RequestParam Long groupId) {
         groupService.detachStudentFromGroup(studentId, groupId);
         return "manage-group";
