@@ -59,7 +59,7 @@ public class MaintainerServiceImpl implements MaintainerService {
         return maintainerRepository.save(maintainer);
       }
     }
-    throw new RuntimeException("There is no such administrator");
+    throw new RuntimeException("Email is already used");
   }
 
   @Override
@@ -89,7 +89,7 @@ public class MaintainerServiceImpl implements MaintainerService {
       logger.info("Maintainer updated by id: {}", id);
       return maintainerRepository.save(existingMaintainer);
     }
-    throw new RuntimeException("There is no such administrator");
+    throw new RuntimeException("Email is already used");
   }
 
   @Override
