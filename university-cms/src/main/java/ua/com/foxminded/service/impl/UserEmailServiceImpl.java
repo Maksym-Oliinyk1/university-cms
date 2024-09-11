@@ -27,9 +27,9 @@ public class UserEmailServiceImpl implements UserEmailService {
 
   @Override
   public boolean isUserExistByEmail(String email) {
-    return administratorRepository.findByEmail(email).isEmpty()
-            && maintainerRepository.findByEmail(email).isEmpty()
-            && studentRepository.findByEmail(email).isEmpty()
-            && teacherRepository.findByEmail(email).isEmpty();
+    return administratorRepository.findByEmail(email).isPresent()
+            && maintainerRepository.findByEmail(email).isPresent()
+            && studentRepository.findByEmail(email).isPresent()
+            && teacherRepository.findByEmail(email).isPresent();
   }
 }
