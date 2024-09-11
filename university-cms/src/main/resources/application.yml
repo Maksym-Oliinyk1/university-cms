@@ -22,8 +22,6 @@ spring:
 server:
   port: 8081
 app:
-  jwt:
-    secret-key: e08cf49f00f5059dda0d81c7bf23dc5bbacadd3d87d583699e135afe79ea4572
   image:
     storage:
       userProfileDirectory: ./user-profile-images/

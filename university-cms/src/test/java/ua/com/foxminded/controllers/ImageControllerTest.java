@@ -23,36 +23,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ImageController.class)
 @ExtendWith(MockitoExtension.class)
 class ImageControllerTest {
-    private static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/student_male.png");
-    private static final byte[] TEST_IMAGE = getTestImage();
+  private static final Path TEST_IMAGE_PATH = Path.of("src/test/resources/images/student_male.png");
+  private static final byte[] TEST_IMAGE = getTestImage();
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockBean
-    private ImageService imageService;
+  @MockBean
+  private ImageService imageService;
 
-    private static byte[] getTestImage() {
-        try {
-            return Files.readAllBytes((TEST_IMAGE_PATH));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+  private static byte[] getTestImage() {
+    try {
+      return Files.readAllBytes((TEST_IMAGE_PATH));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    @Test
-    void testGetUserImage() throws Exception {
-        String imageName = "student_male.png";
+  @Test
+  void testGetUserImage() throws Exception {
+    String imageName = "student_male.png";
 
-        String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
-        MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
+    String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
+    MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
 
-        when(imageService.readImageAsBytes(imageName)).thenReturn(TEST_IMAGE);
+    when(imageService.readImageAsBytes(imageName)).thenReturn(TEST_IMAGE);
 
-        mockMvc.perform(get("/showImages/{imageName}", imageName))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(mediaType))
-                .andExpect(content().bytes(TEST_IMAGE));
-
-    }
+    mockMvc
+            .perform(get("/showImages/{imageName}", imageName))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(mediaType))
+            .andExpect(content().bytes(TEST_IMAGE));
+  }
 }

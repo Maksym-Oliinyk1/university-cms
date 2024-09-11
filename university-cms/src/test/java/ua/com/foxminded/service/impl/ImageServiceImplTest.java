@@ -22,113 +22,110 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ImageServiceImplTest {
 
-    private final String USER_PROFILE_DIR = "user/profile/dir/";
-    private final String APPLICATION_IMAGE_DIRECTORY = "application/images/dir/";
-    @InjectMocks
-    private ImageServiceImpl imageService;
+  private final String USER_PROFILE_DIR = "user/profile/dir/";
+  private final String APPLICATION_IMAGE_DIRECTORY = "application/images/dir/";
+  @InjectMocks
+  private ImageServiceImpl imageService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
 
-        ReflectionTestUtils.setField(imageService, "userProfileDirPath", USER_PROFILE_DIR);
-        ReflectionTestUtils.setField(imageService, "applicationImagesDirectory", APPLICATION_IMAGE_DIRECTORY);
+    ReflectionTestUtils.setField(imageService, "userProfileDirPath", USER_PROFILE_DIR);
+    ReflectionTestUtils.setField(
+            imageService, "applicationImagesDirectory", APPLICATION_IMAGE_DIRECTORY);
 
-        try {
-            Files.createDirectories(Paths.get(USER_PROFILE_DIR));
-            Files.createDirectories(Paths.get(APPLICATION_IMAGE_DIRECTORY));
-        } catch (IOException e) {
-            throw new RuntimeException("Error creating directories for test setup", e);
-        }
+    try {
+      Files.createDirectories(Paths.get(USER_PROFILE_DIR));
+      Files.createDirectories(Paths.get(APPLICATION_IMAGE_DIRECTORY));
+    } catch (IOException e) {
+      throw new RuntimeException("Error creating directories for test setup", e);
     }
+  }
 
-    @AfterEach
-    void tearDown() throws IOException {
-        deleteDirectory("user");
-        deleteDirectory("application");
+  @AfterEach
+  void tearDown() throws IOException {
+    deleteDirectory("user");
+    deleteDirectory("application");
+  }
+
+  private void deleteDirectory(String directoryPath) throws IOException {
+    Path path = Paths.get(directoryPath);
+    try (Stream<Path> pathStream = Files.walk(path)) {
+      pathStream.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
+  }
 
-    private void deleteDirectory(String directoryPath) throws IOException {
-        Path path = Paths.get(directoryPath);
-        try (Stream<Path> pathStream = Files.walk(path)) {
-            pathStream
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
-    }
+  @Test
+  void saveUserImage_Success() {
+    String userRole = "STUDENT";
+    Long userId = 1L;
+    MultipartFile imageFile =
+            new MockMultipartFile("test-image.png", "image.png", "image/png", new byte[10]);
 
-    @Test
-    void saveUserImage_Success() {
-        String userRole = "STUDENT";
-        Long userId = 1L;
-        MultipartFile imageFile = new MockMultipartFile("test-image.png", "image.png", "image/png", new byte[10]);
+    String imageName = imageService.saveUserImage(userRole, userId, imageFile);
 
-        String imageName = imageService.saveUserImage(userRole, userId, imageFile);
+    assertNotNull(imageName);
+    assertTrue(Files.exists(Paths.get(USER_PROFILE_DIR + imageName)));
+  }
 
-        assertNotNull(imageName);
-        assertTrue(Files.exists(Paths.get(USER_PROFILE_DIR + imageName)));
-    }
+  @Test
+  void deleteUserImage_Success() throws IOException {
+    String imageName = "test-image.png";
+    Path imagePath = Paths.get(USER_PROFILE_DIR, imageName);
+    Files.createFile(imagePath);
 
-    @Test
-    void deleteUserImage_Success() throws IOException {
-        String imageName = "test-image.png";
-        Path imagePath = Paths.get(USER_PROFILE_DIR, imageName);
-        Files.createFile(imagePath);
+    imageService.deleteUserImage(imageName);
 
-        imageService.deleteUserImage(imageName);
+    assertFalse(Files.exists(imagePath));
+  }
 
-        assertFalse(Files.exists(imagePath));
-    }
+  @Test
+  void getDefaultUserImage_Success() {
+    Gender gender = Gender.FEMALE;
+    String userRole = "TEACHER";
 
-    @Test
-    void getDefaultUserImage_Success() {
-        Gender gender = Gender.FEMALE;
-        String userRole = "TEACHER";
+    String defaultImage = imageService.getDefaultIUserImage(gender, userRole);
 
-        String defaultImage = imageService.getDefaultIUserImage(gender, userRole);
+    assertNotNull(defaultImage);
+    assertEquals("teacher_female.png", defaultImage);
+  }
 
-        assertNotNull(defaultImage);
-        assertEquals("teacher_female.png", defaultImage);
-    }
+  @Test
+  void readImageAsBytes_ImageExists_Success() throws IOException {
+    String imageName = "existing-image.png";
+    Path imagePath = Paths.get(USER_PROFILE_DIR, imageName);
+    Files.createFile(imagePath);
 
-    @Test
-    void readImageAsBytes_ImageExists_Success() throws IOException {
-        String imageName = "existing-image.png";
-        Path imagePath = Paths.get(USER_PROFILE_DIR, imageName);
-        Files.createFile(imagePath);
+    byte[] imageBytes = imageService.readImageAsBytes(imageName);
 
-        byte[] imageBytes = imageService.readImageAsBytes(imageName);
+    assertNotNull(imageBytes);
+  }
 
-        assertNotNull(imageBytes);
-    }
+  @Test
+  void readImageAsBytes_ImageNotExists_ExceptionThrown() {
+    String imageName = "non-existing-image.png";
 
-    @Test
-    void readImageAsBytes_ImageNotExists_ExceptionThrown() {
-        String imageName = "non-existing-image.png";
+    assertThrows(RuntimeException.class, () -> imageService.readImageAsBytes(imageName));
+  }
 
-        assertThrows(RuntimeException.class, () -> imageService.readImageAsBytes(imageName));
-    }
+  @Test
+  void saveUserImage_ExceptionThrown() {
+    String userRole = "STUDENT";
+    Long userId = 1L;
 
-    @Test
-    void saveUserImage_ExceptionThrown() {
-        String userRole = "STUDENT";
-        Long userId = 1L;
+    assertThrows(RuntimeException.class, () -> imageService.saveUserImage(userRole, userId, null));
+  }
 
-        assertThrows(RuntimeException.class, () -> imageService.saveUserImage(userRole, userId, null));
-    }
+  @Test
+  void getDefaultUserImage_ExceptionThrown() {
+    String userRole = "USER_ROLE";
+    assertThrows(RuntimeException.class, () -> imageService.getDefaultIUserImage(null, userRole));
+  }
 
-
-    @Test
-    void getDefaultUserImage_ExceptionThrown() {
-        String userRole = "USER_ROLE";
-        assertThrows(RuntimeException.class, () -> imageService.getDefaultIUserImage(null, userRole));
-    }
-
-    @Test
-    void readImageAsBytes_IOException_ExceptionThrown() {
-        String imageName = "non-existing-image.png";
-        assertThrows(RuntimeException.class, () -> imageService.readImageAsBytes(imageName));
-    }
+  @Test
+  void readImageAsBytes_IOException_ExceptionThrown() {
+    String imageName = "non-existing-image.png";
+    assertThrows(RuntimeException.class, () -> imageService.readImageAsBytes(imageName));
+  }
 }
-

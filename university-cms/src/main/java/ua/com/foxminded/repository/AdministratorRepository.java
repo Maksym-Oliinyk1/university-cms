@@ -8,6 +8,7 @@ import ua.com.foxminded.entity.Administrator;
 import java.util.Optional;
 
 @Repository
-public interface AdministratorRepository extends PagingAndSortingRepository<Administrator, Long>, CrudRepository<Administrator, Long> {
-    Optional<Administrator> findByEmail(String email);
+public interface AdministratorRepository
+        extends PagingAndSortingRepository<Administrator, Long>, CrudRepository<Administrator, Long> {
+  Optional<Administrator> findByEmail(String email);
 }

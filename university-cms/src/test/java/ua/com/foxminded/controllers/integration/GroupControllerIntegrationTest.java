@@ -1,9 +1,17 @@
-package ua.com.foxminded.controllers;
+package ua.com.foxminded.controllers.integration;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Lecture;
 
@@ -16,17 +24,32 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @Testcontainers
 @SpringBootTest
+@AutoConfigureMockMvc
 class GroupControllerIntegrationTest extends BaseIntegrationTest {
+
+    @Container
+    protected static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    @Autowired
+    private MockMvc mvc;
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.jpa.generate-ddl", () -> true);
+    }
 
     @Test
     void listGroups() throws Exception {
-        MvcResult result = mvc.perform(get("/listGroups"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-group"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listGroups"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-group"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -76,8 +99,7 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
     void createGroup_successful() throws Exception {
         Group group = createGroup();
 
-        mvc.perform(post("/createGroup")
-                        .flashAttr("group", group))
+        mvc.perform(post("/createGroup").flashAttr("group", group))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-group-successful"));
 
@@ -106,8 +128,7 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
         Group updatedGroup = new Group();
         updatedGroup.setName(updatedGroupName);
 
-        mvc.perform(post("/updateGroup/1")
-                        .flashAttr("group", updatedGroup))
+        mvc.perform(post("/updateGroup/1").flashAttr("group", updatedGroup))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-group-successful"));
 
@@ -127,5 +148,4 @@ class GroupControllerIntegrationTest extends BaseIntegrationTest {
 
         assertFalse(groupRepository.findById(1L).isPresent());
     }
-
 }

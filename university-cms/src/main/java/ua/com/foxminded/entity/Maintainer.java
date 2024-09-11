@@ -15,88 +15,92 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "maintainers")
-public class Maintainer extends User {
+public class Maintainer extends User implements UserDetails {
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(authority.name()));
-    }
+  public Maintainer(
+          Long id,
+          String firstName,
+          String lastName,
+          Gender gender,
+          LocalDate birthDate,
+          String email,
+          String imageName,
+          String password,
+          Authorities authority) {
+    super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
+    this.id = id;
+  }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+  public Maintainer() {
+  }
 
-    @Override
-    public String getUsername() {
-        return email;
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(authority.name()));
+  }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+  @Override
+  public String getPassword() {
+    return password;
+  }
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+  @Override
+  public String getUsername() {
+    return email;
+  }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
 
-    public Maintainer(Long id,
-                      String firstName,
-                      String lastName,
-                      Gender gender,
-                      LocalDate birthDate,
-                      String email,
-                      String imageName,
-                      String password,
-                      Authorities authority) {
-        super(firstName, lastName, gender, birthDate, email, imageName, password, authority);
-        this.id = id;
-    }
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
 
-    public Maintainer() {
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
 
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Maintainer that = (Maintainer) o;
+    return id.equals(that.id) && firstName.equals(that.firstName) && lastName.equals(that.lastName);
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Maintainer that = (Maintainer) o;
-        return id.equals(that.id) && firstName.equals(that.firstName) && lastName.equals(that.lastName);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, firstName, lastName);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, firstName, lastName);
-    }
-
-
-    @Override
-    public String toString() {
-        return "Maintainer{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "Maintainer{"
+            + "id="
+            + id
+            + ", firstName='"
+            + firstName
+            + '\''
+            + ", lastName='"
+            + lastName
+            + '\''
+            + '}';
+  }
 }

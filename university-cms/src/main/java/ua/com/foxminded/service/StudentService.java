@@ -6,5 +6,5 @@ import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Student;
 
 public interface StudentService extends UserService<Student, StudentDTO> {
-    Page<Student> findAllStudentByGroup(Long groupId, Pageable pageable);
+  Page<Student> findAllStudentByGroup(Long groupId, Pageable pageable);
 }

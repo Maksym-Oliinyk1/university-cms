@@ -1,7 +1,7 @@
 CREATE TABLE administrators
 (
     user_id    BIGSERIAL PRIMARY KEY,
-    authority       VARCHAR(255),
+    authority VARCHAR(255),
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
     password   VARCHAR(255),
@@ -14,7 +14,7 @@ CREATE TABLE administrators
 CREATE TABLE maintainers
 (
     user_id    BIGSERIAL PRIMARY KEY,
-    authority       VARCHAR(255),
+    authority VARCHAR(255),
     first_name VARCHAR(255),
     last_name  VARCHAR(255),
     password   VARCHAR(255),
@@ -27,7 +27,7 @@ CREATE TABLE maintainers
 CREATE TABLE teachers
 (
     user_id         BIGSERIAL PRIMARY KEY,
-    authority            VARCHAR(255),
+    authority VARCHAR(255),
     first_name      VARCHAR(255),
     last_name       VARCHAR(255),
     password        VARCHAR(255),
@@ -62,7 +62,7 @@ CREATE TABLE groups
 CREATE TABLE students
 (
     user_id    BIGSERIAL PRIMARY KEY,
-    authority       VARCHAR(255),
+    authority VARCHAR(255),
     group_id   BIGSERIAL,
     first_name VARCHAR(255),
     last_name  VARCHAR(255),

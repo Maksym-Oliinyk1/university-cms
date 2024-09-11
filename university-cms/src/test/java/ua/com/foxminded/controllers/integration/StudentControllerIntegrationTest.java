@@ -1,9 +1,17 @@
-package ua.com.foxminded.controllers;
+package ua.com.foxminded.controllers.integration;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.dto.StudentDTO;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.entity.Student;
@@ -19,7 +27,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Testcontainers
 @SpringBootTest
+@AutoConfigureMockMvc
 class StudentControllerIntegrationTest extends BaseIntegrationTest {
+
+    @Container
+    protected static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    @Autowired
+    private MockMvc mvc;
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.jpa.generate-ddl", () -> true);
+    }
 
     @Test
     void studentAuthorization() throws Exception {
@@ -40,11 +63,12 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
         Student student = createStudent();
         studentRepository.save(student);
 
-        MvcResult result = mvc.perform(get("/showStudent?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("student"))
-                .andExpect(model().attributeExists("student"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/showStudent?id=1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("student"))
+                        .andExpect(model().attributeExists("student"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -57,10 +81,11 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listStudents() throws Exception {
-        MvcResult result = mvc.perform(get("/listStudents"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-student"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listStudents"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-student"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -99,8 +124,7 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
     void createStudent_successful() throws Exception {
         StudentDTO studentDTO = createStudentDTO();
 
-        mvc.perform(post("/createStudent")
-                        .flashAttr("studentDTO", studentDTO))
+        mvc.perform(post("/createStudent").flashAttr("studentDTO", studentDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-student-successful"));
 
@@ -130,8 +154,7 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
         StudentDTO studentDTO = createStudentDTO();
         studentDTO.setFirstName(updatedStudentName);
 
-        mvc.perform(post("/updateStudent/1")
-                        .flashAttr("studentDTO", studentDTO))
+        mvc.perform(post("/updateStudent/1").flashAttr("studentDTO", studentDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-student-successful"));
 

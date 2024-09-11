@@ -14,6 +14,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.sql.DataSource;
 
@@ -21,35 +22,39 @@ import javax.sql.DataSource;
 @ActiveProfiles("test")
 @Import(DataSourceConfig.class)
 @ComponentScan("ua.com.foxminded.repository")
+@Testcontainers
 public abstract class BaseTest {
-    @Container
-    private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:16");
 
-    @Autowired
-    protected DataSource dataSource;
+  @Container
+  private static final PostgreSQLContainer<?> postgreSQLContainer =
+          new PostgreSQLContainer<>("postgres:16");
 
-    @BeforeAll
-    public static void setup() {
-        postgreSQLContainer.start();
-    }
+  @Autowired
+  protected DataSource dataSource;
 
-    @AfterAll
-    protected static void tearUp() {
-        postgreSQLContainer.close();
-    }
+  @BeforeAll
+  public static void setup() {
+    postgreSQLContainer.start();
+  }
 
-    @BeforeEach
-    protected void initStartScript() {
-        Resource scriptDataSchema = new ClassPathResource("/schema.sql");
-        Resource scriptTestData = new ClassPathResource("/generate_data_for_tests.sql");
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(scriptDataSchema, scriptTestData);
-        populator.execute(dataSource);
-    }
+  @AfterAll
+  protected static void tearUp() {
+    postgreSQLContainer.close();
+  }
 
-    @AfterEach
-    protected void clearDatabase() {
-        Resource script = new ClassPathResource("/clear_tables.sql");
-        ResourceDatabasePopulator populator = new ResourceDatabasePopulator(script);
-        populator.execute(dataSource);
-    }
+  @BeforeEach
+  protected void initStartScript() {
+    Resource scriptDataSchema = new ClassPathResource("/schema.sql");
+    Resource scriptTestData = new ClassPathResource("/generate_data_for_tests.sql");
+    ResourceDatabasePopulator populator =
+            new ResourceDatabasePopulator(scriptDataSchema, scriptTestData);
+    populator.execute(dataSource);
+  }
+
+  @AfterEach
+  protected void clearDatabase() {
+    Resource script = new ClassPathResource("/clear_tables.sql");
+    ResourceDatabasePopulator populator = new ResourceDatabasePopulator(script);
+    populator.execute(dataSource);
+  }
 }

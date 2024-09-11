@@ -10,81 +10,89 @@ import java.util.Objects;
 @Entity
 @Table(name = "courses")
 public class Course {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "course_id")
-    private Long id;
-    @Column(name = "course_name")
-    private String name;
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "faculty_id")
-    private Faculty faculty;
-    @OneToMany(mappedBy = "course")
-    @JsonManagedReference
-    private List<Lecture> lectures;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "course_id")
+  private Long id;
 
-    public Course(Long id, String name, Faculty faculty) {
-        this.id = id;
-        this.name = name;
-        this.faculty = faculty;
-    }
+  @Column(name = "course_name")
+  private String name;
 
-    public Course() {
-    }
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "faculty_id")
+  private Faculty faculty;
 
-    public Long getId() {
-        return id;
-    }
+  @OneToMany(mappedBy = "course")
+  @JsonManagedReference
+  private List<Lecture> lectures;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public Course(Long id, String name, Faculty faculty) {
+    this.id = id;
+    this.name = name;
+    this.faculty = faculty;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public Course() {
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Faculty getFaculty() {
-        return faculty;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public void setFaculty(Faculty faculty) {
-        this.faculty = faculty;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public List<Lecture> getLectures() {
-        return lectures;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setLectures(List<Lecture> lectures) {
-        this.lectures = lectures;
-    }
+  public Faculty getFaculty() {
+    return faculty;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Course course = (Course) o;
-        return id.equals(course.id) && name.equals(course.name);
-    }
+  public void setFaculty(Faculty faculty) {
+    this.faculty = faculty;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
+  public List<Lecture> getLectures() {
+    return lectures;
+  }
 
-    @Override
-    public String toString() {
-        return "Course{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", faculty=" + faculty +
-                ", lectures=" + lectures +
-                '}';
-    }
+  public void setLectures(List<Lecture> lectures) {
+    this.lectures = lectures;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Course course = (Course) o;
+    return id.equals(course.id) && name.equals(course.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name);
+  }
+
+  @Override
+  public String toString() {
+    return "Course{"
+            + "id="
+            + id
+            + ", name='"
+            + name
+            + '\''
+            + ", faculty="
+            + faculty
+            + ", lectures="
+            + lectures
+            + '}';
+  }
 }

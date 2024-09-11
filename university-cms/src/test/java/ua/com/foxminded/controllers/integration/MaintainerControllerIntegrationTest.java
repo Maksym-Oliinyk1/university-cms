@@ -1,9 +1,17 @@
-package ua.com.foxminded.controllers;
+package ua.com.foxminded.controllers.integration;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
 
@@ -18,7 +26,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Testcontainers
 @SpringBootTest
+@AutoConfigureMockMvc
 class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
+
+    @Container
+    protected static final PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+    @Autowired
+    MockMvc mvc;
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.jpa.generate-ddl", () -> true);
+    }
 
     @Test
     void maintainerAuthorization() throws Exception {
@@ -32,11 +55,12 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         Maintainer maintainer = createMaintainer();
         maintainerRepository.save(maintainer);
 
-        MvcResult result = mvc.perform(get("/showMaintainer?id=1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("maintainer"))
-                .andExpect(model().attributeExists("maintainer"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/showMaintainer?id=1"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("maintainer"))
+                        .andExpect(model().attributeExists("maintainer"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -49,10 +73,11 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void listMaintainers() throws Exception {
-        MvcResult result = mvc.perform(get("/listMaintainers"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-maintainer"))
-                .andReturn();
+        MvcResult result =
+                mvc.perform(get("/listMaintainers"))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("manage-maintainer"))
+                        .andReturn();
 
         Map<String, Object> model = result.getModelAndView().getModel();
 
@@ -80,8 +105,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
     void createMaintainer_successful() throws Exception {
         MaintainerDTO maintainerDTO = createMaintainerDTO();
 
-        mvc.perform(post("/createMaintainer")
-                        .flashAttr("maintainerDTO", maintainerDTO))
+        mvc.perform(post("/createMaintainer").flashAttr("maintainerDTO", maintainerDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-maintainer-successful"));
 
@@ -111,8 +135,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         MaintainerDTO maintainerDTO = createMaintainerDTO();
         maintainerDTO.setFirstName(updatedMaintainerName);
 
-        mvc.perform(post("/updateMaintainer/1")
-                        .flashAttr("maintainerDTO", maintainerDTO))
+        mvc.perform(post("/updateMaintainer/1").flashAttr("maintainerDTO", maintainerDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-maintainer-successful"))
                 .andExpect(model().attributeExists("maintainerId"));
@@ -128,8 +151,7 @@ class MaintainerControllerIntegrationTest extends BaseIntegrationTest {
         Maintainer maintainer = createMaintainer();
         maintainerRepository.save(maintainer);
 
-        mvc.perform(post("/deleteMaintainer")
-                        .param("id", "1"))
+        mvc.perform(post("/deleteMaintainer").param("id", "1"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("delete-form-maintainer-successful"));
 

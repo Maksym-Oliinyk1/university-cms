@@ -16,124 +16,142 @@ import java.util.Objects;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "lectures")
 public class Lecture {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "lecture_id")
-    private Long id;
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "course_id")
-    @NotNull
-    private Course course;
-    @ManyToOne
-    @JsonBackReference
-    @JoinColumn(name = "teacher_id")
-    @NotNull
-    private Teacher teacher;
-    @ManyToMany(mappedBy = "lectures")
-    private List<Group> groups;
-    @Column(name = "lecture_name")
-    @NotNull
-    private String name;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "lecture_id")
+  private Long id;
 
-    @Column(name = "description")
-    @NotNull
-    @Pattern(regexp = "^.{50,2000}$")
-    private String description;
-    @Column(name = "lecture_date")
-    @NotNull
-    private LocalDateTime date;
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "course_id")
+  @NotNull
+  private Course course;
 
-    public Lecture(Long id, Course course, Teacher teacher, String name, String description, LocalDateTime date) {
-        this.id = id;
-        this.course = course;
-        this.teacher = teacher;
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.groups = new ArrayList<>();
-    }
+  @ManyToOne
+  @JsonBackReference
+  @JoinColumn(name = "teacher_id")
+  @NotNull
+  private Teacher teacher;
 
-    public Lecture() {
-    }
+  @ManyToMany(mappedBy = "lectures")
+  private List<Group> groups;
 
-    public Long getId() {
-        return id;
-    }
+  @Column(name = "lecture_name")
+  @NotNull
+  private String name;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  @Column(name = "description")
+  @NotNull
+  @Pattern(regexp = "^.{50,2000}$")
+  private String description;
 
-    public Course getCourse() {
-        return course;
-    }
+  @Column(name = "lecture_date")
+  @NotNull
+  private LocalDateTime date;
 
-    public void setCourse(Course course) {
-        this.course = course;
-    }
+  public Lecture(
+          Long id,
+          Course course,
+          Teacher teacher,
+          String name,
+          String description,
+          LocalDateTime date) {
+    this.id = id;
+    this.course = course;
+    this.teacher = teacher;
+    this.name = name;
+    this.description = description;
+    this.date = date;
+    this.groups = new ArrayList<>();
+  }
 
-    public Teacher getTeacher() {
-        return teacher;
-    }
+  public Lecture() {
+  }
 
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public List<Group> getGroups() {
-        return groups;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public void setGroups(List<Group> groups) {
-        this.groups = groups;
-    }
+  public Course getCourse() {
+    return course;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setCourse(Course course) {
+    this.course = course;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public Teacher getTeacher() {
+    return teacher;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setTeacher(Teacher teacher) {
+    this.teacher = teacher;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public List<Group> getGroups() {
+    return groups;
+  }
 
-    public LocalDateTime getDate() {
-        return date;
-    }
+  public void setGroups(List<Group> groups) {
+    this.groups = groups;
+  }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
+  public String getName() {
+    return name;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Lecture lecture = (Lecture) o;
-        return id.equals(lecture.id) && name.equals(lecture.name) && description.equals(lecture.description);
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description);
-    }
+  public String getDescription() {
+    return description;
+  }
 
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    @Override
-    public String toString() {
-        return "Lecture{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", date=" + date +
-                '}';
-    }
+  public LocalDateTime getDate() {
+    return date;
+  }
+
+  public void setDate(LocalDateTime date) {
+    this.date = date;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Lecture lecture = (Lecture) o;
+    return id.equals(lecture.id)
+            && name.equals(lecture.name)
+            && description.equals(lecture.description);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description);
+  }
+
+  @Override
+  public String toString() {
+    return "Lecture{"
+            + "id="
+            + id
+            + ", name='"
+            + name
+            + '\''
+            + ", description='"
+            + description
+            + '\''
+            + ", date="
+            + date
+            + '}';
+  }
 }

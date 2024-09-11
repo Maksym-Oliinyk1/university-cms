@@ -1,31 +1,35 @@
 package ua.com.foxminded.service.impl;
 
 import org.springframework.stereotype.Service;
-import ua.com.foxminded.entity.User;
-import ua.com.foxminded.repository.UserEmailRepository;
+import ua.com.foxminded.repository.AdministratorRepository;
+import ua.com.foxminded.repository.MaintainerRepository;
+import ua.com.foxminded.repository.StudentRepository;
+import ua.com.foxminded.repository.TeacherRepository;
 import ua.com.foxminded.service.UserEmailService;
-
-import java.util.Optional;
 
 @Service
 public class UserEmailServiceImpl implements UserEmailService {
-    private final UserEmailRepository userEmailRepository;
+  private final AdministratorRepository administratorRepository;
+  private final MaintainerRepository maintainerRepository;
+  private final StudentRepository studentRepository;
+  private final TeacherRepository teacherRepository;
 
-    public UserEmailServiceImpl(UserEmailRepository userEmailRepository) {
-        this.userEmailRepository = userEmailRepository;
-    }
+  public UserEmailServiceImpl(
+          AdministratorRepository administratorRepository,
+          MaintainerRepository maintainerRepository,
+          StudentRepository studentRepository,
+          TeacherRepository teacherRepository) {
+    this.administratorRepository = administratorRepository;
+    this.maintainerRepository = maintainerRepository;
+    this.studentRepository = studentRepository;
+    this.teacherRepository = teacherRepository;
+  }
 
-    @Override
-    public User getUserByEmail(String email) {
-        Optional<User> user = userEmailRepository.findByEmail(email);
-        if (user.isPresent()) {
-            return user.get();
-        }
-        throw new RuntimeException("There is no user with this email");
-    }
-
-    @Override
-    public boolean isUserExistByEmail(String email) {
-        return userEmailRepository.findByEmail(email).isPresent();
-    }
+  @Override
+  public boolean isUserExistByEmail(String email) {
+    return administratorRepository.findByEmail(email).isEmpty()
+            && maintainerRepository.findByEmail(email).isEmpty()
+            && studentRepository.findByEmail(email).isEmpty()
+            && teacherRepository.findByEmail(email).isEmpty();
+  }
 }

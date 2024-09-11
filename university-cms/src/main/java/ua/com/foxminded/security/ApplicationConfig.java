@@ -10,42 +10,78 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ua.com.foxminded.entity.*;
-import ua.com.foxminded.service.*;
-import ua.com.foxminded.service.impl.UserEmailServiceImpl;
+import ua.com.foxminded.entity.Administrator;
+import ua.com.foxminded.entity.Maintainer;
+import ua.com.foxminded.entity.Student;
+import ua.com.foxminded.entity.Teacher;
+import ua.com.foxminded.service.AdministratorService;
+import ua.com.foxminded.service.MaintainerService;
+import ua.com.foxminded.service.StudentService;
+import ua.com.foxminded.service.TeacherService;
 
 import java.util.Optional;
 
 @Configuration
 public class ApplicationConfig {
+  private final AdministratorService administratorService;
+  private final MaintainerService maintainerService;
+  private final StudentService studentService;
+  private final TeacherService teacherService;
 
-    private final UserEmailService userEmailService;
+  public ApplicationConfig(
+          AdministratorService administratorService,
+          MaintainerService maintainerService,
+          StudentService studentService,
+          TeacherService teacherService) {
+    this.administratorService = administratorService;
+    this.maintainerService = maintainerService;
+    this.studentService = studentService;
+    this.teacherService = teacherService;
+  }
 
-    public ApplicationConfig(UserEmailService userEmailService) {
-        this.userEmailService = userEmailService;
-    }
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return email -> {
+      Optional<Administrator> adminOptional = administratorService.findByEmail(email);
+      if (adminOptional.isPresent()) {
+        return adminOptional.get();
+      }
 
+      Optional<Maintainer> maintainerOptional = maintainerService.findByEmail(email);
+      if (maintainerOptional.isPresent()) {
+        return maintainerOptional.get();
+      }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return userEmailService::getUserByEmail;
-    }
+      Optional<Student> studentOptional = studentService.findByEmail(email);
+      if (studentOptional.isPresent()) {
+        return studentOptional.get();
+      }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
+      Optional<Teacher> teacherOptional = teacherService.findByEmail(email);
+      if (teacherOptional.isPresent()) {
+        return teacherOptional.get();
+      }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+      throw new UsernameNotFoundException("User not found");
+    };
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    authenticationProvider.setUserDetailsService(userDetailsService());
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    return authenticationProvider;
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+          throws Exception {
+    return config.getAuthenticationManager();
+  }
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

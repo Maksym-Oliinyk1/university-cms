@@ -8,9 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TeacherService extends UserService<Teacher, TeacherDTO> {
-    void attachLectureToTeacher(Long lectureId, Long teacherId);
+  void attachLectureToTeacher(Long lectureId, Long teacherId);
 
-    void detachLectureFromTeacher(Long lectureId, Long teacherId);
+  void detachLectureFromTeacher(Long lectureId, Long teacherId);
 
-    List<Lecture> showLecturesBetweenDates(Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
+  List<Lecture> showLecturesBetweenDates(
+          Long teacherId, LocalDateTime firstDate, LocalDateTime secondDate);
 }

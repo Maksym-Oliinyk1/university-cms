@@ -12,20 +12,20 @@ import ua.com.foxminded.utill.UtilController;
 @Controller
 public class ImageController {
 
-    private final ImageService imageService;
+  private final ImageService imageService;
 
-    public ImageController(ImageService imageService) {
-        this.imageService = imageService;
-    }
+  public ImageController(ImageService imageService) {
+    this.imageService = imageService;
+  }
 
-    @GetMapping(value = "/showImages/{imageName}")
-    @ResponseBody
-    public ResponseEntity<byte[]> getUserImage(@PathVariable String imageName) {
-        byte[] imageBytes = imageService.readImageAsBytes(imageName);
+  @GetMapping(value = "/showImages/{imageName}")
+  @ResponseBody
+  public ResponseEntity<byte[]> getUserImage(@PathVariable String imageName) {
+    byte[] imageBytes = imageService.readImageAsBytes(imageName);
 
-        String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
-        MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
+    String fileExtension = imageName.substring(imageName.lastIndexOf('.'));
+    MediaType mediaType = UtilController.getMediaTypeForFileExtension(fileExtension);
 
-        return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
-    }
+    return ResponseEntity.ok().contentType(mediaType).body(imageBytes);
+  }
 }
