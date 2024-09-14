@@ -1,4 +1,4 @@
-# University CMS.
+# University CMS
 
 ### Table of contents
 
@@ -10,7 +10,7 @@
 
 ### Project description
 
-This is a service responsible for holding and processing data related to users, user preferences and users' children
+This application is intended for managing and streamlining the process of university education.
 
 ### Initial requirements
 
@@ -19,7 +19,7 @@ To build and run the application, you need to be installed and configured:
 1. Java 17
 2. Maven
 3. Git
-4. Postgres 16
+4. PostgreSQL 16
 5. Enabled annotation processing in your IDE settings
    (for IntelliJ IDEA Build, Execution, Deployment -> Compiler -> Annotation processors)
 
