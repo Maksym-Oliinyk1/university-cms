@@ -36,222 +36,222 @@ class LectureServiceImplTest {
     @Autowired
     private LectureServiceImpl lectureService;
 
-    @BeforeEach
-    void setUp() {
-        Mockito.reset(lectureRepository, groupRepository);
-    }
+  @BeforeEach
+  void setUp() {
+    Mockito.reset(lectureRepository, groupRepository);
+  }
 
-    @Test
-    void saveLecture_ValidNameAndDescription_Success() {
-        Course testCourse = new Course();
-        Teacher testTeacher = new Teacher();
-        Lecture lecture =
-                new Lecture(
-                        1L,
-                        testCourse,
-                        testTeacher,
-                        "Math101",
-                        "Mathematics is the universal language of patterns.",
-                        LocalDateTime.now());
-        when(lectureRepository.save(any(Lecture.class))).thenReturn(lecture);
+  @Test
+  void saveLecture_ValidNameAndDescription_Success() {
+    Course testCourse = new Course();
+    Teacher testTeacher = new Teacher();
+    Lecture lecture =
+            new Lecture(
+                    1L,
+                    testCourse,
+                    testTeacher,
+                    "Math101",
+                    "Mathematics is the universal language of patterns.",
+                    LocalDateTime.now());
+    when(lectureRepository.save(any(Lecture.class))).thenReturn(lecture);
 
-        lectureService.save(lecture);
+    lectureService.save(lecture);
 
-        verify(lectureRepository, times(2)).save(lecture);
-    }
+    verify(lectureRepository, times(2)).save(lecture);
+  }
 
-    @Test
-    void updateLecture_ValidIdAndData_Success() {
-        Long id = 1L;
-        Teacher teacher = new Teacher();
-        Course course = new Course();
-        LocalDateTime specificDate = LocalDateTime.of(2023, 1, 1, 12, 0);
+  @Test
+  void updateLecture_ValidIdAndData_Success() {
+    Long id = 1L;
+    Teacher teacher = new Teacher();
+    Course course = new Course();
+    LocalDateTime specificDate = LocalDateTime.of(2023, 1, 1, 12, 0);
 
-        Lecture existingLecture =
-                new Lecture(
-                        id,
-                        course,
-                        teacher,
-                        "Lecture A",
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
-                        specificDate);
-        Lecture updatedLecture =
-                new Lecture(
-                        null,
-                        null,
-                        null,
-                        "Lecture B",
-                        "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-                        specificDate);
+    Lecture existingLecture =
+            new Lecture(
+                    id,
+                    course,
+                    teacher,
+                    "Lecture A",
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
+                    specificDate);
+    Lecture updatedLecture =
+            new Lecture(
+                    null,
+                    null,
+                    null,
+                    "Lecture B",
+                    "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+                    specificDate);
 
-        when(lectureRepository.findById(id)).thenReturn(Optional.of(existingLecture));
+    when(lectureRepository.findById(id)).thenReturn(Optional.of(existingLecture));
 
-        lectureService.update(id, updatedLecture);
+    lectureService.update(id, updatedLecture);
 
-        verify(lectureRepository, times(1)).save(existingLecture);
-        assertEquals("Lecture B", existingLecture.getName());
-        assertEquals(
-                "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
-                existingLecture.getDescription());
-    }
+    verify(lectureRepository, times(1)).save(existingLecture);
+    assertEquals("Lecture B", existingLecture.getName());
+    assertEquals(
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco",
+            existingLecture.getDescription());
+  }
 
-    @Test
-    void updateLecture_NullId_ThrowsException() {
-        Lecture updatedLecture =
-                new Lecture(
-                        null,
-                        null,
-                        null,
-                        "Lecture B",
-                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
-                        LocalDateTime.now());
+  @Test
+  void updateLecture_NullId_ThrowsException() {
+    Lecture updatedLecture =
+            new Lecture(
+                    null,
+                    null,
+                    null,
+                    "Lecture B",
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do",
+                    LocalDateTime.now());
 
-        assertThrows(RuntimeException.class, () -> lectureService.update(null, updatedLecture));
+    assertThrows(RuntimeException.class, () -> lectureService.update(null, updatedLecture));
 
-        verify(lectureRepository, never()).save(any());
-    }
+    verify(lectureRepository, never()).save(any());
+  }
 
-    @Test
-    void updateLecture_NullData_ThrowsException() {
-        Long id = 1L;
+  @Test
+  void updateLecture_NullData_ThrowsException() {
+    Long id = 1L;
 
-        assertThrows(RuntimeException.class, () -> lectureService.update(id, null));
+    assertThrows(RuntimeException.class, () -> lectureService.update(id, null));
 
-        verify(lectureRepository, never()).save(any());
-    }
+    verify(lectureRepository, never()).save(any());
+  }
 
-    @Test
-    void deleteLecture_Exists_Success() {
-        Long id = 1L;
-        Lecture lecture =
-                new Lecture(
-                        id,
-                        null,
-                        null,
-                        "Introduction to Java",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now());
-        when(lectureRepository.existsById(id)).thenReturn(true);
-        when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
+  @Test
+  void deleteLecture_Exists_Success() {
+    Long id = 1L;
+    Lecture lecture =
+            new Lecture(
+                    id,
+                    null,
+                    null,
+                    "Introduction to Java",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now());
+    when(lectureRepository.existsById(id)).thenReturn(true);
+    when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
 
-        lectureService.delete(id);
+    lectureService.delete(id);
 
-        verify(lectureRepository, times(1)).findById(id);
-        verify(lectureRepository, times(1)).deleteById(id);
-        verify(lectureRepository, never()).save(any(Lecture.class));
-    }
+    verify(lectureRepository, times(1)).findById(id);
+    verify(lectureRepository, times(1)).deleteById(id);
+    verify(lectureRepository, never()).save(any(Lecture.class));
+  }
 
-    @Test
-    void deleteLecture_NotExists_ThrowsException() {
-        Long id = 1L;
-        when(lectureRepository.existsById(id)).thenReturn(false);
+  @Test
+  void deleteLecture_NotExists_ThrowsException() {
+    Long id = 1L;
+    when(lectureRepository.existsById(id)).thenReturn(false);
 
-        assertThrows(RuntimeException.class, () -> lectureService.delete(id));
+    assertThrows(RuntimeException.class, () -> lectureService.delete(id));
 
-        verify(lectureRepository, never()).deleteById(id);
-    }
+    verify(lectureRepository, never()).deleteById(id);
+  }
 
-    @Test
-    void findByIdLecture_Exists_Success() {
-        Long id = 1L;
-        Lecture lecture =
-                new Lecture(
-                        id,
-                        null,
-                        null,
-                        "Introduction to Java",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now());
-        when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
+  @Test
+  void findByIdLecture_Exists_Success() {
+    Long id = 1L;
+    Lecture lecture =
+            new Lecture(
+                    id,
+                    null,
+                    null,
+                    "Introduction to Java",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now());
+    when(lectureRepository.findById(id)).thenReturn(Optional.of(lecture));
 
-        Lecture result = lectureService.findById(id);
+    Lecture result = lectureService.findById(id);
 
-        assertNotNull(result);
-        assertEquals(lecture, result);
-    }
+    assertNotNull(result);
+    assertEquals(lecture, result);
+  }
 
-    @Test
-    void findByIdLecture_NotExists_ThrowsException() {
-        Long id = 1L;
-        when(lectureRepository.findById(id)).thenReturn(Optional.empty());
+  @Test
+  void findByIdLecture_NotExists_ThrowsException() {
+    Long id = 1L;
+    when(lectureRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> lectureService.findById(id));
-    }
+    assertThrows(RuntimeException.class, () -> lectureService.findById(id));
+  }
 
-    @Test
-    void findAllLecturesToPage_Success() {
-        List<Lecture> lectures = new ArrayList<>();
-        lectures.add(
-                new Lecture(
-                        1L,
-                        null,
-                        null,
-                        "Introduction to Java",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now()));
-        lectures.add(
-                new Lecture(
-                        2L,
-                        null,
-                        null,
-                        "Advanced Java Concepts",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now()));
-        when(lectureRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(lectures));
+  @Test
+  void findAllLecturesToPage_Success() {
+    List<Lecture> lectures = new ArrayList<>();
+    lectures.add(
+            new Lecture(
+                    1L,
+                    null,
+                    null,
+                    "Introduction to Java",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now()));
+    lectures.add(
+            new Lecture(
+                    2L,
+                    null,
+                    null,
+                    "Advanced Java Concepts",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now()));
+    when(lectureRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(lectures));
 
-        Pageable pageable = PageRequest.of(0, 10);
-        lectureService.findAll(pageable);
+    Pageable pageable = PageRequest.of(0, 10);
+    lectureService.findAll(pageable);
 
-        verify(lectureRepository, times(1)).findAll(eq(pageable));
-    }
+    verify(lectureRepository, times(1)).findAll(eq(pageable));
+  }
 
-    @Test
-    void attachGroupToLecture_Success() {
-        Long groupId = 1L;
-        Long lectureId = 2L;
-        Group group = new Group(groupId, "AB-12");
-        Lecture lecture =
-                new Lecture(
-                        lectureId,
-                        null,
-                        null,
-                        "Introduction to Java",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now());
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+  @Test
+  void attachGroupToLecture_Success() {
+    Long groupId = 1L;
+    Long lectureId = 2L;
+    Group group = new Group(groupId, "AB-12");
+    Lecture lecture =
+            new Lecture(
+                    lectureId,
+                    null,
+                    null,
+                    "Introduction to Java",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now());
+    when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+    when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
 
-        lectureService.attachGroupToLecture(groupId, lectureId);
+    lectureService.attachGroupToLecture(groupId, lectureId);
 
-        assertTrue(lecture.getGroups().contains(group));
-        assertTrue(group.getLectures().contains(lecture));
-        verify(lectureRepository, times(1)).save(lecture);
-        verify(groupRepository, times(1)).save(group);
-    }
+    assertTrue(lecture.getGroups().contains(group));
+    assertTrue(group.getLectures().contains(lecture));
+    verify(lectureRepository, times(1)).save(lecture);
+    verify(groupRepository, times(1)).save(group);
+  }
 
-    @Test
-    void detachGroupFromLecture_Success() {
-        Long groupId = 1L;
-        Long lectureId = 2L;
-        Group group = new Group(groupId, "AB-12");
-        Lecture lecture =
-                new Lecture(
-                        lectureId,
-                        null,
-                        null,
-                        "Introduction to Java",
-                        "This is a valid description about Java course for beginners",
-                        LocalDateTime.now());
-        lecture.getGroups().add(group);
-        group.getLectures().add(lecture);
-        when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
-        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
+  @Test
+  void detachGroupFromLecture_Success() {
+    Long groupId = 1L;
+    Long lectureId = 2L;
+    Group group = new Group(groupId, "AB-12");
+    Lecture lecture =
+            new Lecture(
+                    lectureId,
+                    null,
+                    null,
+                    "Introduction to Java",
+                    "This is a valid description about Java course for beginners",
+                    LocalDateTime.now());
+    lecture.getGroups().add(group);
+    group.getLectures().add(lecture);
+    when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(lecture));
+    when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
 
-        lectureService.detachGroupFromLecture(groupId, lectureId);
+    lectureService.detachGroupFromLecture(groupId, lectureId);
 
-        assertFalse(lecture.getGroups().contains(group));
-        assertFalse(group.getLectures().contains(lecture));
-        verify(lectureRepository, times(1)).save(lecture);
-        verify(groupRepository, times(1)).save(group);
-    }
+    assertFalse(lecture.getGroups().contains(group));
+    assertFalse(group.getLectures().contains(lecture));
+    verify(lectureRepository, times(1)).save(lecture);
+    verify(groupRepository, times(1)).save(group);
+  }
 }

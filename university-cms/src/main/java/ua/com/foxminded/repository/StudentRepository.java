@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository
         extends PagingAndSortingRepository<Student, Long>, CrudRepository<Student, Long> {
-    Page<Student> findByGroupId(Long groupId, Pageable pageable);
+  Page<Student> findByGroupId(Long groupId, Pageable pageable);
 
-    Optional<Student> findByEmail(String email);
+  Optional<Student> findByEmail(String email);
 }

@@ -4,16 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.com.foxminded.controllers.maintainer.MaintainerController;
+import ua.com.foxminded.controllers.maintainer.MaintainerGeneralController;
 import ua.com.foxminded.dto.MaintainerDTO;
 import ua.com.foxminded.entity.Maintainer;
+import ua.com.foxminded.security.AuthenticationService;
+import ua.com.foxminded.security.JwtService;
 import ua.com.foxminded.service.MaintainerService;
-
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,140 +21,113 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(MaintainerController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(MaintainerGeneralController.class)
 class MaintainerControllerTest {
 
-    @MockBean
-    private MaintainerService maintainerService;
+  @MockBean
+  private MaintainerService maintainerService;
 
-    @Autowired
-    private MockMvc mockMvc;
+  private static final Long userId = 1L;
+  private static final String token = "validToken";
 
-    @Test
-    void maintainerAuthorization_ShouldReturnMaintainerAuthorizationPage() throws Exception {
-        mockMvc
-                .perform(get("/maintainerAuthorization"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mock-maintainer-authorization"));
-    }
+  @Autowired
+  private MockMvc mockMvc;
+  @MockBean
+  private JwtService jwtService;
+  @MockBean
+  private AuthenticationService authenticationService;
 
-    @Test
-    void showMaintainer_ValidId_ShouldReturnMaintainerPage() throws Exception {
-        Long maintainerId = 1L;
-        Maintainer mockMaintainer = new Maintainer();
-        when(maintainerService.findById(maintainerId)).thenReturn(mockMaintainer);
+  private void configureSecurity() {
+    when(jwtService.extractUserId(token)).thenReturn(userId);
+  }
 
-        mockMvc
-                .perform(get("/showMaintainer").param("id", String.valueOf(maintainerId)))
-                .andExpect(status().isOk())
-                .andExpect(view().name("maintainer"))
-                .andExpect(model().attributeExists("maintainer"))
-                .andExpect(model().attribute("maintainer", mockMaintainer));
+  @Test
+  void showMaintainer_ValidToken_ShouldReturnMaintainerPage() throws Exception {
+    Maintainer mockMaintainer = new Maintainer();
+    configureSecurity();
+    when(maintainerService.findById(userId)).thenReturn(mockMaintainer);
 
-        verify(maintainerService, times(1)).findById(maintainerId);
-    }
+    mockMvc
+            .perform(get("/general/maintainer/showMaintainer").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("maintainer"))
+            .andExpect(model().attributeExists("maintainer"))
+            .andExpect(model().attribute("maintainer", mockMaintainer));
 
-    @Test
-    void listMaintainers_ShouldReturnListMaintainersPage() throws Exception {
-        Page<Maintainer> mockMaintainerPage = mock(Page.class);
-        when(mockMaintainerPage.getContent()).thenReturn(Collections.emptyList());
-        when(maintainerService.findAll(any())).thenReturn(mockMaintainerPage);
+    verify(jwtService, times(1)).extractUserId(token);
+    verify(maintainerService, times(1)).findById(userId);
+  }
 
-        mockMvc
-                .perform(get("/listMaintainers"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("manage-maintainer"))
-                .andExpect(model().attributeExists("maintainers"))
-                .andExpect(model().attributeExists("pageNumber"))
-                .andExpect(model().attributeExists("totalPages"));
+  @Test
+  void showUpdateForm_ValidToken_ShouldReturnUpdateFormPage() throws Exception {
+    MaintainerDTO mockMaintainerDTO = new MaintainerDTO();
+    configureSecurity();
 
-        verify(maintainerService, times(1)).findAll(any());
-    }
+    when(maintainerService.findByIdDTO(userId)).thenReturn(mockMaintainerDTO);
 
-    @Test
-    void createMaintainer_ValidInput_ShouldReturnCreateFormMaintainerSuccessfulPage()
-            throws Exception {
-        mockMvc
-                .perform(
-                        post("/createMaintainer")
-                                .param("firstName", "John")
-                                .param("lastName", "Doe")
-                                .param("gender", "MALE")
-                                .param("birthDate", "1990-01-01")
-                                .param("email", "john.doe@example.com"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("create-form-maintainer-successful"));
+    mockMvc
+            .perform(get("/general/maintainer/updateFormMaintainer").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("update-form-maintainer"))
+            .andExpect(model().attributeExists("maintainer"))
+            .andExpect(model().attribute("maintainer", mockMaintainerDTO));
 
-        verify(maintainerService, times(1)).save(any());
-    }
+    verify(jwtService, times(1)).extractUserId(token);
+    verify(maintainerService, times(1)).findByIdDTO(userId);
+  }
 
-    @Test
-    void createMaintainer_InvalidInput_ShouldReturnCreateFormMaintainerPageWithErrors()
-            throws Exception {
-        mockMvc.perform(post("/createMaintainer")).andExpect(status().isBadRequest());
+  @Test
+  void updateMaintainer_ValidInput_ShouldReturnUpdateSuccessPage() throws Exception {
+    Long maintainerId = 1L;
 
-        verify(maintainerService, never()).save(any());
-    }
+    mockMvc
+            .perform(
+                    post("/general/maintainer/updateMaintainer/{id}", maintainerId)
+                            .param("firstName", "John")
+                            .param("lastName", "Doe")
+                            .param("gender", "MALE")
+                            .param("password", "testPassword")
+                            .param("birthDate", "1990-01-01")
+                            .param("email", "john.doe@example.com"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("update-form-maintainer-successful"))
+            .andExpect(model().attributeExists("maintainerId"))
+            .andExpect(model().attribute("maintainerId", maintainerId));
 
-    @Test
-    void showUpdateForm_ValidId_ShouldReturnUpdateFormMaintainerPage() throws Exception {
-        Long maintainerId = 1L;
-        MaintainerDTO mockMaintainerDTO = new MaintainerDTO();
+    verify(authenticationService, times(1)).updateMaintainer(eq(maintainerId), any());
+  }
 
-        when(maintainerService.findByIdDTO(maintainerId)).thenReturn(mockMaintainerDTO);
+  @Test
+  void updateMaintainer_InvalidInput_ShouldReturnUpdateFormPageWithErrors() throws Exception {
+    Long maintainerId = 1L;
 
-        mockMvc
-                .perform(get("/updateFormMaintainer/{id}", maintainerId))
-                .andExpect(status().isOk())
-                .andExpect(view().name("update-form-maintainer"))
-                .andExpect(model().attributeExists("maintainer"))
-                .andExpect(model().attribute("maintainer", mockMaintainerDTO));
+    mockMvc
+            .perform(post("/general/maintainer/updateMaintainer/{id}", maintainerId))
+            .andExpect(status().isBadRequest());
 
-        verify(maintainerService, times(1)).findByIdDTO(maintainerId);
-    }
+    verify(authenticationService, never()).updateMaintainer(eq(maintainerId), any());
+  }
 
-    @Test
-    void updateMaintainer_ValidInput_ShouldReturnUpdateFormMaintainerSuccessfulPage()
-            throws Exception {
-        Long maintainerId = 1L;
+  @Test
+  void showCreateForm_ShouldReturnCreateFormPage() throws Exception {
+    mockMvc
+            .perform(get("/general/maintainer/createFormMaintainer"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("create-form-maintainer"))
+            .andExpect(model().attributeExists("maintainer"));
+  }
 
-        mockMvc
-                .perform(
-                        post("/updateMaintainer/{id}", maintainerId)
-                                .param("firstName", "John")
-                                .param("lastName", "Doe")
-                                .param("gender", "MALE")
-                                .param("birthDate", "1990-01-01")
-                                .param("email", "john.doe@example.com"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("update-form-maintainer-successful"))
-                .andExpect(model().attributeExists("maintainerId"))
-                .andExpect(model().attribute("maintainerId", maintainerId));
+  @Test
+  void deleteMaintainer_ValidToken_ShouldReturnDeleteSuccessPage() throws Exception {
+    configureSecurity();
 
-        verify(maintainerService, times(1)).update(eq(maintainerId), any());
-    }
+    mockMvc
+            .perform(post("/general/maintainer/deleteMaintainer").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("delete-form-maintainer-successful"));
 
-    @Test
-    void updateMaintainer_InvalidInput_ShouldReturnUpdateFormMaintainerPageWithErrors()
-            throws Exception {
-        Long maintainerId = 1L;
-
-        mockMvc
-                .perform(post("/updateMaintainer/{id}", maintainerId))
-                .andExpect(status().isBadRequest());
-
-        verify(maintainerService, never()).update(eq(maintainerId), any());
-    }
-
-    @Test
-    void deleteMaintainer_ValidId_ShouldReturnDeleteFormMaintainerSuccessfulPage() throws Exception {
-        Long maintainerId = 1L;
-
-        mockMvc
-                .perform(post("/deleteMaintainer").param("id", String.valueOf(maintainerId)))
-                .andExpect(status().isOk())
-                .andExpect(view().name("delete-form-maintainer-successful"));
-
-        verify(maintainerService, times(1)).delete(maintainerId);
-    }
+    verify(jwtService, times(1)).extractUserId(token);
+    verify(maintainerService, times(1)).delete(userId);
+  }
 }

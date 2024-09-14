@@ -8,10 +8,11 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DataSourceConfig {
-    @Bean
-    public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
-        DataSourceInitializer initializer = new DataSourceInitializer();
-        initializer.setDataSource(dataSource);
-        return initializer;
-    }
+
+  @Bean
+  public DataSourceInitializer dataSourceInitializer(DataSource dataSource) {
+    DataSourceInitializer initializer = new DataSourceInitializer();
+    initializer.setDataSource(dataSource);
+    return initializer;
+  }
 }

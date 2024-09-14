@@ -1,13 +1,13 @@
 package ua.com.foxminded.service;
 
-import java.util.UUID;
+import java.util.Optional;
 
-public interface UserService<D> extends BaseService<D> {
-  D save(D user);
+public interface UserService<E, D> extends BaseService<E> {
+  E save(D user);
 
-  D update(UUID id, D user);
+  E update(Long id, D user);
 
-  D findByIdDTO(UUID id);
+  D findByIdDTO(Long id);
 
-  D findByEmail(String email);
+  Optional<E> findByEmail(String email);
 }

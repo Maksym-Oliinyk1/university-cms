@@ -1,11 +1,9 @@
 package ua.com.foxminded.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
@@ -13,96 +11,138 @@ import java.time.LocalDate;
 @MappedSuperclass
 public abstract class User {
 
-    @Column(name = "first_name")
-    @Pattern(regexp = "[a-zA-Z]+", message = "First name should contain only letters")
-    @NotNull
-    protected String firstName;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id")
+  protected Long id;
 
-    @Column(name = "last_name")
-    @Pattern(regexp = "[a-zA-Z]+", message = "Last name should contain only letters")
-    @NotNull
-    protected String lastName;
+  @Column(name = "first_name")
+  @Pattern(regexp = "[a-zA-Z]+", message = "First name should contain only letters")
+  @NotNull
+  protected String firstName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
-    @NotNull
-    protected Gender gender;
+  @Column(name = "last_name")
+  @Pattern(regexp = "[a-zA-Z]+", message = "Last name should contain only letters")
+  @NotNull
+  protected String lastName;
 
-    @Column(name = "birth_date")
-    @NotNull
-    protected LocalDate birthDate;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "gender")
+  @NotNull
+  protected Gender gender;
 
-    @Column(name = "email")
-    @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
-    @NotNull
-    protected String email;
+  @Column(name = "birth_date")
+  @NotNull
+  protected LocalDate birthDate;
 
-    @Column(name = "image_name")
-    protected String imageName;
+  @Column(name = "email", unique = true)
+  @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
+  @NotNull
+  protected String email;
 
-    protected User(
-            String firstName,
-            String lastName,
-            Gender gender,
-            LocalDate birthDate,
-            String email,
-            String imageName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.gender = gender;
-        this.birthDate = birthDate;
-        this.email = email;
-        this.imageName = imageName;
-    }
+  @Column(name = "password")
+  @NotNull
+  protected String password;
+
+  @Column(name = "image_name")
+  protected String imageName;
+
+  @Column(name = "authority")
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  protected Authorities authority;
+
+  protected User(
+          String firstName,
+          String lastName,
+          Gender gender,
+          LocalDate birthDate,
+          String email,
+          String imageName,
+          String password,
+          Authorities authority) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.gender = gender;
+    this.birthDate = birthDate;
+    this.email = email;
+    this.imageName = imageName;
+    this.password = password;
+    this.authority = authority;
+  }
 
     protected User() {
     }
 
-    public Gender getGender() {
-        return gender;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public String getFirstName() {
-        return firstName;
-    }
+  public Gender getGender() {
+    return gender;
+  }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+  public void setGender(Gender gender) {
+    this.gender = gender;
+  }
 
-    public String getLastName() {
-        return lastName;
-    }
+  public String getFirstName() {
+    return firstName;
+  }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-    public LocalDate getBirthDate() {
-        return birthDate;
-    }
+  public String getLastName() {
+    return lastName;
+  }
 
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public LocalDate getBirthDate() {
+    return birthDate;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public void setBirthDate(LocalDate birthDate) {
+    this.birthDate = birthDate;
+  }
 
-    public String getImageName() {
-        return imageName;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getImageName() {
+    return imageName;
+  }
+
+  public void setImageName(String imageName) {
+    this.imageName = imageName;
+  }
+
+  public Authorities getAuthority() {
+    return authority;
+  }
+
+  public void setAuthority(Authorities authority) {
+    this.authority = authority;
+  }
 }

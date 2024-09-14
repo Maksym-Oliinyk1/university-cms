@@ -1,8 +1,8 @@
-INSERT INTO administrators (administrator_id, first_name, last_name)
+INSERT INTO administrators (user_id, first_name, last_name)
 VALUES (2, 'Admin2', 'LastName2'),
        (3, 'Admin3', 'LastName3');
 
-INSERT INTO teachers (teacher_id, first_name, last_name, academic_degree)
+INSERT INTO teachers (user_id, first_name, last_name, academic_degree)
 VALUES (2, 'Teacher2', 'LastName2', 'PhD'),
        (3, 'Teacher3', 'LastName3', 'MSc');
 
@@ -18,7 +18,7 @@ INSERT INTO groups (group_id, group_name)
 VALUES (2, 'Group2'),
        (3, 'Group3');
 
-INSERT INTO students (student_id, group_id, first_name, last_name)
+INSERT INTO students (user_id, group_id, first_name, last_name)
 VALUES (2, 3, 'Student2', 'LastName2'),
        (3, 3, 'Student3', 'LastName3');
 

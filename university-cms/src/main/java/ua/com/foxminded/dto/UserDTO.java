@@ -3,6 +3,7 @@ package ua.com.foxminded.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.web.multipart.MultipartFile;
+import ua.com.foxminded.enums.Authorities;
 import ua.com.foxminded.enums.Gender;
 
 import java.time.LocalDate;
@@ -23,6 +24,11 @@ public abstract class UserDTO {
 
   @NotNull
   private LocalDate birthDate;
+
+  private Authorities authority;
+
+  @NotNull
+  private String password;
 
   @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
   @NotNull
@@ -87,5 +93,21 @@ public abstract class UserDTO {
 
   public void setImage(MultipartFile image) {
     this.image = image;
+  }
+
+  public Authorities getAuthority() {
+    return authority;
+  }
+
+  public void setAuthority(Authorities authority) {
+    this.authority = authority;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
   }
 }

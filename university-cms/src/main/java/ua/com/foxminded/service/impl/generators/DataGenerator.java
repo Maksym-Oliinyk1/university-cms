@@ -18,71 +18,71 @@ import java.util.stream.Collectors;
 
 @Service
 public abstract class DataGenerator {
-    private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
+  private static final Logger logger = LoggerFactory.getLogger(DataGenerator.class);
 
-    private static final String EMAIL_DOMAIN = "@example.com";
-    private static final String FIRST_NAMES_FOR_USERS_DIRECTORY = "/populate/first_names";
-    private static final String LAST_NAMES_FOR_USER_DIRECTORY = "/populate/last_names";
-    private static final List<String> FIRST_NAMES =
-            readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
-    private static final List<String> LAST_NAMES = readFilePerOneLine(LAST_NAMES_FOR_USER_DIRECTORY);
-    private static final String DEFAULT_PASSWORD = "111111111";
-    protected final Random random = new Random();
+  private static final String EMAIL_DOMAIN = "@example.com";
+  private static final String FIRST_NAMES_FOR_USERS_DIRECTORY = "/populate/first_names";
+  private static final String LAST_NAMES_FOR_USER_DIRECTORY = "/populate/last_names";
+  private static final List<String> FIRST_NAMES =
+          readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
+  private static final List<String> LAST_NAMES = readFilePerOneLine(LAST_NAMES_FOR_USER_DIRECTORY);
+  private static final String DEFAULT_PASSWORD = "password";
+  protected final Random random = new Random();
 
-    private static String generateRandomEmail(String firstName, String lastName) {
-        String randomString = String.valueOf(System.currentTimeMillis());
-        return firstName.toLowerCase()
-                + "."
-                + lastName.toLowerCase()
-                + "."
-                + randomString
-                + EMAIL_DOMAIN;
+  private static String generateRandomEmail(String firstName, String lastName) {
+    String randomString = String.valueOf(System.currentTimeMillis());
+    return firstName.toLowerCase()
+            + "."
+            + lastName.toLowerCase()
+            + "."
+            + randomString
+            + EMAIL_DOMAIN;
+  }
+
+  protected static List<String> readFilePerOneLine(String filePath) {
+    try (BufferedReader br =
+                 new BufferedReader(
+                         new InputStreamReader((ReaderInputStream.class.getResourceAsStream(filePath))))) {
+
+      return br.lines().collect(Collectors.toList());
+
+    } catch (IOException e) {
+      logger.error("Error reading file: " + filePath, e);
+      throw new RuntimeException(e);
     }
+  }
 
-    protected static List<String> readFilePerOneLine(String filePath) {
-        try (BufferedReader br =
-                     new BufferedReader(
-                             new InputStreamReader((ReaderInputStream.class.getResourceAsStream(filePath))))) {
+  public void generateIfEmpty() {
+  }
 
-            return br.lines().collect(Collectors.toList());
+  protected void fillUserFields(UserDTO userDTO) {
+    String firstName = FIRST_NAMES.get(random.nextInt(FIRST_NAMES.size()));
+    String lastName = LAST_NAMES.get(random.nextInt(LAST_NAMES.size()));
+    Gender gender = Gender.values()[random.nextInt(Gender.values().length)];
+    String email = generateRandomEmail(firstName, lastName);
 
-        } catch (IOException e) {
-            logger.error("Error reading file: " + filePath, e);
-            throw new RuntimeException(e);
-        }
-    }
+    userDTO.setId(null);
+    userDTO.setFirstName(firstName);
+    userDTO.setLastName(lastName);
+    userDTO.setGender(gender);
+    userDTO.setBirthDate(generateRandomBirthDate());
+    userDTO.setEmail(email);
+    userDTO.setImage(null);
+    userDTO.setPassword(DEFAULT_PASSWORD);
+  }
 
-    public void generateIfEmpty() {
-    }
+  private LocalDate generateRandomBirthDate() {
+    LocalDate currentDate = LocalDate.now();
 
-    protected void fillUserFields(UserDTO userDTO) {
-        String firstName = FIRST_NAMES.get(random.nextInt(FIRST_NAMES.size()));
-        String lastName = LAST_NAMES.get(random.nextInt(LAST_NAMES.size()));
-        Gender gender = Gender.values()[random.nextInt(Gender.values().length)];
-        String email = generateRandomEmail(firstName, lastName);
+    int randomYearsAgo = random.nextInt(53) + 18;
+    int randomMountsAgo = random.nextInt(11) + 1;
+    int randomDaysAgo = random.nextInt(27) + 1;
 
-        userDTO.setId(null);
-        userDTO.setFirstName(firstName);
-        userDTO.setLastName(lastName);
-        userDTO.setGender(gender);
-        userDTO.setBirthDate(generateRandomBirthDate());
-        userDTO.setEmail(email);
-        userDTO.setImage(null);
-        userDTO.setPassword(DEFAULT_PASSWORD);
-    }
+    return currentDate
+            .minus(Period.ofYears(randomYearsAgo))
+            .minus(Period.ofMonths(randomMountsAgo))
+            .minus(Period.ofDays(randomDaysAgo));
+  }
 
-    private LocalDate generateRandomBirthDate() {
-        LocalDate currentDate = LocalDate.now();
-
-        int randomYearsAgo = random.nextInt(53) + 18;
-        int randomMountsAgo = random.nextInt(11) + 1;
-        int randomDaysAgo = random.nextInt(27) + 1;
-
-        return currentDate
-                .minus(Period.ofYears(randomYearsAgo))
-                .minus(Period.ofMonths(randomMountsAgo))
-                .minus(Period.ofDays(randomDaysAgo));
-    }
-
-    public abstract int getOrder();
+  public abstract int getOrder();
 }

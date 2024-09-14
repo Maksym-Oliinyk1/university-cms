@@ -4,16 +4,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.test.web.servlet.MockMvc;
-import ua.com.foxminded.controllers.teacher.TeacherController;
+import ua.com.foxminded.controllers.teacher.TeacherGeneralController;
 import ua.com.foxminded.dto.TeacherDTO;
 import ua.com.foxminded.entity.Teacher;
+import ua.com.foxminded.security.AuthenticationService;
+import ua.com.foxminded.security.JwtService;
 import ua.com.foxminded.service.TeacherService;
-
-import java.util.Collections;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,139 +21,105 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
-@WebMvcTest(TeacherController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(TeacherGeneralController.class)
 class TeacherControllerTest {
 
     @MockBean
     private TeacherService teacherService;
 
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private AuthenticationService authenticationService;
+
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
-    void teacherAuthorization_ShouldReturnTeacherAuthorizationPage() throws Exception {
-        mockMvc
-                .perform(get("/teacherAuthorization"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("mock-teacher-authorization"));
-    }
+  @Test
+  void showTeacher_ValidToken_ShouldReturnTeacherPage() throws Exception {
+      String token = "validToken";
+      Long userId = 1L;
+    Teacher mockTeacher = new Teacher();
 
-    @Test
-    void manageTeacher_ShouldReturnManageTeacherPage() throws Exception {
-        mockMvc
-                .perform(get("/manageTeacher"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("manage-teacher"));
-    }
+      when(jwtService.extractUserId(token)).thenReturn(userId);
+      when(teacherService.findById(userId)).thenReturn(mockTeacher);
 
-    @Test
-    void showTeacher_ValidId_ShouldReturnTeacherPage() throws Exception {
-        Long teacherId = 1L;
-        Teacher mockTeacher = new Teacher();
-        when(teacherService.findById(teacherId)).thenReturn(mockTeacher);
+    mockMvc
+            .perform(get("/general/teacher/showTeacher").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("teacher"))
+            .andExpect(model().attributeExists("teacher"))
+            .andExpect(model().attribute("teacher", mockTeacher));
 
-        mockMvc
-                .perform(get("/showTeacher").param("id", String.valueOf(teacherId)))
-                .andExpect(status().isOk())
-                .andExpect(view().name("teacher"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attribute("teacher", mockTeacher));
+      verify(jwtService, times(1)).extractUserId(token);
+      verify(teacherService, times(1)).findById(userId);
+  }
 
-        verify(teacherService, times(1)).findById(teacherId);
-    }
+  @Test
+  void showUpdateForm_ValidToken_ShouldReturnUpdateFormPage() throws Exception {
+      String token = "validToken";
+      Long userId = 1L;
+    TeacherDTO mockTeacherDTO = new TeacherDTO();
 
-    @Test
-    void listTeacher_ShouldReturnManageTeacherPage() throws Exception {
-        Page<Teacher> mockTeacherPage = mock(Page.class);
-        when(mockTeacherPage.getContent()).thenReturn(Collections.emptyList());
-        when(teacherService.findAll(any())).thenReturn(mockTeacherPage);
+      when(jwtService.extractUserId(token)).thenReturn(userId);
+      when(teacherService.findByIdDTO(userId)).thenReturn(mockTeacherDTO);
 
-        mockMvc
-                .perform(get("/listTeachers"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("manage-teacher"))
-                .andExpect(model().attributeExists("teachers"))
-                .andExpect(model().attributeExists("pageNumber"))
-                .andExpect(model().attributeExists("totalPages"));
+    mockMvc
+            .perform(get("/general/teacher/updateFormTeacher").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("update-form-teacher"))
+            .andExpect(model().attributeExists("teacher"))
+            .andExpect(model().attribute("teacher", mockTeacherDTO));
 
-        verify(teacherService, times(1)).findAll(any());
-    }
+      verify(jwtService, times(1)).extractUserId(token);
+      verify(teacherService, times(1)).findByIdDTO(userId);
+  }
 
-    @Test
-    void createTeacher_ValidInput_ShouldReturnCreateFormTeacherSuccessfulPage() throws Exception {
-        mockMvc
-                .perform(
-                        post("/createTeacher")
-                                .param("firstName", "John")
-                                .param("lastName", "Doe")
-                                .param("gender", "MALE")
-                                .param("birthDate", "1990-01-01")
-                                .param("email", "john.doe@example.com"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("create-form-teacher-successful"));
+  @Test
+  void updateTeacher_ValidInput_ShouldReturnUpdateSuccessPage() throws Exception {
+    Long teacherId = 1L;
 
-        verify(teacherService, times(1)).save(any());
-    }
+    mockMvc
+            .perform(
+                    post("/general/teacher/updateTeacher/{id}", teacherId)
+                            .param("firstName", "John")
+                            .param("lastName", "Doe")
+                            .param("gender", "MALE")
+                            .param("password", "testPassword")
+                            .param("birthDate", "1985-05-15")
+                            .param("email", "john.doe@example.com"))
+            .andExpect(status().isOk())
+            .andExpect(view().name("update-form-teacher-successful"));
 
-    @Test
-    void createTeacher_InvalidInput_ShouldReturnCreateFormTeacherPageWithErrors() throws Exception {
-        mockMvc.perform(post("/createTeacher")).andExpect(status().isBadRequest());
+      verify(authenticationService, times(1)).updateTeacher(eq(teacherId), any());
+  }
 
-        verify(teacherService, never()).save(any());
-    }
+  @Test
+  void updateTeacher_InvalidInput_ShouldReturnUpdateFormPageWithErrors() throws Exception {
+    Long teacherId = 1L;
 
-    @Test
-    void showUpdateForm_ValidId_ShouldReturnUpdateFormTeacherPage() throws Exception {
-        Long teacherId = 1L;
-        TeacherDTO mockTeacherDTO = new TeacherDTO();
-        when(teacherService.findByIdDTO(teacherId)).thenReturn(mockTeacherDTO);
+      mockMvc
+              .perform(post("/general/teacher/updateTeacher/{id}", teacherId))
+              .andExpect(status().isBadRequest());
 
-        mockMvc
-                .perform(get("/updateFormTeacher/{id}", teacherId))
-                .andExpect(status().isOk())
-                .andExpect(view().name("update-form-teacher"))
-                .andExpect(model().attributeExists("teacher"))
-                .andExpect(model().attribute("teacher", mockTeacherDTO));
+      verify(authenticationService, never()).updateTeacher(eq(teacherId), any());
+  }
 
-        verify(teacherService, times(1)).findByIdDTO(teacherId);
-    }
+  @Test
+  void deleteTeacher_ValidToken_ShouldReturnDeleteSuccessPage() throws Exception {
+      String token = "validToken";
+      Long userId = 1L;
 
-    @Test
-    void updateTeacher_ValidInput_ShouldReturnUpdateFormTeacherSuccessfulPage() throws Exception {
-        Long teacherId = 1L;
+      when(jwtService.extractUserId(token)).thenReturn(userId);
 
-        mockMvc
-                .perform(
-                        post("/updateTeacher/{id}", teacherId)
-                                .param("firstName", "John")
-                                .param("lastName", "Doe")
-                                .param("gender", "MALE")
-                                .param("birthDate", "1990-01-01")
-                                .param("email", "john.doe@example.com"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("update-form-teacher-successful"));
+    mockMvc
+            .perform(post("/general/teacher/deleteTeacher").param("token", token))
+            .andExpect(status().isOk())
+            .andExpect(view().name("delete-form-teacher-successful"));
 
-        verify(teacherService, times(1)).update(eq(teacherId), any());
-    }
-
-    @Test
-    void updateTeacher_InvalidInput_ShouldReturnUpdateFormTeacherPageWithErrors() throws Exception {
-        Long teacherId = 1L;
-
-        mockMvc.perform(post("/updateTeacher/{id}", teacherId)).andExpect(status().isBadRequest());
-
-        verify(teacherService, never()).update(eq(teacherId), any());
-    }
-
-    @Test
-    void deleteTeacher_ValidId_ShouldReturnDeleteFormTeacherSuccessfulPage() throws Exception {
-        Long teacherId = 1L;
-
-        mockMvc
-                .perform(post("/deleteTeacher/{id}", teacherId))
-                .andExpect(status().isOk())
-                .andExpect(view().name("delete-form-teacher-successful"));
-
-        verify(teacherService, times(1)).delete(teacherId);
-    }
+      verify(jwtService, times(1)).extractUserId(token);
+      verify(teacherService, times(1)).delete(userId);
+  }
 }

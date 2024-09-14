@@ -43,7 +43,7 @@ public class LectureServiceImpl implements LectureService {
   }
 
   @Transactional
-  protected void attachGroupsOfLecture(Long lectureId, List<Group> lectureGroups) {
+  private void attachGroupsOfLecture(Long lectureId, List<Group> lectureGroups) {
     List<Group> groupsCopy = new ArrayList<>(lectureGroups);
     for (Group lectureGroup : groupsCopy) {
       attachGroupToLecture(lectureGroup.getId(), lectureId);
@@ -51,7 +51,7 @@ public class LectureServiceImpl implements LectureService {
   }
 
   @Transactional
-  protected void detachGroupsFromLecture(Long lectureId, List<Group> lectureGroups) {
+  private void detachGroupsFromLecture(Long lectureId, List<Group> lectureGroups) {
     List<Group> groupsCopy = new ArrayList<>(lectureGroups);
     for (Group lectureGroup : groupsCopy) {
       detachGroupFromLecture(lectureGroup.getId(), lectureId);

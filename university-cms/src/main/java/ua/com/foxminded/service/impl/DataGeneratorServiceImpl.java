@@ -13,21 +13,21 @@ import java.util.stream.Collectors;
 @Service
 public class DataGeneratorServiceImpl implements DataGeneratorService {
 
-    private final List<DataGenerator> dataGenerators;
+  private final List<DataGenerator> dataGenerators;
 
-    @Autowired
-    public DataGeneratorServiceImpl(List<DataGenerator> dataGenerators) {
-        this.dataGenerators =
-                dataGenerators.stream()
-                        .sorted(Comparator.comparingInt(DataGenerator::getOrder))
-                        .collect(Collectors.toList());
-    }
+  @Autowired
+  public DataGeneratorServiceImpl(List<DataGenerator> dataGenerators) {
+    this.dataGenerators =
+            dataGenerators.stream()
+                    .sorted(Comparator.comparingInt(DataGenerator::getOrder))
+                    .collect(Collectors.toList());
+  }
 
-    @Override
-    @PostConstruct
-    public void generateDataIfEmpty() {
-        for (DataGenerator generator : dataGenerators) {
-            generator.generateIfEmpty();
-        }
+  @Override
+  @PostConstruct
+  public void generateDataIfEmpty() {
+    for (DataGenerator generator : dataGenerators) {
+      generator.generateIfEmpty();
     }
+  }
 }
