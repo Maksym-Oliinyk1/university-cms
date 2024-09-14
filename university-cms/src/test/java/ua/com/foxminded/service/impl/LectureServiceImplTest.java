@@ -27,14 +27,14 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes = {LectureServiceImpl.class})
 class LectureServiceImplTest {
 
-  @MockBean
-  private LectureRepository lectureRepository;
+    @MockBean
+    private LectureRepository lectureRepository;
 
-  @MockBean
-  private GroupRepository groupRepository;
+    @MockBean
+    private GroupRepository groupRepository;
 
-  @Autowired
-  private LectureServiceImpl lectureService;
+    @Autowired
+    private LectureServiceImpl lectureService;
 
   @BeforeEach
   void setUp() {

@@ -42,8 +42,8 @@ public class Group {
     this.lectures = new ArrayList<>();
   }
 
-  public Group() {
-  }
+    public Group() {
+    }
 
   public Long getId() {
     return id;

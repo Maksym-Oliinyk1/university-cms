@@ -26,7 +26,7 @@ public abstract class DataGenerator {
   private static final List<String> FIRST_NAMES =
           readFilePerOneLine(FIRST_NAMES_FOR_USERS_DIRECTORY);
   private static final List<String> LAST_NAMES = readFilePerOneLine(LAST_NAMES_FOR_USER_DIRECTORY);
-  private static final String DEFAULT_PASSWORD = "111111111";
+  private static final String DEFAULT_PASSWORD = "password";
   protected final Random random = new Random();
 
   private static String generateRandomEmail(String firstName, String lastName) {

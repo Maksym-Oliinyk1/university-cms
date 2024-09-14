@@ -24,14 +24,14 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(classes = {FacultyServiceImpl.class})
 class FacultyServiceImplTest {
 
-  @MockBean
-  private FacultyRepository facultyRepository;
+    @MockBean
+    private FacultyRepository facultyRepository;
 
-  @MockBean
-  private CourseRepository courseRepository;
+    @MockBean
+    private CourseRepository courseRepository;
 
-  @Autowired
-  private FacultyServiceImpl facultyService;
+    @Autowired
+    private FacultyServiceImpl facultyService;
 
   @BeforeEach
   void setUp() {

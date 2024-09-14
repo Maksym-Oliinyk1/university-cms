@@ -30,19 +30,19 @@ class StudentServiceImplTest {
 
   private static final String USER_ROLE = "STUDENT";
 
-  @MockBean
-  private StudentRepository studentRepository;
+    @MockBean
+    private StudentRepository studentRepository;
 
-  @MockBean
-  private ImageService imageService;
+    @MockBean
+    private ImageService imageService;
 
-  @MockBean
-  private UserMapper userMapper;
-  @MockBean
-  private UserEmailServiceImpl userEmailService;
+    @MockBean
+    private UserMapper userMapper;
+    @MockBean
+    private UserEmailServiceImpl userEmailService;
 
-  @Autowired
-  private StudentServiceImpl studentService;
+    @Autowired
+    private StudentServiceImpl studentService;
 
   @BeforeEach
   void setUp() {

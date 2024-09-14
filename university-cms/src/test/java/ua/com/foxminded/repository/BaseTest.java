@@ -29,8 +29,8 @@ public abstract class BaseTest {
   private static final PostgreSQLContainer<?> postgreSQLContainer =
           new PostgreSQLContainer<>("postgres:16");
 
-  @Autowired
-  protected DataSource dataSource;
+    @Autowired
+    protected DataSource dataSource;
 
   @BeforeAll
   public static void setup() {

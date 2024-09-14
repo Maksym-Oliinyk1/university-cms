@@ -26,8 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Testcontainers
 class GroupRepositoryTest extends BaseTest {
 
-  @Autowired
-  private GroupRepository groupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
   @Test
   void findLecturesByDateBetween() {

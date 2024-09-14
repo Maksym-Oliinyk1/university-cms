@@ -33,6 +33,7 @@ class StudentControllerIntegrationTest extends BaseIntegrationTest {
     @Container
     protected static final PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+
     @Autowired
     private MockMvc mvc;
 

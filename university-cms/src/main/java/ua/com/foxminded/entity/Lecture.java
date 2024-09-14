@@ -65,8 +65,8 @@ public class Lecture {
     this.groups = new ArrayList<>();
   }
 
-  public Lecture() {
-  }
+    public Lecture() {
+    }
 
   public Long getId() {
     return id;

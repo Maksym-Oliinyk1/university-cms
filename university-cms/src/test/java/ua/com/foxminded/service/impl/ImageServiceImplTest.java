@@ -24,8 +24,8 @@ class ImageServiceImplTest {
 
   private final String USER_PROFILE_DIR = "user/profile/dir/";
   private final String APPLICATION_IMAGE_DIRECTORY = "application/images/dir/";
-  @InjectMocks
-  private ImageServiceImpl imageService;
+    @InjectMocks
+    private ImageServiceImpl imageService;
 
   @BeforeEach
   void setUp() {
