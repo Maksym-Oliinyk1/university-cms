@@ -31,8 +31,8 @@ public class Maintainer extends User implements UserDetails {
     this.id = id;
   }
 
-  public Maintainer() {
-  }
+    public Maintainer() {
+    }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

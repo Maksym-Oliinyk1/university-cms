@@ -31,8 +31,8 @@ public class Administrator extends User implements UserDetails {
     this.id = id;
   }
 
-  public Administrator() {
-  }
+    public Administrator() {
+    }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

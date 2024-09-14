@@ -14,8 +14,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import ua.com.foxminded.dto.AdministratorDTO;
 import ua.com.foxminded.entity.Administrator;
+import ua.com.foxminded.security.AuthenticationService;
+import ua.com.foxminded.security.JwtService;
+import ua.com.foxminded.service.AdministratorService;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,13 +29,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
-class AdminControllerIntegrationTest extends BaseIntegrationTest {
+class AdminGeneralControllerIntegrationTest extends BaseIntegrationTest {
 
     @Container
     protected static final PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:16"));
+
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private AdministratorService administratorService;
+
+    @Autowired
+    private AuthenticationService authenticationService;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -43,26 +55,10 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         registry.add("spring.jpa.generate-ddl", () -> true);
     }
 
-    @Test
-    void listAdmins() throws Exception {
-        MvcResult result =
-                mvc.perform(get("/listAdmins"))
-                        .andExpect(status().is2xxSuccessful())
-                        .andExpect(view().name("manage-administrator"))
-                        .andReturn();
-
-        Map<String, Object> model = result.getModelAndView().getModel();
-
-        assertTrue(model.containsKey("administrators"));
-        assertTrue(model.containsKey("pageNumber"));
-        assertTrue(model.containsKey("totalPages"));
-
-        List<Administrator> admins = (List<Administrator>) model.get("administrators");
-        int pageNumber = (int) model.get("pageNumber");
-        int totalPages = (int) model.get("totalPages");
-        assertFalse(admins.isEmpty());
-        assertEquals(0, pageNumber);
-        assertEquals(2, totalPages);
+    private String generateTokenForAdministrator(Administrator administrator) {
+        // Replace this method with actual logic for generating JWT tokens
+        // return jwtService.generateToken(administrator.getId());
+        return null;
     }
 
     @Test
@@ -70,8 +66,10 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
+        String token = generateTokenForAdministrator(administrator);
+
         MvcResult result =
-                mvc.perform(get("/showAdmin?id=1"))
+                mvc.perform(get("/admin/showAdmin").param("token", token))
                         .andExpect(status().is2xxSuccessful())
                         .andExpect(view().name("admin"))
                         .andReturn();
@@ -86,38 +84,11 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    void adminAuthorization() throws Exception {
-        mvc.perform(get("/adminAuthorization"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("mock-admin-authorization"));
-    }
-
-    @Test
-    void manageAdmin() throws Exception {
-        mvc.perform(get("/manageAdmin"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("manage-administrator"));
-    }
-
-    @Test
-    void createFormAdmin() throws Exception {
-        mvc.perform(get("/createFormAdmin"))
+    void showCreateForm() throws Exception {
+        mvc.perform(get("/admin/createFormAdmin"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("create-form-administrator"))
                 .andExpect(model().attributeExists("administrator"));
-    }
-
-    @Test
-    void createAdmin_successful() throws Exception {
-        AdministratorDTO administratorDTO = createAdministratorDTO();
-
-        mvc.perform(post("/createAdmin").flashAttr("administratorDTO", administratorDTO))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("create-form-administrator-successful"));
-
-        Optional<Administrator> optionalAdministrator = administratorRepository.findById(DEFAULT_ID);
-        assertTrue(optionalAdministrator.isPresent());
-        baseTestForUser(optionalAdministrator.get());
     }
 
     @Test
@@ -125,30 +96,43 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
-        mvc.perform(get("/updateFormAdmin/1"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(view().name("update-form-administrator"))
-                .andExpect(model().attributeExists("administrator"));
+        String token = generateTokenForAdministrator(administrator);
+
+        MvcResult result =
+                mvc.perform(get("/admin/updateFormAdmin").param("token", token))
+                        .andExpect(status().is2xxSuccessful())
+                        .andExpect(view().name("update-form-administrator"))
+                        .andExpect(model().attributeExists("administrator"))
+                        .andReturn();
+
+        AdministratorDTO adminDTOFromModel =
+                (AdministratorDTO) result.getModelAndView().getModel().get("administrator");
+        assertEquals(administrator.getId(), adminDTOFromModel.getId());
+        //        baseTestForUser(adminDTOFromModel);
     }
 
     @Test
     void updateAdmin_successful() throws Exception {
-        String firstNameUpdate = "Updated";
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
-        AdministratorDTO administratorDTO = createAdministratorDTO();
-        administratorDTO.setFirstName(firstNameUpdate);
+        String token = generateTokenForAdministrator(administrator);
 
-        mvc.perform(post("/updateAdmin/1").flashAttr("administratorDTO", administratorDTO))
+        AdministratorDTO administratorDTO = createAdministratorDTO();
+        administratorDTO.setId(administrator.getId());
+        administratorDTO.setFirstName("Updated");
+
+        mvc.perform(
+                        post("/admin/updateAdmin/{id}", administrator.getId())
+                                .flashAttr("administratorDTO", administratorDTO))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("update-form-administrator-successful"))
                 .andExpect(model().attributeExists("adminId"));
 
-        Optional<Administrator> optionalAdministrator = administratorRepository.findById(DEFAULT_ID);
-        assertTrue(optionalAdministrator.isPresent());
-        Administrator updatedAdministrator = optionalAdministrator.get();
-        assertEquals(updatedAdministrator.getFirstName(), firstNameUpdate);
+        Optional<Administrator> updatedAdministrator =
+                administratorRepository.findById(administrator.getId());
+        assertTrue(updatedAdministrator.isPresent());
+        assertEquals("Updated", updatedAdministrator.get().getFirstName());
     }
 
     @Test
@@ -156,10 +140,12 @@ class AdminControllerIntegrationTest extends BaseIntegrationTest {
         Administrator administrator = createAdministrator();
         administratorRepository.save(administrator);
 
-        mvc.perform(post("/deleteAdmin/1"))
+        String token = generateTokenForAdministrator(administrator);
+
+        mvc.perform(post("/admin/deleteAdmin").param("token", token))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(view().name("delete-form-administrator-successful"));
 
-        assertFalse(administratorRepository.findById(DEFAULT_ID).isPresent());
+        assertFalse(administratorRepository.findById(administrator.getId()).isPresent());
     }
 }

@@ -22,6 +22,7 @@ public class Teacher extends User implements UserDetails {
 
   @Column(name = "academic_degree")
   private String academicDegree;
+
   @OneToMany(mappedBy = "teacher")
   private List<Lecture> lectures;
 
@@ -42,8 +43,8 @@ public class Teacher extends User implements UserDetails {
     this.lectures = new ArrayList<>();
   }
 
-  public Teacher() {
-  }
+    public Teacher() {
+    }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

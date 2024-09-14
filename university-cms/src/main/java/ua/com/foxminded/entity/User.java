@@ -71,8 +71,8 @@ public abstract class User {
     this.authority = authority;
   }
 
-  protected User() {
-  }
+    protected User() {
+    }
 
   public Long getId() {
     return id;

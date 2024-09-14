@@ -28,8 +28,8 @@ public class Faculty {
     this.courses = new ArrayList<>();
   }
 
-  public Faculty() {
-  }
+    public Faculty() {
+    }
 
   public Long getId() {
     return id;

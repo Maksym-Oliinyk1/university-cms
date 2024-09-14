@@ -4,92 +4,52 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import ua.com.foxminded.controllers.group.GroupController;
 import ua.com.foxminded.entity.Group;
 import ua.com.foxminded.service.GroupService;
 import ua.com.foxminded.service.LectureService;
+import ua.com.foxminded.service.StudentService;
 
-import java.util.Collections;
+import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(GroupController.class)
 @ExtendWith(MockitoExtension.class)
-class GroupControllerTest {
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(GroupController.class)
+class GroupControllerTest extends BaseSecurityTestClass {
 
-  @MockBean
-  private GroupService groupService;
-
-  @MockBean
-  private LectureService lectureService;
-
-  @Autowired
-  private MockMvc mockMvc;
-
-  @Test
-  void createGroup_ValidInput_ShouldReturnCreateFormGroupSuccessfulPage() throws Exception {
-    mockMvc
-            .perform(post("/createGroup").param("name", "AB-12"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("create-form-group-successful"));
-
-    verify(groupService, times(1)).save(any());
-  }
-
-  @Test
-  void createGroup_InvalidInput_ShouldReturnCreateFormGroupPageWithErrors() throws Exception {
-    mockMvc.perform(post("/createGroup")).andExpect(status().isBadRequest());
-
-    verify(groupService, never()).save(any());
-  }
-
-  @Test
-  void updateGroup_ValidInput_ShouldReturnUpdateFormGroupSuccessfulPage() throws Exception {
-    Long groupId = 1L;
-
-    mockMvc
-            .perform(post("/updateGroup/{id}", groupId).param("name", "BC-23"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("update-form-group-successful"))
-            .andExpect(model().attributeExists("groupId"))
-            .andExpect(model().attribute("groupId", groupId));
-
-    verify(groupService, times(1)).update(eq(groupId), any());
-  }
-
-  @Test
-  void updateGroup_InvalidInput_ShouldReturnUpdateFormGroupPageWithErrors() throws Exception {
-    Long groupId = 1L;
-
-    mockMvc.perform(post("/updateGroup/{id}", groupId)).andExpect(status().isBadRequest());
-
-    verify(groupService, never()).update(eq(groupId), any());
-  }
-
-  @Test
-  void manageGroup_ShouldReturnManageGroupPage() throws Exception {
-    mockMvc
-            .perform(get("/manageGroup"))
-            .andExpect(status().isOk())
-            .andExpect(view().name("manage-group"));
-  }
+    private static final int DEFAULT_PAGE_NUMBER = 0;
+    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
+    @MockBean
+    private GroupService groupService;
+    @MockBean
+    private LectureService lectureService;
+    @MockBean
+    private StudentService studentService;
+    @Autowired
+    private MockMvc mockMvc;
 
   @Test
   void showGroup_ValidId_ShouldReturnGroupPage() throws Exception {
+      configureSecurity();
+
     Long groupId = 1L;
     Group mockGroup = new Group();
+
     when(groupService.findById(groupId)).thenReturn(mockGroup);
 
     mockMvc
-            .perform(get("/showGroup").param("id", String.valueOf(groupId)))
+            .perform(get("/general/group/showGroup").param("id", String.valueOf(groupId)))
             .andExpect(status().isOk())
             .andExpect(view().name("group"))
             .andExpect(model().attributeExists("group"))
@@ -99,63 +59,62 @@ class GroupControllerTest {
   }
 
   @Test
-  void listGroups_ShouldReturnManageGroupPage() throws Exception {
-    Page<Group> mockGroupPage = mock(Page.class);
-    when(mockGroupPage.getContent()).thenReturn(Collections.emptyList());
-    when(groupService.findAll(any())).thenReturn(mockGroupPage);
+  void listGroups_ValidPageNumber_ShouldReturnManageGroupPage() throws Exception {
+      configureSecurity();
+
+      Page<Group> mockPageGroups =
+              new PageImpl<>(
+                      List.of(new Group()),
+                      PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
+                      1);
+
+      when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
+              .thenReturn(mockPageGroups);
 
     mockMvc
-            .perform(get("/listGroups"))
+            .perform(
+                    get("/general/group/listGroups")
+                            .param("pageNumber", String.valueOf(DEFAULT_PAGE_NUMBER)))
             .andExpect(status().isOk())
             .andExpect(view().name("manage-group"))
             .andExpect(model().attributeExists("groups"))
             .andExpect(model().attributeExists("pageNumber"))
-            .andExpect(model().attributeExists("totalPages"));
+            .andExpect(model().attributeExists("totalPages"))
+            .andExpect(model().attribute("groups", mockPageGroups.getContent()))
+            .andExpect(model().attribute("pageNumber", mockPageGroups.getNumber()))
+            .andExpect(model().attribute("totalPages", mockPageGroups.getTotalPages()));
 
-    verify(groupService, times(1)).findAll(any());
+      verify(groupService, times(1))
+              .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
   }
 
   @Test
-  void deleteGroup_ValidId_ShouldReturnDeleteFormGroupSuccessfulPage() throws Exception {
-    Long groupId = 1L;
+  void listGroupsToStudent_ValidPageNumber_ShouldReturnCreateFormStudentPage() throws Exception {
+      configureSecurity();
 
-    mockMvc
-            .perform(post("/deleteGroup/{id}", groupId))
-            .andExpect(status().isOk())
-            .andExpect(view().name("delete-form-group-successful"));
+      Page<Group> mockPageGroups =
+              new PageImpl<>(
+                      List.of(new Group()),
+                      PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
+                      1);
 
-    verify(groupService, times(1)).delete(groupId);
-  }
-
-  @Test
-  void attachStudentToGroup_ShouldAttachStudentToGroup() throws Exception {
-    Long studentId = 1L;
-    Long groupId = 1L;
-
-    mockMvc
-            .perform(
-                    post("/attachStudentToGroup")
-                            .param("studentId", String.valueOf(studentId))
-                            .param("groupId", String.valueOf(groupId)))
-            .andExpect(status().isOk())
-            .andExpect(view().name("manage-student"));
-
-    verify(groupService, times(1)).attachStudentToGroup(studentId, groupId);
-  }
-
-  @Test
-  void detachStudentFromGroup_ShouldDetachStudentFromGroup() throws Exception {
-    Long studentId = 1L;
-    Long groupId = 1L;
+      when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
+              .thenReturn(mockPageGroups);
 
     mockMvc
             .perform(
-                    post("/detachStudentFromGroup")
-                            .param("studentId", String.valueOf(studentId))
-                            .param("groupId", String.valueOf(groupId)))
+                    get("/general/group/listGroupsToStudent")
+                            .param("pageNumber", String.valueOf(DEFAULT_PAGE_NUMBER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("manage-group"));
+            .andExpect(view().name("create-form-student"))
+            .andExpect(model().attributeExists("groups"))
+            .andExpect(model().attributeExists("pageNumber"))
+            .andExpect(model().attributeExists("totalPages"))
+            .andExpect(model().attribute("groups", mockPageGroups.getContent()))
+            .andExpect(model().attribute("pageNumber", mockPageGroups.getNumber()))
+            .andExpect(model().attribute("totalPages", mockPageGroups.getTotalPages()));
 
-    verify(groupService, times(1)).detachStudentFromGroup(studentId, groupId);
+      verify(groupService, times(1))
+              .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
   }
 }

@@ -33,8 +33,8 @@ public class Course {
     this.faculty = faculty;
   }
 
-  public Course() {
-  }
+    public Course() {
+    }
 
   public Long getId() {
     return id;

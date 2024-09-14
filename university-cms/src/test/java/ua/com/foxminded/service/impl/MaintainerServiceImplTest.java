@@ -31,19 +31,19 @@ class MaintainerServiceImplTest {
 
   private static final String USER_ROLE = "MAINTAINER";
 
-  @MockBean
-  private MaintainerRepository maintainerRepository;
+    @MockBean
+    private MaintainerRepository maintainerRepository;
 
-  @MockBean
-  private ImageService imageService;
+    @MockBean
+    private ImageService imageService;
 
-  @MockBean
-  private UserMapper userMapper;
-  @MockBean
-  private UserEmailService userEmailService;
+    @MockBean
+    private UserMapper userMapper;
+    @MockBean
+    private UserEmailService userEmailService;
 
-  @Autowired
-  private MaintainerServiceImpl maintainerService;
+    @Autowired
+    private MaintainerServiceImpl maintainerService;
 
   @BeforeEach
   void setUp() {

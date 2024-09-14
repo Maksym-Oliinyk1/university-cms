@@ -39,8 +39,8 @@ public class Student extends User implements UserDetails {
     this.id = id;
   }
 
-  public Student() {
-  }
+    public Student() {
+    }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

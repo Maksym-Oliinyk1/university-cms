@@ -32,8 +32,7 @@ public class SecurityConfiguration {
           "/getList/**",
           "/showStudent",
           "/auth/authenticate",
-          "/auth/**",
-          "/general/**",
+          "/auth",
           "/showImages/**",
           "/listStudentsByGroup",
           "/css/**"
@@ -62,7 +61,7 @@ public class SecurityConfiguration {
                                     .requestMatchers("/manage/**")
                                     .hasAnyAuthority("MAINTAINER", "ADMINISTRATOR")
                                     .requestMatchers("/maintainer/**")
-                                    .hasRole("MAINTAINER")
+                                    .hasAuthority("MAINTAINER")
                                     .anyRequest()
                                     .authenticated())
             .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -76,7 +75,6 @@ public class SecurityConfiguration {
                                             (req, res, authentication) -> res.setStatus(HttpServletResponse.SC_OK))
                                     .invalidateHttpSession(true)
                                     .deleteCookies("JSESSIONID", "jwtToken"));
-
     return http.build();
   }
 }

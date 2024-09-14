@@ -30,19 +30,19 @@ class AdministratorServiceImplTest {
 
   private static final String USER_ROLE = "ADMIN";
 
-  @MockBean
-  private AdministratorRepository administratorRepository;
+    @MockBean
+    private AdministratorRepository administratorRepository;
 
-  @MockBean
-  private ImageService imageService;
+    @MockBean
+    private ImageService imageService;
 
-  @MockBean
-  private UserMapper userMapper;
-  @MockBean
-  private UserEmailServiceImpl userEmailService;
+    @MockBean
+    private UserMapper userMapper;
+    @MockBean
+    private UserEmailServiceImpl userEmailService;
 
-  @Autowired
-  private AdministratorServiceImpl administratorService;
+    @Autowired
+    private AdministratorServiceImpl administratorService;
 
   @BeforeEach
   void setUp() {
