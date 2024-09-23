@@ -28,20 +28,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(GroupController.class)
 class GroupControllerTest extends BaseSecurityTestClass {
 
-    private static final int DEFAULT_PAGE_NUMBER = 0;
-    private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
-    @MockBean
-    private GroupService groupService;
-    @MockBean
-    private LectureService lectureService;
-    @MockBean
-    private StudentService studentService;
-    @Autowired
-    private MockMvc mockMvc;
+  private static final int DEFAULT_PAGE_NUMBER = 0;
+  private static final int DEFAULT_AMOUNT_TO_VIEW_ENTITY = 10;
+  @MockBean
+  private GroupService groupService;
+  @MockBean
+  private LectureService lectureService;
+  @MockBean
+  private StudentService studentService;
+  @Autowired
+  private MockMvc mockMvc;
 
   @Test
   void showGroup_ValidId_ShouldReturnGroupPage() throws Exception {
-      configureSecurity();
+    configureSecurity();
 
     Long groupId = 1L;
     Group mockGroup = new Group();
@@ -60,16 +60,16 @@ class GroupControllerTest extends BaseSecurityTestClass {
 
   @Test
   void listGroups_ValidPageNumber_ShouldReturnManageGroupPage() throws Exception {
-      configureSecurity();
+    configureSecurity();
 
-      Page<Group> mockPageGroups =
-              new PageImpl<>(
-                      List.of(new Group()),
-                      PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
-                      1);
+    Page<Group> mockPageGroups =
+            new PageImpl<>(
+                    List.of(new Group()),
+                    PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
+                    1);
 
-      when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
-              .thenReturn(mockPageGroups);
+    when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
+            .thenReturn(mockPageGroups);
 
     mockMvc
             .perform(
@@ -84,22 +84,22 @@ class GroupControllerTest extends BaseSecurityTestClass {
             .andExpect(model().attribute("pageNumber", mockPageGroups.getNumber()))
             .andExpect(model().attribute("totalPages", mockPageGroups.getTotalPages()));
 
-      verify(groupService, times(1))
-              .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    verify(groupService, times(1))
+            .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
   }
 
   @Test
   void listGroupsToStudent_ValidPageNumber_ShouldReturnCreateFormStudentPage() throws Exception {
-      configureSecurity();
+    configureSecurity();
 
-      Page<Group> mockPageGroups =
-              new PageImpl<>(
-                      List.of(new Group()),
-                      PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
-                      1);
+    Page<Group> mockPageGroups =
+            new PageImpl<>(
+                    List.of(new Group()),
+                    PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY),
+                    1);
 
-      when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
-              .thenReturn(mockPageGroups);
+    when(groupService.findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY)))
+            .thenReturn(mockPageGroups);
 
     mockMvc
             .perform(
@@ -114,7 +114,7 @@ class GroupControllerTest extends BaseSecurityTestClass {
             .andExpect(model().attribute("pageNumber", mockPageGroups.getNumber()))
             .andExpect(model().attribute("totalPages", mockPageGroups.getTotalPages()));
 
-      verify(groupService, times(1))
-              .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
+    verify(groupService, times(1))
+            .findAll(PageRequest.of(DEFAULT_PAGE_NUMBER, DEFAULT_AMOUNT_TO_VIEW_ENTITY));
   }
 }

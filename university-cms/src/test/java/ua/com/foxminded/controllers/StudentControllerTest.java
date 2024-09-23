@@ -24,18 +24,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(StudentGeneralController.class)
 class StudentControllerTest {
 
-  @MockBean
-  private StudentService studentService;
+    @MockBean
+    private StudentService studentService;
 
   private static final String token = "validToken";
   private static final Long userId = 1L;
 
-  @Autowired
-  private MockMvc mockMvc;
-  @MockBean
-  private JwtService jwtService;
-  @MockBean
-  private AuthenticationService authenticationService;
+    @Autowired
+    private MockMvc mockMvc;
+    @MockBean
+    private JwtService jwtService;
+    @MockBean
+    private AuthenticationService authenticationService;
 
   private void configureSecurity() {
     when(jwtService.extractUserId(token)).thenReturn(userId);

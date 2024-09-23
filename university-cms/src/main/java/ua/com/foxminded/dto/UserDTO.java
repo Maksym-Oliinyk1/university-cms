@@ -19,16 +19,16 @@ public abstract class UserDTO {
   @NotNull
   private String lastName;
 
-  @NotNull
-  private Gender gender;
+    @NotNull
+    private Gender gender;
 
-  @NotNull
-  private LocalDate birthDate;
+    @NotNull
+    private LocalDate birthDate;
 
   private Authorities authority;
 
-  @NotNull
-  private String password;
+    @NotNull
+    private String password;
 
   @Pattern(regexp = "^[a-zA-Z\\d._%+-]+@[a-zA-Z\\d.-]+\\.[a-zA-Z]{2,}$")
   @NotNull
@@ -36,8 +36,8 @@ public abstract class UserDTO {
 
   private MultipartFile image;
 
-  UserDTO() {
-  }
+    UserDTO() {
+    }
 
   public Long getId() {
     return id;

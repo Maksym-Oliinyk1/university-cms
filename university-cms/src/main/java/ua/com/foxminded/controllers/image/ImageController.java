@@ -1,4 +1,4 @@
-package ua.com.foxminded.controllers;
+package ua.com.foxminded.controllers.image;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

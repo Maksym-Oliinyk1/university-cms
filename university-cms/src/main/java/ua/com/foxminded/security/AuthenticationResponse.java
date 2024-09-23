@@ -8,8 +8,8 @@ public class AuthenticationResponse {
     this.token = token;
   }
 
-  public AuthenticationResponse() {
-  }
+    public AuthenticationResponse() {
+    }
 
   public String getToken() {
     return token;
