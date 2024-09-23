@@ -52,8 +52,8 @@ public abstract class DataGenerator {
     }
   }
 
-    public void generateIfEmpty() {
-    }
+  public void generateIfEmpty() {
+  }
 
   protected void fillUserFields(UserDTO userDTO) {
     String firstName = FIRST_NAMES.get(random.nextInt(FIRST_NAMES.size()));

@@ -77,7 +77,7 @@ public class MaintainerServiceImpl implements MaintainerService {
       existingMaintainer.setEmail(maintainerDTO.getEmail());
       existingMaintainer.setPassword(maintainerDTO.getPassword());
       if (maintainerDTO.getImage() == null || maintainerDTO.getImage().isEmpty()) {
-        imageService.deleteUserImage(existingMaintainer.getImageName());
+        // imageService.deleteUserImage(existingMaintainer.getImageName());
         existingMaintainer.setImageName(
                 imageService.getDefaultIUserImage(maintainerDTO.getGender(), MAINTAINER_ROLE));
       } else {

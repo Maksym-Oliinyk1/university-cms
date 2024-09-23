@@ -1,20 +1,19 @@
 package ua.com.foxminded.service.impl;
 
-import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
 import ua.com.foxminded.enums.Gender;
 import ua.com.foxminded.service.ImageService;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -22,6 +21,9 @@ import java.util.UUID;
 @Service
 public class ImageServiceImpl implements ImageService {
 
+  private static final Logger logger = LoggerFactory.getLogger(ImageServiceImpl.class);
+  private static final String IMAGE_FOLDER = "application-images/";
+  private static final String USER_FOLDER = "user-images/";
   private static final String DEFAULT_FEMALE_STUDENT_AVATAR = "student_female.png";
   private static final String DEFAULT_MALE_STUDENT_MALE_AVATAR = "student_male.png";
   private static final String DEFAULT_FEMALE_TEACHER_AVATAR = "teacher_female.png";
@@ -45,38 +47,13 @@ public class ImageServiceImpl implements ImageService {
     DEFAULT_IMAGES.put("STUDENT" + MALE_GENDER, DEFAULT_MALE_STUDENT_MALE_AVATAR);
   }
 
-  private final PathMatchingResourcePatternResolver resourcePatternResolver =
-          new PathMatchingResourcePatternResolver();
+  private final S3Client s3Client;
+  private final String s3BucketName;
 
-  @Value("${app.image.storage.userProfileDirectory}")
-  private String userProfileDirPath;
-
-  @Value("${app.image.storage.applicationImagesDirectory}")
-  private String applicationImagesDirectory;
-
-  @PostConstruct
-  public void init() {
-    try {
-      Path directoryPath = Paths.get(applicationImagesDirectory);
-      if (!Files.exists(directoryPath)) {
-        Files.createDirectories(directoryPath);
-      }
-      Resource[] resources = resourcePatternResolver.getResources("classpath:/static/images/*.*");
-      for (Resource resource : resources) {
-        if (resource.isReadable()) {
-          String filename = Paths.get(resource.getURI()).getFileName().toString();
-          Path destinationFile = directoryPath.resolve(filename);
-
-          if (!Files.exists(destinationFile)) {
-            try (InputStream inputStream = resource.getInputStream()) {
-              Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-            }
-          }
-        }
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Could not initialize storage with default images", e);
-    }
+  @Autowired
+  public ImageServiceImpl(S3Client s3Client, @Value("${aws.s3.bucket-name}") String s3BucketName) {
+    this.s3Client = s3Client;
+    this.s3BucketName = s3BucketName;
   }
 
   @Override
@@ -87,25 +64,27 @@ public class ImageServiceImpl implements ImageService {
       String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
 
       String imageName = generateUniqueImageName(userRole, fileExtension);
-      Path path = Paths.get(userProfileDirPath + imageName);
+      String s3Key = USER_FOLDER + imageName;
 
-      Files.write(path, bytes);
+      s3Client.putObject(
+              PutObjectRequest.builder().bucket(s3BucketName).key(s3Key).build(),
+              RequestBody.fromBytes(bytes));
 
+      logger.info("Image for an user: {}", userId.toString(), " is saved");
       return imageName;
     } catch (IOException e) {
-      throw new RuntimeException(e.getMessage());
+      throw new RuntimeException("Failed to save image", e);
     }
   }
 
   @Override
   public void deleteUserImage(String imageName) {
-    if (imageName != null) {
-      Path imagePath = Paths.get(userProfileDirPath, imageName);
-      try {
-        Files.deleteIfExists(imagePath);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+    try {
+      String s3Key = USER_FOLDER + imageName;
+      s3Client.deleteObject(DeleteObjectRequest.builder().bucket(s3BucketName).key(s3Key).build());
+      logger.info("Image {},", imageName, " is deleted");
+    } catch (S3Exception e) {
+      throw new RuntimeException("Failed to delete image", e);
     }
   }
 
@@ -116,39 +95,33 @@ public class ImageServiceImpl implements ImageService {
 
   @Override
   public byte[] readImageAsBytes(String imageName) {
-    Path imagePath = determineImagePath(imageName);
-    if (Files.exists(imagePath)) {
-      try {
-        return Files.readAllBytes(imagePath);
-      } catch (IOException e) {
-        throw new RuntimeException("Error reading image file: " + imageName, e);
-      }
-    } else {
-      throw new RuntimeException("Image not found with name: " + imageName);
-    }
-  }
+    try {
+      String userKey = USER_FOLDER + imageName;
 
-  private Path determineImagePath(String imageName) {
-    Path path = Paths.get(userProfileDirPath, imageName);
-    if (Files.exists(path)) {
-      return path;
+      GetObjectRequest userGetObjectRequest =
+              GetObjectRequest.builder().bucket(s3BucketName).key(userKey).build();
+
+      try {
+        ResponseBytes<GetObjectResponse> userObjectBytes =
+                s3Client.getObjectAsBytes(userGetObjectRequest);
+        return userObjectBytes.asByteArray();
+      } catch (S3Exception ignored) {
+      }
+
+      String defaultKey = IMAGE_FOLDER + imageName;
+
+      GetObjectRequest defaultGetObjectRequest =
+              GetObjectRequest.builder().bucket(s3BucketName).key(defaultKey).build();
+
+      ResponseBytes<GetObjectResponse> defaultObjectBytes =
+              s3Client.getObjectAsBytes(defaultGetObjectRequest);
+      return defaultObjectBytes.asByteArray();
+    } catch (S3Exception e) {
+      throw new RuntimeException("Failed to read image: " + imageName, e);
     }
-    path = Paths.get(applicationImagesDirectory, imageName);
-    if (Files.exists(path)) {
-      return path;
-    }
-    throw new RuntimeException("Image not found with name: " + imageName);
   }
 
   private String generateUniqueImageName(String userRole, String fileExtension) {
-    String imageName;
-    Path path;
-
-    do {
-      imageName = String.format("%s_%s.%s", UUID.randomUUID(), userRole, fileExtension);
-      path = Paths.get(userProfileDirPath, imageName);
-    } while (Files.exists(path));
-
-    return imageName;
+    return String.format("%s_%s%s", UUID.randomUUID(), userRole, fileExtension);
   }
 }
