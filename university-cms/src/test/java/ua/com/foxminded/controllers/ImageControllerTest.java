@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ua.com.foxminded.controllers.image.ImageController;
 import ua.com.foxminded.service.ImageService;
 import ua.com.foxminded.utill.UtilController;
 

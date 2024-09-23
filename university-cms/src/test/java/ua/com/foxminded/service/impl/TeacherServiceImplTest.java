@@ -36,22 +36,22 @@ class TeacherServiceImplTest {
 
   private static final String USER_ROLE = "TEACHER";
 
-  @MockBean
-  private TeacherRepository teacherRepository;
+    @MockBean
+    private TeacherRepository teacherRepository;
 
-  @MockBean
-  private LectureRepository lectureRepository;
+    @MockBean
+    private LectureRepository lectureRepository;
 
-  @MockBean
-  private ImageService imageService;
+    @MockBean
+    private ImageService imageService;
 
-  @MockBean
-  private UserMapper userMapper;
-  @MockBean
-  private UserEmailServiceImpl userEmailService;
+    @MockBean
+    private UserMapper userMapper;
+    @MockBean
+    private UserEmailServiceImpl userEmailService;
 
-  @Autowired
-  private TeacherServiceImpl teacherService;
+    @Autowired
+    private TeacherServiceImpl teacherService;
 
   @BeforeEach
   void setUp() {
